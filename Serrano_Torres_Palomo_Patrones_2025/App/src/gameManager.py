@@ -34,7 +34,7 @@ class GameManager(Singleton):
         Inicializa los elementos del juego
         '''
         self.mouse= MouseControl(self)
-        self.structures=[MineCreator().createStructure((200,200),1), WellCreator().createStructure((400,400),2)] #usando factory method 
+        self.structures=[MineCreator().createStructure((200,200),1,self), WellCreator().createStructure((400,400),2,self)] #usando factory method 
     def update(self):
         '''
         Este metodo es llamado cada frame 
@@ -57,7 +57,7 @@ class GameManager(Singleton):
 
         self.screen.fill('black')
         for structure in self.structures:
-            structure.draw(self.screen)
+            structure.draw()
         self.mouse.draw()
 
     def checkEvents(self):
