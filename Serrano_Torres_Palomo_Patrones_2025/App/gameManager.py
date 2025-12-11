@@ -1,0 +1,66 @@
+
+import pygame as pg
+import sys
+from settings import *
+from mouseControl import *
+
+class GameManager:
+    def __init__(self):
+        '''
+        Esto inicializa el juego con las configuraciones de settings, se llama al inicio
+        '''
+        
+        pg.init() #inicializa pygame
+        self.screen = pg.display.set_mode(RESOLUTION) #establece resolucion de pantalla
+        pg.display.set_caption("Jueguito") #nombre de la ventana
+
+        #gestion fps
+        self.clock = pg.time.Clock() 
+        self.delta_time=1
+
+        #"inicio" como tal del juego
+        self.running = True
+        self.new_game()
+
+    def new_game(self):
+        '''
+        Inicializa los elementos del juego
+        '''
+        self.mouse= MouseControl(self)
+        
+    def update(self):
+        '''
+        Este metodo es llamado cada frame 
+        '''
+        #update de clases
+        self.mouse.update()
+
+        #pantalla
+        pg.display.flip() #actualiza la pantalla
+        self.delta_time=self.clock.tick(FPS) #gestion de fps
+        pg.display.set_caption(f'{self.clock.get_fps() :.1f}') #actualiza el nombre de la ventana según los fps actuales
+    
+    
+    def draw(self):
+        ''' 
+        dibuja los elementos en pantalla, si no me equivo el orden importa
+        '''
+
+        self.screen.fill('black')
+        self.mouse.draw()
+
+    def checkEvents(self):
+        ''' chequea los eventos de pygame '''
+        for event in pg.event.get():
+            self.mouse.checkClickEvent(event) #chequea si se ha clickado
+            if event.type == pg.QUIT or (event.type== pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                self.running = False
+                pg.quit()
+                sys.exit()
+
+    def run(self):
+        ''' Esto hace que se corra el juego'''
+        while self.running:
+            self.checkEvents()
+            self.update()
+            self.draw()
