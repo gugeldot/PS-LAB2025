@@ -3,13 +3,16 @@ import pygame as pg
 import sys
 from settings import *
 from mouseControl import *
+from patterns.singleton import *
 
-class GameManager:
+class GameManager(Singleton):
+    _initialized = False #para el singleton
     def __init__(self):
         '''
         Esto inicializa el juego con las configuraciones de settings, se llama al inicio
         '''
-        
+        if self._initialized: #para el singleton
+            return
         pg.init() #inicializa pygame
         self.screen = pg.display.set_mode(RESOLUTION) #establece resolucion de pantalla
         pg.display.set_caption("Jueguito") #nombre de la ventana
