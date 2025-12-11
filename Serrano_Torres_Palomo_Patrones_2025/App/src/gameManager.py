@@ -4,6 +4,8 @@ import sys
 from settings import *
 from mouseControl import *
 from patterns.singleton import *
+from mine import *
+from well import *
 
 class GameManager(Singleton):
     _initialized = False #para el singleton
@@ -30,10 +32,12 @@ class GameManager(Singleton):
         Inicializa los elementos del juego
         '''
         self.mouse= MouseControl(self)
+        self.structures=[Mine((200,200),1),Well((400,400),2)] #ejemplo de estructuras
         
     def update(self):
         '''
         Este metodo es llamado cada frame 
+        recomendacion: crear metodo draw en las clases y llamarlos aqui, en unity tambien se suele hacer asi
         '''
         #update de clases
         self.mouse.update()
@@ -47,9 +51,12 @@ class GameManager(Singleton):
     def draw(self):
         ''' 
         dibuja los elementos en pantalla, si no me equivo el orden importa
+        recomendacion: crear metodo draw en las clases y llamarlos aqui
         '''
 
         self.screen.fill('black')
+        for structure in self.structures:
+            structure.draw(self.screen)
         self.mouse.draw()
 
     def checkEvents(self):
