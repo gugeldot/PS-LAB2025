@@ -38,7 +38,7 @@ class GameManager(Singleton):
     def update(self):
         '''
         Este metodo es llamado cada frame 
-        recomendacion: crear metodo draw en las clases y llamarlos aqui, en unity tambien se suele hacer asi
+        recomendacion: crear metodo update en las clases y llamarlos aqui, en unity tambien se suele hacer asi
         '''
         #update de clases
         self.mouse.update()

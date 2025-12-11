@@ -4,10 +4,11 @@ import gameManager
 from .structure import *
 from core.structure import Structure
 
-class MergerModule(Structure,gameManager):
+class MergerModule(Structure):
 
-    def __init__(self,position):
+    def __init__(self,position,gameManager):
         self.position = pg.Vector2(position)
+        self.gameManager=gameManager
 
         #si son parte del composite entonces cambiar
         self.inConveyorSlot1 = None
@@ -17,8 +18,10 @@ class MergerModule(Structure,gameManager):
 
         self.radius = 15
         self.color = (0, 0, 255)  #azu
+
     def update(self):
         pass
+    
     def draw(self):
         pg.draw.circle(self.gameManager.screen, self.color, (self.position.x, self.position.y), self.radius)
         

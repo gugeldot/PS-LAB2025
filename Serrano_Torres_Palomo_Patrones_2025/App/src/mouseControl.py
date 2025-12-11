@@ -12,6 +12,7 @@ class MouseControl:
         pg.mouse.set_visible(False)
         self.cursor_img = pg.image.load("Assets/Sprites/cursor.png").convert_alpha()  # convert_alpha() para transparencia
         self.cursor_img = pg.transform.scale(self.cursor_img, (MOUSE_WIDTH, MOUSE_HEIGHT)) #ajustar tamaño a tamaño especificado en setting
+    
     def update(self):
         '''
         '''
