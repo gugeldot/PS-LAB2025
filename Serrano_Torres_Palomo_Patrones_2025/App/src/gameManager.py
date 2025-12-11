@@ -4,8 +4,10 @@ import sys
 from settings import *
 from mouseControl import *
 from patterns.singleton import *
-from mine import *
-from well import *
+from core.mine import *
+from core.well import *
+from core.mineCreator import *
+from core.wellCreator import *
 
 class GameManager(Singleton):
     _initialized = False #para el singleton
@@ -32,8 +34,7 @@ class GameManager(Singleton):
         Inicializa los elementos del juego
         '''
         self.mouse= MouseControl(self)
-        self.structures=[Mine((200,200),1),Well((400,400),2)] #ejemplo de estructuras
-        
+        self.structures=[MineCreator().createStructure((200,200),1), WellCreator().createStructure((400,400),2)] #usando factory method 
     def update(self):
         '''
         Este metodo es llamado cada frame 

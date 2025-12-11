@@ -1,5 +1,5 @@
 import pygame as pg
-from structure import *
+from .structure import *
 
 class Mine(Structure):
     def __init__(self, position, number):
