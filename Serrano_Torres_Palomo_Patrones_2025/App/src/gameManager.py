@@ -8,6 +8,8 @@ from core.mine import *
 from core.well import *
 from core.mineCreator import *
 from core.wellCreator import *
+from core.mergerCreator import *
+from core.splitterCreator import *
 
 class GameManager(Singleton):
     _initialized = False #para el singleton
@@ -34,7 +36,8 @@ class GameManager(Singleton):
         Inicializa los elementos del juego
         '''
         self.mouse= MouseControl(self)
-        self.structures=[MineCreator().createStructure((200,200),1,self), WellCreator().createStructure((400,400),2,self)] #usando factory method 
+        self.structures=[MineCreator().createStructure((200,200),1,self), WellCreator().createStructure((400,400),2,self),MergerCreator().createStructure((300,300),self),SplitterCreator().createStructure((500,500),self)] #usando factory method 
+
     def update(self):
         '''
         Este metodo es llamado cada frame 
@@ -61,8 +64,8 @@ class GameManager(Singleton):
         self.mouse.draw()
 
     def checkEvents(self):
-        ''' chequea los eventos de pygame '''
-        for event in pg.event.get():
+        ''' chequea los eventos de pygame, tiene su propia cola de eventos, es lo que va comprobando el for de abajo'''
+        for event in pg.event.get(): #el propio pygame maneja una cola de eventos, los lee uno por uno y los procesa
             self.mouse.checkClickEvent(event) #chequea si se ha clickado
             if event.type == pg.QUIT or (event.type== pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 self.running = False

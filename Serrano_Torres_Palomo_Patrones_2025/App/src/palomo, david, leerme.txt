@@ -1,0 +1,7 @@
+para ejecutar, se hace en el main.
+en la pantalla vereis circulos, cada uno es una estructura:
+    - mina es rojo
+    - pozo verde
+    - merger azul oscuro
+    -spliter azul clarito
+el numerito es lo de que produce y consume

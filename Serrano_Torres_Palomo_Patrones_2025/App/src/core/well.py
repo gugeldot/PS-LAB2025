@@ -10,7 +10,7 @@ class Well(Structure):
         self.consumingNumber = consumingNumber
         self.gameManager = gameManager
         self.radius = 15
-        self.color = (0, 255, 0)  #verde
+        self.color = (0, 150, 0)        #verde oscuro
 
     def update(self):
         '''

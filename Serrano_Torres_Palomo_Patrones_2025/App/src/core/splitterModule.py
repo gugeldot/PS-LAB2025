@@ -4,20 +4,22 @@ import gameManager
 from .structure import *
 from core.structure import Structure
 
-class MergerModule(Structure):
+class SplitterModule(Structure):
 
     def __init__(self,position,gameManager):
         self.position = pg.Vector2(position)
         self.gameManager=gameManager
 
         #las in son las entradas y out la salida (mirar sprites del concept art)
-        self.inConveyorSlot1 = None
-        self.inConveyorSlot2 = None
-        self.inConveyotSlot3 = None
-        self.outConveyorSlot1= None
+        self.inConveyorSlot1= None
+        self.outConveyorSlot1 = None
+        self.outConveyorSlot2 = None
+        self.outConveyotSlot3 = None
 
         self.radius = 15
-        self.color = (0, 0, 255)  #azu
+        #color azul claro
+        self.color = (135, 206, 250)  #azul claro
+       
 
     def update(self):
         pass
@@ -27,6 +29,6 @@ class MergerModule(Structure):
         
     def process(self):
         '''
-        Procesa los numeros que le entran por los espacios y los combina
+        Procesa los numeros que le entran por el in y los separara en las outs
         '''
         pass
