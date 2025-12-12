@@ -10,6 +10,7 @@ from core.mineCreator import *
 from core.wellCreator import *
 from core.mergerCreator import *
 from core.splitterCreator import *
+from core.conveyor import *
 
 class GameManager(Singleton):
     _initialized = False #para el singleton
@@ -36,7 +37,17 @@ class GameManager(Singleton):
         Inicializa los elementos del juego
         '''
         self.mouse= MouseControl(self)
-        self.structures=[MineCreator().createStructure((200,200),1,self), WellCreator().createStructure((400,400),2,self),MergerCreator().createStructure((300,300),self),SplitterCreator().createStructure((500,500),self)] #usando factory method 
+        
+        self.mine = MineCreator().createStructure((200,200),1,self)
+        self.well = WellCreator().createStructure((400,200),1,self)
+        self.conveyor = Conveyor(self.mine.position, self.well.position, self)
+        
+        self.structures=[self.mine, self.conveyor, self.well, 
+                        MergerCreator().createStructure((300,300),self),
+                        SplitterCreator().createStructure((500,500),self)]
+        
+        self.production_timer = 0
+        self.consumption_timer = 0 
 
     def update(self):
         '''
@@ -45,6 +56,19 @@ class GameManager(Singleton):
         '''
         #update de clases
         self.mouse.update()
+        
+        for structure in self.structures:
+            structure.update()
+        
+        self.production_timer += self.delta_time
+        if self.production_timer > 2000:
+            self.mine.produce(self.conveyor)
+            self.production_timer = 0
+        
+        self.consumption_timer += self.delta_time
+        if self.consumption_timer > 2000:
+            self.well.consume(self.conveyor)
+            self.consumption_timer = 0
 
         #pantalla
         pg.display.flip() #actualiza la pantalla
