@@ -16,7 +16,10 @@ class Mine(Structure):
     def update(self):
         '''
         '''
-        pass  
+        pass
+    
+    def produce(self, conveyor):
+        conveyor.push(self.number)
 
     def draw(self):
         '''

@@ -15,7 +15,12 @@ class Well(Structure):
     def update(self):
         '''
         '''
-        pass  
+        pass
+    
+    def consume(self, conveyor):
+        number = conveyor.pop()
+        if number is not None and number == self.consumingNumber:
+            print(f"Well consumed {number}! ✓")
 
     def draw(self):
         '''
