@@ -39,8 +39,36 @@ class MouseControl:
         Detecta clicks del mouse
         '''
         if event.type == pg.MOUSEBUTTONDOWN:
+            # calculate grid cell from current mouse pos
+            mx, my = int(self.position.x), int(self.position.y)
+            gx = mx // CELL_SIZE_PX
+            gy = my // CELL_SIZE_PX
+
             if event.button == 1:  # Botón izquierdo
-                print("Botón izquierdo presionado en", self.position)
+                # check map presence
+                try:
+                    m = self.gameManager.map
+                    cell = m.getCell(gx, gy)
+                    if cell is None:
+                        print(f"Click izquierdo en celda ({gx}, {gy}) -> Fuera del mapa")
+                    else:
+                        if cell.isEmpty():
+                            print(f"Click izquierdo en celda ({gx}, {gy}) -> Empty")
+                        else:
+                            s = cell.structure
+                            # report basic info about the structure
+                            info = s.__class__.__name__
+                            if hasattr(s, 'number'):
+                                info += f" number={getattr(s, 'number')}"
+                            if hasattr(s, 'consumingNumber'):
+                                info += f" consumingNumber={getattr(s, 'consumingNumber')}"
+                            # try to include grid_position if available
+                            if hasattr(s, 'grid_position'):
+                                info += f" grid={getattr(s, 'grid_position')}"
+                            print(f"Click izquierdo en celda ({gx}, {gy}) -> {info}")
+                except Exception as e:
+                    print("Error al consultar el mapa en el click:", e)
+
             elif event.button == 2:  # Botón medio
                 print("Botón medio presionado en", self.position)
             elif event.button == 3:  # Botón derecho

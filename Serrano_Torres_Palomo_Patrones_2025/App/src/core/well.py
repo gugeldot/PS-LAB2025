@@ -1,16 +1,23 @@
 import pygame as pg
 from .structure import *
+from settings import CELL_SIZE_PX
+
 
 class Well(Structure):
-    def __init__(self, position,consumingNumber,gameManager):
+    def __init__(self, position, consumingNumber, gameManager):
         '''
-        Inicializa la mina en la posicion dada, con el tipo de numero que consume
+        Inicializa el pozo usando coordenadas de grilla (x,y). La posición
+        pixel se calcula a partir de CELL_SIZE_PX y el centro de la celda.
         '''
-        self.position = pg.Vector2(position)
+        gx, gy = int(position[0]), int(position[1])
+        px = gx * CELL_SIZE_PX + CELL_SIZE_PX // 2
+        py = gy * CELL_SIZE_PX + CELL_SIZE_PX // 2
+        self.grid_position = (gx, gy)
+        self.position = pg.Vector2((px, py))
         self.consumingNumber = consumingNumber
         self.gameManager = gameManager
         self.radius = 15
-        self.color = (0, 150, 0)        #verde oscuro
+        self.color = (0, 150, 0)        # verde oscuro
 
     def update(self):
         '''

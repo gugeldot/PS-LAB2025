@@ -1,17 +1,24 @@
 import pygame as pg
 from .structure import *
-from gameManager import *
+from settings import CELL_SIZE_PX
+
 
 class Mine(Structure):
-    def __init__(self, position, number,gameManager):
+    def __init__(self, position, number, gameManager):
         '''
-        Inicializa la mina en la posicion dada
+        Inicializa la mina usando coordenadas de grilla (x,y). La posición
+        pixel se calcula a partir de CELL_SIZE_PX y el centro de la celda.
         '''
-        self.position = pg.Vector2(position)
+        # position expected as grid coords (x, y)
+        gx, gy = int(position[0]), int(position[1])
+        px = gx * CELL_SIZE_PX + CELL_SIZE_PX // 2
+        py = gy * CELL_SIZE_PX + CELL_SIZE_PX // 2
+        self.grid_position = (gx, gy)
+        self.position = pg.Vector2((px, py))
         self.number = number
         self.gameManager = gameManager
         self.radius = 15
-        self.color = (255, 0, 0)  #rojo
+        self.color = (255, 0, 0)  # rojo
 
     def update(self):
         '''

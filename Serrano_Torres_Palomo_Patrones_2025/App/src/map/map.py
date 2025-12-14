@@ -51,12 +51,17 @@ class Map(Singleton):
 			return False
 
 		cell.setStructure(structure)
-		# try to update structure position to grid coordinates if attribute exists
+		# record grid coordinates on the structure without overwriting
+		# its pixel `position` (many structures use a Vector2 for pixel coords).
 		try:
-			if hasattr(structure, "position"):
+			# prefer a dedicated attribute `grid_position` if available
+			if hasattr(structure, "grid_position"):
+				structure.grid_position = (x, y)
+			# fallback: only set `position` if structure expects grid coords
+			elif getattr(structure, "expects_grid_position", False):
 				structure.position = (x, y)
 		except Exception:
-			# ignore if setting position is not supported
+			# ignore if setting attributes is not supported
 			pass
 
 		return True
