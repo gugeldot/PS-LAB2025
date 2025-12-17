@@ -53,8 +53,11 @@ class GameManager(Singleton):
         self.eff_uses_used = 0
         # Cost (in points) to redeem each upgrade
         # These can be tuned or moved to settings.py if desired
-        self.speed_cost = 5
-        self.eff_cost = 8
+        # incremental cost schedule for each of the 10 possible uses
+        # define as tuples/lists of length 10 (one cost per use index)
+        # Example default costs; adjust as desired
+        self.speed_costs = (5, 6, 7, 8, 9, 10, 12, 14, 16, 20)
+        self.eff_costs = (8, 9, 10, 11, 12, 14, 16, 18, 20, 25)
         # action buffer to store pending upgrade actions (processed in update())
         # each entry: { 'type': 'speed'|'eff', 'tries': int, 'max_tries': int }
         self.action_buffer = deque()
@@ -477,24 +480,42 @@ class GameManager(Singleton):
 
         # Speed button shows price and remaining uses, and is shaded if unaffordable or no uses
         hover_speed = self.speed_button_rect.collidepoint(mouse_pt)
-        can_buy_speed = (getattr(self, 'points', 0) >= getattr(self, 'speed_cost', 0)) and (self.speed_uses_left > 0)
+        # determine next cost for speed (based on how many uses already consumed)
+        next_speed_cost = None
+        try:
+            if 0 <= self.speed_uses_used < len(self.speed_costs):
+                next_speed_cost = int(self.speed_costs[self.speed_uses_used])
+        except Exception:
+            next_speed_cost = None
+
+        can_buy_speed = (getattr(self, 'points', 0) >= (next_speed_cost or 0)) and (self.speed_uses_left > 0)
         if not can_buy_speed:
             speed_color = (60, 60, 60)
         else:
             speed_color = (150, 150, 150) if hover_speed else (100, 100, 100)
         pg.draw.rect(self.screen, speed_color, self.speed_button_rect)
-        text_speed = font_small.render(f"Mejora Velocidad ({self.speed_cost}pts) [{self.speed_uses_left}]", True, (255, 255, 255))
+        speed_label_cost = f"{next_speed_cost}pts" if next_speed_cost is not None else "N/A"
+        text_speed = font_small.render(f"Mejora Velocidad ({speed_label_cost}) [{self.speed_uses_left}]", True, (255, 255, 255))
         self.screen.blit(text_speed, text_speed.get_rect(center=self.speed_button_rect.center))
 
         # Efficiency button shows price and remaining uses, and is shaded if unaffordable or no uses
         hover_eff = self.eff_button_rect.collidepoint(mouse_pt)
-        can_buy_eff = (getattr(self, 'points', 0) >= getattr(self, 'eff_cost', 0)) and (self.eff_uses_left > 0)
+        # determine next cost for efficiency
+        next_eff_cost = None
+        try:
+            if 0 <= self.eff_uses_used < len(self.eff_costs):
+                next_eff_cost = int(self.eff_costs[self.eff_uses_used])
+        except Exception:
+            next_eff_cost = None
+
+        can_buy_eff = (getattr(self, 'points', 0) >= (next_eff_cost or 0)) and (self.eff_uses_left > 0)
         if not can_buy_eff:
             eff_color = (60, 60, 60)
         else:
             eff_color = (150, 150, 150) if hover_eff else (100, 100, 100)
         pg.draw.rect(self.screen, eff_color, self.eff_button_rect)
-        text_eff = font_small.render(f"Mejora Eficiencia ({self.eff_cost}pts) [{self.eff_uses_left}]", True, (255, 255, 255))
+        eff_label_cost = f"{next_eff_cost}pts" if next_eff_cost is not None else "N/A"
+        text_eff = font_small.render(f"Mejora Eficiencia ({eff_label_cost}) [{self.eff_uses_left}]", True, (255, 255, 255))
         self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
 
         # draw mouse
@@ -522,7 +543,10 @@ class GameManager(Singleton):
                     queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
                     if queued + self.speed_uses_used >= 10:
                         print("No speed upgrades available to queue")
-                    elif getattr(self, 'points', 0) < getattr(self, 'speed_cost', 0):
+                    elif queued >= 1:
+                        # already have a pending speed action; ignore extra clicks
+                        print("Ya hay una Mejora Velocidad pendiente")
+                    elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
                         print("No tienes puntos suficientes para Mejora Velocidad")
                     else:
                         # append action (will be processed in update())
@@ -533,7 +557,9 @@ class GameManager(Singleton):
                     queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
                     if queued + self.eff_uses_used >= 10:
                         print("No efficiency upgrades available to queue")
-                    elif getattr(self, 'points', 0) < getattr(self, 'eff_cost', 0):
+                    elif queued >= 1:
+                        print("Ya hay una Mejora Eficiencia pendiente")
+                    elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
                         print("No tienes puntos suficientes para Mejora Eficiencia")
                     else:
                         self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
@@ -554,6 +580,7 @@ class GameManager(Singleton):
         If an action repeatedly fails it will be dropped after max_tries.
         """
         to_process = min(max_per_frame, len(self.action_buffer))
+        applied_this_frame = set()  # types applied successfully this frame
         for _ in range(to_process):
             action = self.action_buffer.popleft()
             ok = False
@@ -570,7 +597,10 @@ class GameManager(Singleton):
 
             if ok:
                 # applied successfully; log handled in apply function
-                continue
+                applied_this_frame.add(action.get('type'))
+                # avoid applying more than one successful upgrade of any type per frame
+                # (prevents many queued retries from consuming all uses at once)
+                break
 
             # failed to apply: retry later unless too many tries
             action['tries'] = action.get('tries', 0) + 1
@@ -588,8 +618,14 @@ class GameManager(Singleton):
         if not convs:
             return False
 
+        # determine current cost for this next use
+        try:
+            next_cost = int(self.speed_costs[self.speed_uses_used]) if 0 <= self.speed_uses_used < len(self.speed_costs) else None
+        except Exception:
+            next_cost = None
+
         # ensure enough points at application time
-        if getattr(self, 'points', 0) < getattr(self, 'speed_cost', 0):
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
             # not enough points now; retry later
             print("[Action] Not enough points to apply Speed upgrade; will retry")
             return False
@@ -615,15 +651,15 @@ class GameManager(Singleton):
             # commit the use and subtract points
             self.speed_uses_used += 1
             self.speed_uses_left = max(0, 10 - self.speed_uses_used)
-            try:
-                self.points = max(0, int(self.points) - int(self.speed_cost))
-            except Exception:
-                # fallback: best-effort subtraction
+            if next_cost is not None:
                 try:
-                    self.points -= self.speed_cost
+                    self.points = max(0, int(self.points) - int(next_cost))
                 except Exception:
-                    pass
-            print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors | -{self.speed_cost} pts (total={self.points})")
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={self.points})")
             return True
 
         return False
@@ -654,8 +690,14 @@ class GameManager(Singleton):
         if not mines_found:
             return False
 
+        # determine next cost for efficiency
+        try:
+            next_cost = int(self.eff_costs[self.eff_uses_used]) if 0 <= self.eff_uses_used < len(self.eff_costs) else None
+        except Exception:
+            next_cost = None
+
         # ensure enough points at application time
-        if getattr(self, 'points', 0) < getattr(self, 'eff_cost', 0):
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
             print("[Action] Not enough points to apply Efficiency upgrade; will retry")
             return False
 
@@ -710,14 +752,15 @@ class GameManager(Singleton):
             # commit the use and subtract points
             self.eff_uses_used += 1
             self.eff_uses_left = max(0, 10 - self.eff_uses_used)
-            try:
-                self.points = max(0, int(self.points) - int(self.eff_cost))
-            except Exception:
+            if next_cost is not None:
                 try:
-                    self.points -= self.eff_cost
+                    self.points = max(0, int(self.points) - int(next_cost))
                 except Exception:
-                    pass
-            print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines | -{self.eff_cost} pts (total={self.points})")
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={self.points})")
             return True
 
         return False
