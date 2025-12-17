@@ -1,7 +1,6 @@
 import pygame as pg
 import pathlib
 from .structure import *
-from utils import is_prime
 from settings import CELL_SIZE_PX
 
 
@@ -38,13 +37,9 @@ class Well(Structure):
         number = conveyor.pop()
         if number is not None and number == self.consumingNumber:
             points = number
-            if is_prime(number):
-                points *= 2
+            # NOTE: prime-based doubling removed per request — points equal the consumed number
             self.gameManager.points += points
-            bonus_text = " (PRIME x2!)" if is_prime(number) else ""
-            print(f"Well consumed {number}! +{points} points{bonus_text} | Total: {self.gameManager.points}")
-            bonus_text = " (PRIME x2!)" if is_prime(number) else ""
-            print(f"Well consumed {number}! +{points} points{bonus_text} | Total: {self.gameManager.points}")
+            print(f"Well consumed {number}! +{points} points | Total: {self.gameManager.points}")
 
     def draw(self):
         pg.draw.circle(self.gameManager.screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
@@ -55,8 +50,6 @@ class Well(Structure):
         self.gameManager.screen.blit(text, text_rect)
         
         points_value = self.consumingNumber
-        if is_prime(self.consumingNumber):
-            points_value *= 2
         
         if self.coin_img:
             coin_x = self.position.x - 25

@@ -26,16 +26,19 @@ class Mine(Structure):
         pass
     
     def produce(self, conveyor):
-        conveyor.push(self.number)
+        # Use an effective upgraded number if present, else the base `number`.
+        val = getattr(self, '_effective_number', self.number)
+        conveyor.push(val)
 
     def draw(self):
         '''
         Dibuja la mina en la pantalla
         '''
         pg.draw.circle(self.gameManager.screen, self.color, (self.position.x, self.position.y), self.radius)
-        # Dibujar el numero en el centro de la mina
+        # Dibujar el numero en el centro de la mina; show effective upgraded number if present
+        effective = getattr(self, '_effective_number', getattr(self, '_base_number', self.number))
         font = pg.font.Font(None, 24)
-        text = font.render(str(self.number), True, (255, 255, 255))
+        text = font.render(str(effective), True, (255, 255, 255))
         text_rect = text.get_rect(center=(self.position.x, self.position.y))
         self.gameManager.screen.blit(text, text_rect)
                                                     
