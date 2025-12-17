@@ -3,6 +3,7 @@ import sys
 import pathlib
 import os
 import json
+from collections import deque
 
 from settings import *
 from mouseControl import MouseControl
@@ -15,6 +16,7 @@ from core.mergerCreator import MergerCreator
 from core.splitterCreator import SplitterCreator
 from core.conveyor import Conveyor
 from map.map import Map
+from patterns.decorator import SpeedUpgrade, EfficiencyUpgrade
 
 
 class GameManager(Singleton):
@@ -40,6 +42,18 @@ class GameManager(Singleton):
 
         # UI: Save & Exit button
         self.save_button_rect = pg.Rect(WIDTH - 170, 10, 160, 40)
+        # UI: Upgrade buttons (stacked under Save)
+        self.speed_button_rect = pg.Rect(WIDTH - 170, 60, 160, 40)
+        self.eff_button_rect = pg.Rect(WIDTH - 170, 110, 160, 40)
+
+        # Upgrade usage counters (max 10 uses each)
+        self.speed_uses_left = 10
+        self.eff_uses_left = 10
+        self.speed_uses_used = 0
+        self.eff_uses_used = 0
+        # action buffer to store pending upgrade actions (processed in update())
+        # each entry: { 'type': 'speed'|'eff', 'tries': int, 'max_tries': int }
+        self.action_buffer = deque()
 
         self.running = True
 
@@ -222,6 +236,11 @@ class GameManager(Singleton):
     def update(self):
         # update inputs
         self.mouse.update()
+        # process any pending upgrade actions from the action buffer
+        try:
+            self.process_action_buffer()
+        except Exception:
+            pass
 
         # update map structures
         self.map.update()
@@ -301,6 +320,23 @@ class GameManager(Singleton):
         points_text = font.render(f"Points: {self.points}", True, (255, 215, 0))
         self.screen.blit(points_text, (self.save_button_rect.left, self.save_button_rect.bottom + 10))
 
+        # draw Upgrade buttons (Mejora Velocidad / Mejora Eficiencia)
+        font_small = pg.font.Font(None, 20)
+
+        # Speed button shows remaining uses
+        hover_speed = self.speed_button_rect.collidepoint(mouse_pt)
+        speed_color = (100, 100, 100) if self.speed_uses_left > 0 and not hover_speed else (80, 80, 80) if self.speed_uses_left == 0 else (150, 150, 150)
+        pg.draw.rect(self.screen, speed_color, self.speed_button_rect)
+        text_speed = font_small.render(f"Mejora Velocidad ({self.speed_uses_left})", True, (255, 255, 255))
+        self.screen.blit(text_speed, text_speed.get_rect(center=self.speed_button_rect.center))
+
+        # Efficiency button shows remaining uses
+        hover_eff = self.eff_button_rect.collidepoint(mouse_pt)
+        eff_color = (100, 100, 100) if self.eff_uses_left > 0 and not hover_eff else (80, 80, 80) if self.eff_uses_left == 0 else (150, 150, 150)
+        pg.draw.rect(self.screen, eff_color, self.eff_button_rect)
+        text_eff = font_small.render(f"Mejora Eficiencia ({self.eff_uses_left})", True, (255, 255, 255))
+        self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
+
         # draw mouse
         self.mouse.draw()
 
@@ -313,13 +349,156 @@ class GameManager(Singleton):
                 self.running = False
                 self.save_and_exit()
 
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+            # Use MOUSEBUTTONUP for reliable button clicks (handle release)
+            if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                 # check if Save & Exit clicked
                 if self.save_button_rect.collidepoint(event.pos):
                     self.save_and_exit()
+                # enqueue upgrade actions (global)
+                elif self.speed_button_rect.collidepoint(event.pos):
+                    # avoid enqueueing more than remaining capacity (max 10 uses total)
+                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
+                    if queued + self.speed_uses_used >= 10:
+                        print("No speed upgrades available to queue")
+                    else:
+                        # append action (will be processed in update())
+                        self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
+                        print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
+
+                elif self.eff_button_rect.collidepoint(event.pos):
+                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
+                    if queued + self.eff_uses_used >= 10:
+                        print("No efficiency upgrades available to queue")
+                    else:
+                        self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
+                        print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
 
     def run(self):
         while self.running:
             self.checkEvents()
             self.update()
             self.draw()
+
+    # ---- Action buffer processing ----
+    def process_action_buffer(self, max_per_frame: int = 5):
+        """Process up to `max_per_frame` queued upgrade actions.
+
+        Actions are retried up to `max_tries`. If an action is successfully
+        applied we decrement the remaining uses and remove it from the queue.
+        If an action repeatedly fails it will be dropped after max_tries.
+        """
+        to_process = min(max_per_frame, len(self.action_buffer))
+        for _ in range(to_process):
+            action = self.action_buffer.popleft()
+            ok = False
+            if action.get('type') == 'speed':
+                try:
+                    ok = self._apply_speed_action()
+                except Exception:
+                    ok = False
+            elif action.get('type') == 'eff':
+                try:
+                    ok = self._apply_eff_action()
+                except Exception:
+                    ok = False
+
+            if ok:
+                # applied successfully; log handled in apply function
+                continue
+
+            # failed to apply: retry later unless too many tries
+            action['tries'] = action.get('tries', 0) + 1
+            if action['tries'] < action.get('max_tries', 30):
+                self.action_buffer.append(action)
+            else:
+                print(f"Dropping action {action.get('type')} after {action['tries']} failed tries")
+
+    def _apply_speed_action(self) -> bool:
+        """Attempt to apply a single global speed upgrade.
+
+        Returns True on success, False if conditions not met (will retry).
+        """
+        convs = list(getattr(self, 'conveyors', []))
+        if not convs:
+            return False
+
+        # commit the use
+        self.speed_uses_used += 1
+        self.speed_uses_left = max(0, 10 - self.speed_uses_used)
+        multiplier = 0.9 ** self.speed_uses_used
+
+        applied = 0
+        for conv in convs:
+            try:
+                base_conv = conv
+                while hasattr(base_conv, 'target'):
+                    base_conv = base_conv.target
+                if not hasattr(base_conv, '_base_travel_time'):
+                    base_conv._base_travel_time = getattr(base_conv, 'travel_time', 2000)
+                base_conv.travel_time = max(50, int(base_conv._base_travel_time * multiplier))
+                applied += 1
+            except Exception:
+                pass
+
+        print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors")
+        return True
+
+    def _apply_eff_action(self) -> bool:
+        """Attempt to apply a single global efficiency upgrade.
+
+        Returns True on success, False if no applicable mines found (will retry).
+        """
+        mines_found = False
+        # scan map for mines (structures with attribute 'number')
+        for y, row in enumerate(self.map.cells):
+            for x, cell in enumerate(row):
+                if cell and not cell.isEmpty():
+                    s = cell.structure
+                    base_s = s
+                    try:
+                        while hasattr(base_s, 'target'):
+                            base_s = base_s.target
+                    except Exception:
+                        pass
+                    if hasattr(base_s, 'number'):
+                        mines_found = True
+                        break
+            if mines_found:
+                break
+
+        if not mines_found:
+            return False
+
+        # commit the use: each efficiency action increments base production by +1
+        # for all mines (up to the 10-use limit enforced elsewhere)
+        self.eff_uses_used += 1
+        self.eff_uses_left = max(0, 10 - self.eff_uses_used)
+
+        applied = 0
+        for y, row in enumerate(self.map.cells):
+            for x, cell in enumerate(row):
+                if cell and not cell.isEmpty():
+                    s = cell.structure
+                    base_s = s
+                    try:
+                        while hasattr(base_s, 'target'):
+                            base_s = base_s.target
+                    except Exception:
+                        pass
+                    if hasattr(base_s, 'number'):
+                        # establish base number if missing
+                        if not hasattr(base_s, '_base_number'):
+                            try:
+                                base_s._base_number = int(base_s.number)
+                            except Exception:
+                                base_s._base_number = getattr(base_s, 'number', 1)
+                        # increment base production by 1 per use
+                        try:
+                            base_s._base_number = int(base_s._base_number) + 1
+                            base_s._effective_number = max(1, int(base_s._base_number))
+                            applied += 1
+                        except Exception:
+                            pass
+
+        print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines")
+        return True
