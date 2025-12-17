@@ -1,8 +1,10 @@
 import json
 import os
 from typing import Optional, Tuple, Dict
+import pygame as pg
 
 from patterns.singleton import Singleton
+from settings import CELL_SIZE_PX
 from .cell import Cell
 
 
@@ -160,5 +162,37 @@ class Map(Singleton):
 
 					if struct is not None:
 						m.placeStructure(x, y, struct)
+
+		# Load conveyors if present and gameManager is provided
+		conveyors_data = data.get("conveyors", [])
+		print(f"[Map.load_from_file] Found {len(conveyors_data)} conveyors in save file")
+		if conveyors_data and gameManager:
+			from core.conveyor import Conveyor
+			conveyors_list = []
+			for conv_data in conveyors_data:
+				start_grid = conv_data.get("start")
+				end_grid = conv_data.get("end")
+				travel_time = conv_data.get("travel_time", 2000)
+				
+				if start_grid and end_grid:
+					# Convert grid coords to centered pixel positions (like structures do)
+					start_pos = pg.Vector2(
+						start_grid[0] * CELL_SIZE_PX + CELL_SIZE_PX // 2,
+						start_grid[1] * CELL_SIZE_PX + CELL_SIZE_PX // 2
+					)
+					end_pos = pg.Vector2(
+						end_grid[0] * CELL_SIZE_PX + CELL_SIZE_PX // 2,
+						end_grid[1] * CELL_SIZE_PX + CELL_SIZE_PX // 2
+					)
+					
+					# Create conveyor with gameManager
+					conv = Conveyor(start_pos, end_pos, gameManager)
+					conv.travel_time = travel_time if travel_time else 2000
+					conveyors_list.append(conv)
+					print(f"[Map.load_from_file] Created conveyor from {start_grid} to {end_grid}")
+			
+			# Store conveyors in gameManager
+			gameManager.conveyors = conveyors_list
+			print(f"[Map.load_from_file] Stored {len(conveyors_list)} conveyors in gameManager")
 
 		return m

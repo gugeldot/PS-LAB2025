@@ -68,7 +68,7 @@ class GameManager(Singleton):
             print(f"Found saved map at {self.save_file}, loading...")
             try:
                 self.map = Map.load_from_file(str(self.save_file), creators=creators, gameManager=self)
-                print("Map loaded successfully.")
+                print(f"Map loaded successfully. Conveyors loaded: {len(getattr(self, 'conveyors', []))}")
             except Exception as e:
                 print("Failed to load map, creating a new default map:", e)
                 self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
@@ -104,22 +104,7 @@ class GameManager(Singleton):
             
             conv4 = Conveyor(merger.position, well.position, self)
             
-            # Connect conveyors to each other
-            conv2.connectOutput(conv2_merge)
-            conv3.connectOutput(conv3_merge)
-            
-            # Connect splitter
-            splitter.connectInput(conv1)
-            splitter.connectOutput1(conv2)
-            splitter.connectOutput2(conv3)
-            
-            # Connect merger
-            merger.connectInput1(conv2_merge)
-            merger.connectInput2(conv3_merge)
-            merger.connectOutput(conv4)
-
             self.conveyors = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
-            self.structures = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
             
             self.mine = mine
             self.well = well
@@ -128,29 +113,125 @@ class GameManager(Singleton):
             self.consumption_timer = 0
             self.points = 0
 
-        # ensure conveyors list exists; if loaded from save, might need to initialize
+        # ensure conveyors list exists
         if not hasattr(self, 'conveyors'):
             self.conveyors = []
         
         if not hasattr(self, 'points'):
             self.points = 0
 
-        # collect structures only if not already set (when loading from save)
-        if not hasattr(self, 'structures'):
-            self.structures = []
-            # add conveyors first
-            for conv in self.conveyors:
-                self.structures.append(conv)
-            # then map structures
-            for row in self.map.cells:
-                for cell in row:
-                    if not cell.isEmpty():
-                        self.structures.append(cell.structure)
+        # ALWAYS establish/re-establish connections between structures and conveyors
+        # This handles both new games and loaded games automatically
+        print(f"Establishing connections for {len(self.conveyors)} conveyors...")
+        self._reconnect_structures()
+
+        # ALWAYS rebuild structures list to include conveyors
+        self.structures = []
+        # add conveyors first
+        for conv in self.conveyors:
+            self.structures.append(conv)
+        # then map structures
+        for row in self.map.cells:
+            for cell in row:
+                if not cell.isEmpty():
+                    self.structures.append(cell.structure)
 
         if not hasattr(self, 'production_timer'):
             self.production_timer = 0
         if not hasattr(self, 'consumption_timer'):
             self.consumption_timer = 0
+
+    def _reconnect_structures(self):
+        """Re-establish connections between structures and conveyors after loading from save."""
+        # Find structures by their grid position
+        def find_structure_at(grid_x, grid_y):
+            if 0 <= grid_y < len(self.map.cells) and 0 <= grid_x < len(self.map.cells[grid_y]):
+                cell = self.map.cells[grid_y][grid_x]
+                if not cell.isEmpty():
+                    return cell.structure
+            return None
+
+        # Connect conveyors to structures based on their start/end positions
+        for conv in self.conveyors:
+            start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
+            start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
+            end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+            end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+
+            start_struct = find_structure_at(start_grid_x, start_grid_y)
+            end_struct = find_structure_at(end_grid_x, end_grid_y)
+
+            # Connect source structure to conveyor
+            if start_struct:
+                if hasattr(start_struct, 'connectOutput'):
+                    start_struct.connectOutput(conv)
+                elif hasattr(start_struct, 'connectOutput1'):
+                    # For splitters, use Y position to determine which output
+                    # If conveyor goes upward (end_y < start_y), use output1
+                    # If conveyor goes downward (end_y > start_y), use output2
+                    if conv.end_pos.y < start_struct.position.y:
+                        start_struct.connectOutput1(conv)
+                        print(f"[Reconnect] Connected splitter output1 (upper path)")
+                    else:
+                        start_struct.connectOutput2(conv)
+                        print(f"[Reconnect] Connected splitter output2 (lower path)")
+
+            # Connect conveyor to destination structure
+            if end_struct:
+                if hasattr(end_struct, 'connectInput'):
+                    end_struct.connectInput(conv)
+                elif hasattr(end_struct, 'connectInput1'):
+                    # For mergers, use Y position to determine which input
+                    # If conveyor comes from above (start_y < end_y), use input1
+                    # If conveyor comes from below (start_y > end_y), use input2
+                    if conv.start_pos.y < end_struct.position.y:
+                        end_struct.connectInput1(conv)
+                        print(f"[Reconnect] Connected merger input1 (from above)")
+                    else:
+                        end_struct.connectInput2(conv)
+                        print(f"[Reconnect] Connected merger input2 (from below)")
+
+        # Connect conveyors to each other (chain)
+        for i, conv in enumerate(self.conveyors):
+            # Check if this conveyor's end connects to another conveyor's start
+            for other_conv in self.conveyors:
+                if conv != other_conv:
+                    if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
+                        int(conv.end_pos.y) == int(other_conv.start_pos.y)):
+                        
+                        # Only connect if there is NO structure at this junction
+                        # If there is a structure, the structure handles the transfer
+                        grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+                        grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+                        struct = find_structure_at(grid_x, grid_y)
+                        
+                        if struct is None:
+                            conv.connectOutput(other_conv)
+                            print(f"[Reconnect] Connected conveyor {i} to conveyor")
+                        else:
+                            print(f"[Reconnect] Skipping direct conveyor connection at {grid_x},{grid_y} due to structure {struct.__class__.__name__}")
+
+        # Re-establish reference to first and last conveyors
+        if len(self.conveyors) > 0:
+            # Find mine and well to set first/last conveyor references
+            for row in self.map.cells:
+                for cell in row:
+                    if not cell.isEmpty():
+                        if cell.structure.__class__.__name__ == 'Mine':
+                            self.mine = cell.structure
+                        elif cell.structure.__class__.__name__ == 'Well':
+                            self.well = cell.structure
+
+            # Set final conveyor (last one that connects to well)
+            if hasattr(self, 'well') and self.well:
+                for conv in self.conveyors:
+                    end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+                    end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+                    well_grid_x = int(self.well.position.x) // CELL_SIZE_PX
+                    well_grid_y = int(self.well.position.y) // CELL_SIZE_PX
+                    if end_grid_x == well_grid_x and end_grid_y == well_grid_y:
+                        self.final_conveyor = conv
+                        break
 
     def save_map(self):
         """Save map to App/saves/map.json"""

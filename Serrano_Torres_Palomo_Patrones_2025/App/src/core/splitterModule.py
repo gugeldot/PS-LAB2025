@@ -29,17 +29,22 @@ class SplitterModule(Structure):
         
     def process(self):
         '''Splits numbers from input alternating between two outputs'''
-        if self.inputConveyor is None or self.inputConveyor.isEmpty():
+        if self.inputConveyor is None:
             return
         
+        # Only process if a number has reached the end of the input conveyor
         number = self.inputConveyor.pop()
         if number is None:
             return
         
-        if self.alternate and self.outputConveyor1:
-            self.outputConveyor1.push(number)
-        elif not self.alternate and self.outputConveyor2:
-            self.outputConveyor2.push(number)
+        if self.alternate:
+            if self.outputConveyor1:
+                self.outputConveyor1.push(number)
+                print(f"Splitter: sent {number} to output1 (upper)")
+        else:
+            if self.outputConveyor2:
+                self.outputConveyor2.push(number)
+                print(f"Splitter: sent {number} to output2 (lower)")
         
         self.alternate = not self.alternate
     
