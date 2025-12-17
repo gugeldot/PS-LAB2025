@@ -1,6 +1,7 @@
 import pygame as pg
 from settings import *
 import pathlib 
+from utils.cursor_inspector import inspect_cell
 class MouseControl:
     def __init__(self,gameManager):
         '''
@@ -8,7 +9,9 @@ class MouseControl:
         '''
         self.gameManager=gameManager
         self.position = pg.Vector2(0, 0)
-       
+        # booleano que indica si la última celda clicada tenía una estructura
+        self.has_structure = False
+
         pg.mouse.set_visible(False)
         
         #  Ruta base del proyecto (un nivel arriba de src)
@@ -48,28 +51,20 @@ class MouseControl:
                 # check map presence
                 try:
                     m = self.gameManager.map
-                    cell = m.getCell(gx, gy)
-                    if cell is None:
-                        print(f"Click izquierdo en celda ({gx}, {gy}) -> Fuera del mapa")
-                    else:
-                        if cell.isEmpty():
-                            print(f"Click izquierdo en celda ({gx}, {gy}) -> Empty")
-                        else:
-                            s = cell.structure
-                            # report basic info about the structure
-                            info = s.__class__.__name__
-                            if hasattr(s, 'number'):
-                                info += f" number={getattr(s, 'number')}"
-                            if hasattr(s, 'consumingNumber'):
-                                info += f" consumingNumber={getattr(s, 'consumingNumber')}"
-                            # try to include grid_position if available
-                            if hasattr(s, 'grid_position'):
-                                info += f" grid={getattr(s, 'grid_position')}"
-                            print(f"Click izquierdo en celda ({gx}, {gy}) -> {info}")
+                    has_struct, info = inspect_cell(m, gx, gy)
+                    self.has_structure = bool(has_struct)
+                    print(f"Click izquierdo en celda ({gx}, {gy}) -> {info}")
+                    return self.has_structure
                 except Exception as e:
+                    self.has_structure = False
                     print("Error al consultar el mapa en el click:", e)
+                    return self.has_structure
 
             elif event.button == 2:  # Botón medio
                 print("Botón medio presionado en", self.position)
+                return None
             elif event.button == 3:  # Botón derecho
                 print("Botón derecho presionado en", self.position)
+                return None
+        # si no es un evento de click devolvemos None
+        return None
