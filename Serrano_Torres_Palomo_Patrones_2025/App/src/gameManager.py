@@ -82,6 +82,74 @@ class GameManager(Singleton):
             print(f"Found saved map at {self.save_file}, loading...")
             try:
                 self.map = Map.load_from_file(str(self.save_file), creators=creators, gameManager=self)
+                # try to read persisted upgrades and apply them
+                try:
+                    with open(self.save_file, 'r', encoding='utf-8') as fh:
+                        saved = json.load(fh)
+                    upgrades = saved.get('upgrades', {})
+                    speed_used = int(upgrades.get('speed_uses_used', 0))
+                    eff_used = int(upgrades.get('eff_uses_used', 0))
+                    # set counters
+                    self.speed_uses_used = speed_used
+                    self.eff_uses_used = eff_used
+                    self.speed_uses_left = max(0, 10 - self.speed_uses_used)
+                    self.eff_uses_left = max(0, 10 - self.eff_uses_used)
+                    # apply effects without consuming uses
+                    if speed_used > 0:
+                        try:
+                            # apply speed multiplier corresponding to total uses
+                            multiplier = 0.9 ** self.speed_uses_used
+                            for conv in getattr(self, 'conveyors', []):
+                                base_conv = conv
+                                while hasattr(base_conv, 'target'):
+                                    base_conv = base_conv.target
+                                if not hasattr(base_conv, '_base_travel_time'):
+                                    base_conv._base_travel_time = getattr(base_conv, 'travel_time', 2000)
+                                base_conv.travel_time = max(50, int(base_conv._base_travel_time * multiplier))
+                        except Exception:
+                            pass
+                    if eff_used > 0:
+                        try:
+                            # increment mine base numbers by eff_used
+                            for row in self.map.cells:
+                                for cell in row:
+                                    if cell and not cell.isEmpty():
+                                        s = cell.structure
+                                        base_s = s
+                                        try:
+                                            while hasattr(base_s, 'target'):
+                                                base_s = base_s.target
+                                        except Exception:
+                                            pass
+                                        # if it's a Mine increase its number, if it's a Well increase consumingNumber
+                                        if hasattr(base_s, 'number'):
+                                            if not hasattr(base_s, '_base_number'):
+                                                try:
+                                                    base_s._base_number = int(base_s.number)
+                                                except Exception:
+                                                    base_s._base_number = getattr(base_s, 'number', 1)
+                                            # add cumulative increments
+                                            base_s._base_number = int(base_s._base_number) + eff_used
+                                            base_s._effective_number = max(1, int(base_s._base_number))
+                                        if hasattr(base_s, 'consumingNumber'):
+                                            if not hasattr(base_s, '_base_consumingNumber'):
+                                                try:
+                                                    base_s._base_consumingNumber = int(base_s.consumingNumber)
+                                                except Exception:
+                                                    base_s._base_consumingNumber = getattr(base_s, 'consumingNumber', 1)
+                                            base_s._base_consumingNumber = int(base_s._base_consumingNumber) + eff_used
+                                            base_val = max(1, int(base_s._base_consumingNumber))
+                                            base_s.consumingNumber = base_val
+                                            # also propagate to the outer structure (wrapper) so runtime references update
+                                            try:
+                                                if s is not base_s and hasattr(s, 'consumingNumber'):
+                                                    s.consumingNumber = base_val
+                                            except Exception:
+                                                pass
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
                 print("Map loaded successfully.")
             except Exception as e:
                 print("Failed to load map, creating a new default map:", e)
@@ -170,6 +238,42 @@ class GameManager(Singleton):
         """Save map to App/saves/map.json"""
         try:
             base = self.map.to_dict()
+            # Ensure we persist base/original numeric values for structures when available.
+            # If upgrades have modified in-memory attributes (e.g. consumingNumber or number),
+            # prefer to save the original base values so re-loading + applying saved
+            # upgrades does not double-apply them.
+            try:
+                grid = base.get('grid', [])
+                eff_used = int(getattr(self, 'eff_uses_used', 0))
+                for y, row in enumerate(grid):
+                    for x, entry in enumerate(row):
+                        if not entry:
+                            continue
+                        try:
+                            cell = self.map.getCell(x, y)
+                            if cell and not cell.isEmpty():
+                                s = cell.structure
+                                # For mines: if _base_number exists it currently includes applied
+                                # efficiency upgrades; recover original by subtracting eff_used.
+                                if 'number' in entry:
+                                    if hasattr(s, '_base_number'):
+                                        try:
+                                            original = int(getattr(s, '_base_number')) - eff_used
+                                            entry['number'] = max(1, original)
+                                        except Exception:
+                                            entry['number'] = int(entry.get('number', 1))
+                                # For wells: same logic for consumingNumber
+                                if 'consumingNumber' in entry:
+                                    if hasattr(s, '_base_consumingNumber'):
+                                        try:
+                                            original = int(getattr(s, '_base_consumingNumber')) - eff_used
+                                            entry['consumingNumber'] = max(1, original)
+                                        except Exception:
+                                            entry['consumingNumber'] = int(entry.get('consumingNumber', 1))
+                        except Exception:
+                            pass
+            except Exception:
+                pass
             # include conveyors as grid-based connections
             convs = []
             for conv in getattr(self, 'conveyors', []):
@@ -215,10 +319,23 @@ class GameManager(Singleton):
                     ex = int(conv.end_pos.x) // CELL_SIZE_PX
                     ey = int(conv.end_pos.y) // CELL_SIZE_PX
 
-                entry = {"start": [sx, sy], "end": [ex, ey], "travel_time": getattr(conv, 'travel_time', None)}
+                # Prefer to persist the base travel time if available so reload
+                # doesn't re-apply speed multipliers.
+                travel = getattr(conv, 'travel_time', None)
+                if hasattr(conv, '_base_travel_time'):
+                    try:
+                        travel = int(getattr(conv, '_base_travel_time'))
+                    except Exception:
+                        travel = getattr(conv, 'travel_time', None)
+                entry = {"start": [sx, sy], "end": [ex, ey], "travel_time": travel}
                 convs.append(entry)
 
             base['conveyors'] = convs
+            # include applied upgrades so they persist
+            base['upgrades'] = {
+                'speed_uses_used': getattr(self, 'speed_uses_used', 0),
+                'eff_uses_used': getattr(self, 'eff_uses_used', 0)
+            }
             # write combined file
             os.makedirs(self.save_dir, exist_ok=True)
             with open(self.save_file, 'w', encoding='utf-8') as fh:
@@ -264,8 +381,7 @@ class GameManager(Singleton):
                 self.well.consume(self.final_conveyor)
             self.consumption_timer = 0
 
-        # flip and tick
-        pg.display.flip()
+        # tick (advance clock and compute delta_time)
         self.delta_time = self.clock.tick(FPS)
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
 
@@ -315,10 +431,30 @@ class GameManager(Singleton):
         text_rect = text.get_rect(center=self.save_button_rect.center)
         self.screen.blit(text, text_rect)
         
-        # display points below button
-        font = pg.font.Font(None, 36)
-        points_text = font.render(f"Points: {self.points}", True, (255, 215, 0))
-        self.screen.blit(points_text, (self.save_button_rect.left, self.save_button_rect.bottom + 10))
+        # display total points as a label in the bottom-left corner
+        # draw a dark background box so the text is always legible
+        try:
+            font = pg.font.Font(None, 36)
+            points_text = font.render(f"Puntuación: {self.points}", True, (255, 215, 0))
+            padding = 8
+            text_rect = points_text.get_rect()
+            label_x = 10
+            label_y = HEIGHT - text_rect.height - 10
+            bg_rect = pg.Rect(label_x - padding, label_y - padding,
+                              text_rect.width + padding * 2, text_rect.height + padding * 2)
+            # slightly translucent-ish look (solid color; SDL surfaces do not always support alpha here)
+            pg.draw.rect(self.screen, (30, 30, 30), bg_rect)
+            # thin border
+            pg.draw.rect(self.screen, (180, 180, 180), bg_rect, 1)
+            self.screen.blit(points_text, (label_x, label_y))
+        except Exception:
+            # fallback: try a very small font and a plain blit so draw() never crashes
+            try:
+                font = pg.font.Font(None, 20)
+                points_text = font.render(str(getattr(self, 'points', 0)), True, (255, 215, 0))
+                self.screen.blit(points_text, (10, HEIGHT - 30))
+            except Exception:
+                pass
 
         # draw Upgrade buttons (Mejora Velocidad / Mejora Eficiencia)
         font_small = pg.font.Font(None, 20)
@@ -339,6 +475,8 @@ class GameManager(Singleton):
 
         # draw mouse
         self.mouse.draw()
+        # present the rendered frame
+        pg.display.flip()
 
     def checkEvents(self):
         for event in pg.event.get():
@@ -485,17 +623,38 @@ class GameManager(Singleton):
                             base_s = base_s.target
                     except Exception:
                         pass
+                    # If it's a Mine, adjust its base/effective production number
                     if hasattr(base_s, 'number'):
-                        # establish base number if missing
                         if not hasattr(base_s, '_base_number'):
                             try:
                                 base_s._base_number = int(base_s.number)
                             except Exception:
                                 base_s._base_number = getattr(base_s, 'number', 1)
-                        # increment base production by 1 per use
                         try:
                             base_s._base_number = int(base_s._base_number) + 1
                             base_s._effective_number = max(1, int(base_s._base_number))
+                            applied += 1
+                        except Exception:
+                            pass
+                    # If it's a Well, adjust its consumingNumber so it consumes more per tick
+                    if hasattr(base_s, 'consumingNumber'):
+                        if not hasattr(base_s, '_base_consumingNumber'):
+                            try:
+                                base_s._base_consumingNumber = int(base_s.consumingNumber)
+                            except Exception:
+                                base_s._base_consumingNumber = getattr(base_s, 'consumingNumber', 1)
+                        try:
+                            base_s._base_consumingNumber = int(base_s._base_consumingNumber) + 1
+                            # update the runtime consumingNumber so consume() uses the new value
+                            base_val = max(1, int(base_s._base_consumingNumber))
+                            base_s.consumingNumber = base_val
+                            # propagate to outer wrapper/object so draw/consume calls using the
+                            # top-level reference see the updated value immediately
+                            try:
+                                if s is not base_s and hasattr(s, 'consumingNumber'):
+                                    s.consumingNumber = base_val
+                            except Exception:
+                                pass
                             applied += 1
                         except Exception:
                             pass

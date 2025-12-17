@@ -133,72 +133,9 @@
       null
     ]
   ],
-  "conveyors": [
-    {
-      "start": [
-        2,
-        2
-      ],
-      "end": [
-        4,
-        2
-      ],
-      "travel_time": 697
-    },
-    {
-      "start": [
-        4,
-        2
-      ],
-      "end": [
-        5,
-        1
-      ],
-      "travel_time": 697
-    },
-    {
-      "start": [
-        5,
-        1
-      ],
-      "end": [
-        6,
-        2
-      ],
-      "travel_time": 697
-    },
-    {
-      "start": [
-        4,
-        2
-      ],
-      "end": [
-        5,
-        3
-      ],
-      "travel_time": 697
-    },
-    {
-      "start": [
-        5,
-        3
-      ],
-      "end": [
-        6,
-        2
-      ],
-      "travel_time": 697
-    },
-    {
-      "start": [
-        6,
-        2
-      ],
-      "end": [
-        8,
-        2
-      ],
-      "travel_time": 697
-    }
-  ]
+  "conveyors": [],
+  "upgrades": {
+    "speed_uses_used": 9,
+    "eff_uses_used": 4
+  }
 }
