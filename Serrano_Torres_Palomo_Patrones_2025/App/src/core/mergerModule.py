@@ -14,23 +14,39 @@ class MergerModule(Structure):
         self.position = pg.Vector2((px, py))
         self.gameManager = gameManager
 
-        # las in son las entradas y out la salida (mirar sprites del concept art)
-        self.inConveyorSlot1 = None
-        self.inConveyorSlot2 = None
-        self.inConveyotSlot3 = None
-        self.outConveyorSlot1 = None
+        self.inputConveyor1 = None
+        self.inputConveyor2 = None
+        self.outputConveyor = None
 
         self.radius = 15
-        self.color = (0, 0, 255)  # azul
+        self.color = (0, 0, 255)
 
     def update(self):
-        pass
+        self.process()
     
     def draw(self):
-        pg.draw.circle(self.gameManager.screen, self.color, (self.position.x, self.position.y), self.radius)
+        pg.draw.circle(self.gameManager.screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
         
     def process(self):
-        '''
-        Procesa los numeros que le entran por los espacios y los combina
-        '''
-        pass
+        '''Combines numbers from two inputs into one output'''
+        if self.outputConveyor is None:
+            return
+            
+        if self.inputConveyor1 and not self.inputConveyor1.isEmpty():
+            number = self.inputConveyor1.pop()
+            if number is not None:
+                self.outputConveyor.push(number)
+        
+        if self.inputConveyor2 and not self.inputConveyor2.isEmpty():
+            number = self.inputConveyor2.pop()
+            if number is not None:
+                self.outputConveyor.push(number)
+    
+    def connectInput1(self, conveyor):
+        self.inputConveyor1 = conveyor
+    
+    def connectInput2(self, conveyor):
+        self.inputConveyor2 = conveyor
+    
+    def connectOutput(self, conveyor):
+        self.outputConveyor = conveyor

@@ -76,71 +76,81 @@ class GameManager(Singleton):
             print(f"No saved map found at {self.save_file}, creating default map.")
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
-            # place some sample structures (grid coords)
-            mine = MineCreator().createStructure((1, 1), 1, self)
-            self.map.placeStructure(1, 1, mine)
+            # Test: Mine -> Conveyor1 -> Splitter -> [Conveyor2, Conveyor3] -> Merger -> Conveyor4 -> Well
+            mine = MineCreator().createStructure((2, 2), 1, self)
+            self.map.placeStructure(2, 2, mine)
 
-            well = WellCreator().createStructure((3, 1), 1, self)
-            self.map.placeStructure(3, 1, well)
+            splitter = SplitterCreator().createStructure((4, 2), self)
+            self.map.placeStructure(4, 2, splitter)
 
-            # create conveyor between mine and well
-            c = Conveyor(mine.position, well.position, self)
-            # store conveyors as a list
-            self.conveyors = [c]
-            self.structures = [c]
+            merger = MergerCreator().createStructure((6, 2), self)
+            self.map.placeStructure(6, 2, merger)
 
-            m1 = MergerCreator().createStructure((2, 3), self)
-            self.map.placeStructure(2, 3, m1)
-            s1 = SplitterCreator().createStructure((5, 4), self)
-            self.map.placeStructure(5, 4, s1)
+            well = WellCreator().createStructure((8, 2), 1, self)
+            self.map.placeStructure(8, 2, well)
 
-        # ensure conveyors list exists; if not created above (map load), try to
-        # create conveyors from saved data in the save file (if any)
+            # Create conveyors with visual deviation
+            conv1 = Conveyor(mine.position, splitter.position, self)
+            
+            # Upper path: splitter -> waypoint up -> merger
+            waypoint_up = pg.Vector2(merger.position.x - 40, merger.position.y - 40)
+            conv2 = Conveyor(splitter.position, waypoint_up, self)
+            conv2_merge = Conveyor(waypoint_up, merger.position, self)
+            
+            # Lower path: splitter -> waypoint down -> merger
+            waypoint_down = pg.Vector2(merger.position.x - 40, merger.position.y + 40)
+            conv3 = Conveyor(splitter.position, waypoint_down, self)
+            conv3_merge = Conveyor(waypoint_down, merger.position, self)
+            
+            conv4 = Conveyor(merger.position, well.position, self)
+            
+            # Connect conveyors to each other
+            conv2.connectOutput(conv2_merge)
+            conv3.connectOutput(conv3_merge)
+            
+            # Connect splitter
+            splitter.connectInput(conv1)
+            splitter.connectOutput1(conv2)
+            splitter.connectOutput2(conv3)
+            
+            # Connect merger
+            merger.connectInput1(conv2_merge)
+            merger.connectInput2(conv3_merge)
+            merger.connectOutput(conv4)
+
+            self.conveyors = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
+            self.structures = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
+            
+            self.mine = mine
+            self.well = well
+            self.final_conveyor = conv4
+            self.production_timer = 0
+            self.consumption_timer = 0
+            self.points = 0
+
+        # ensure conveyors list exists; if loaded from save, might need to initialize
         if not hasattr(self, 'conveyors'):
             self.conveyors = []
+        
+        if not hasattr(self, 'points'):
+            self.points = 0
 
-            # attempt to read conveyors section from saved json
-            try:
-                with open(self.save_file, 'r', encoding='utf-8') as fh:
-                    data = json.load(fh)
-                conveyors_data = data.get('conveyors', [])
-                for cdata in conveyors_data:
-                    sx, sy = cdata.get('start', (0, 0))
-                    ex, ey = cdata.get('end', (0, 0))
-                    # derive pixel positions: prefer cell structure positions
-                    start_cell = self.map.getCell(sx, sy)
-                    end_cell = self.map.getCell(ex, ey)
-                    if start_cell and not start_cell.isEmpty():
-                        start_pos = start_cell.structure.position
-                    else:
-                        start_pos = (sx * CELL_SIZE_PX + CELL_SIZE_PX // 2, sy * CELL_SIZE_PX + CELL_SIZE_PX // 2)
-                    if end_cell and not end_cell.isEmpty():
-                        end_pos = end_cell.structure.position
-                    else:
-                        end_pos = (ex * CELL_SIZE_PX + CELL_SIZE_PX // 2, ey * CELL_SIZE_PX + CELL_SIZE_PX // 2)
+        # collect structures only if not already set (when loading from save)
+        if not hasattr(self, 'structures'):
+            self.structures = []
+            # add conveyors first
+            for conv in self.conveyors:
+                self.structures.append(conv)
+            # then map structures
+            for row in self.map.cells:
+                for cell in row:
+                    if not cell.isEmpty():
+                        self.structures.append(cell.structure)
 
-                    conv = Conveyor(start_pos, end_pos, self)
-                    # restore travel_time if present
-                    if 'travel_time' in cdata:
-                        conv.travel_time = cdata['travel_time']
-                    self.conveyors.append(conv)
-            except Exception:
-                # no conveyors info or failed to parse; leave empty
-                self.conveyors = []
-
-        # collect structures: conveyors (non-map) + map structures
-        self.structures = []
-        # add conveyors first
-        for conv in self.conveyors:
-            self.structures.append(conv)
-        # then map structures
-        for row in self.map.cells:
-            for cell in row:
-                if not cell.isEmpty():
-                    self.structures.append(cell.structure)
-
-        self.production_timer = 0
-        self.consumption_timer = 0
+        if not hasattr(self, 'production_timer'):
+            self.production_timer = 0
+        if not hasattr(self, 'consumption_timer'):
+            self.consumption_timer = 0
 
     def save_map(self):
         """Save map to App/saves/map.json"""
@@ -225,23 +235,14 @@ class GameManager(Singleton):
 
         self.production_timer += self.delta_time
         if self.production_timer > 2000:
-            # try find a mine in map and push into first conveyor if available
-            try:
-                mine_cell = self.map.getCell(1, 1)
-                if mine_cell and not mine_cell.isEmpty() and self.conveyors:
-                    mine_cell.structure.produce(self.conveyors[0])
-            except Exception:
-                pass
+            if hasattr(self, 'mine') and self.mine and self.conveyors:
+                self.mine.produce(self.conveyors[0])
             self.production_timer = 0
 
         self.consumption_timer += self.delta_time
         if self.consumption_timer > 2000:
-            try:
-                well_cell = self.map.getCell(3, 1)
-                if well_cell and not well_cell.isEmpty() and self.conveyors:
-                    well_cell.structure.consume(self.conveyors[0])
-            except Exception:
-                pass
+            if hasattr(self, 'well') and self.well and hasattr(self, 'final_conveyor'):
+                self.well.consume(self.final_conveyor)
             self.consumption_timer = 0
 
         # flip and tick
@@ -251,7 +252,7 @@ class GameManager(Singleton):
 
     def draw(self):
         self.screen.fill('black')
-
+        
         # mouse grid coords
         mx, my = int(self.mouse.position.x), int(self.mouse.position.y)
         gx = mx // CELL_SIZE_PX
@@ -294,6 +295,11 @@ class GameManager(Singleton):
         text = font.render("Save & Exit", True, (255, 255, 255))
         text_rect = text.get_rect(center=self.save_button_rect.center)
         self.screen.blit(text, text_rect)
+        
+        # display points below button
+        font = pg.font.Font(None, 36)
+        points_text = font.render(f"Points: {self.points}", True, (255, 215, 0))
+        self.screen.blit(points_text, (self.save_button_rect.left, self.save_button_rect.bottom + 10))
 
         # draw mouse
         self.mouse.draw()

@@ -16,41 +16,43 @@
     ],
     [
       null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
       {
         "class": "Mine",
         "number": 1
       },
       null,
       {
-        "class": "Well",
-        "consumingNumber": 1
+        "class": "SplitterModule"
       },
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    [
-      null,
       null,
       {
         "class": "MergerModule"
       },
       null,
+      {
+        "class": "Well",
+        "consumingNumber": 1
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
       null,
       null,
       null,
@@ -64,9 +66,7 @@
       null,
       null,
       null,
-      {
-        "class": "SplitterModule"
-      },
+      null,
       null,
       null,
       null,
@@ -136,12 +136,67 @@
   "conveyors": [
     {
       "start": [
-        1,
+        2,
+        2
+      ],
+      "end": [
+        4,
+        2
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        4,
+        2
+      ],
+      "end": [
+        5,
+        1
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        5,
         1
       ],
       "end": [
-        3,
-        1
+        6,
+        2
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        4,
+        2
+      ],
+      "end": [
+        5,
+        3
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        5,
+        3
+      ],
+      "end": [
+        6,
+        2
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        6,
+        2
+      ],
+      "end": [
+        8,
+        2
       ],
       "travel_time": 2000
     }

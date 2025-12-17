@@ -13,23 +13,41 @@ class SplitterModule(Structure):
         self.position = pg.Vector2((px, py))
         self.gameManager = gameManager
 
-        # las in son las entradas y out la salida (mirar sprites del concept art)
-        self.inConveyorSlot1 = None
-        self.outConveyorSlot1 = None
-        self.outConveyorSlot2 = None
-        self.outConveyotSlot3 = None
+        self.inputConveyor = None
+        self.outputConveyor1 = None
+        self.outputConveyor2 = None
+        self.alternate = False
 
         self.radius = 15
-        # color azul claro
-        self.color = (135, 206, 250)  # azul claro
+        self.color = (135, 206, 250)
+
     def update(self):
-        pass
+        self.process()
     
     def draw(self):
-        pg.draw.circle(self.gameManager.screen, self.color, (self.position.x, self.position.y), self.radius)
+        pg.draw.circle(self.gameManager.screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
         
     def process(self):
-        '''
-        Procesa los numeros que le entran por el in y los separara en las outs
-        '''
-        pass
+        '''Splits numbers from input alternating between two outputs'''
+        if self.inputConveyor is None or self.inputConveyor.isEmpty():
+            return
+        
+        number = self.inputConveyor.pop()
+        if number is None:
+            return
+        
+        if self.alternate and self.outputConveyor1:
+            self.outputConveyor1.push(number)
+        elif not self.alternate and self.outputConveyor2:
+            self.outputConveyor2.push(number)
+        
+        self.alternate = not self.alternate
+    
+    def connectInput(self, conveyor):
+        self.inputConveyor = conveyor
+    
+    def connectOutput1(self, conveyor):
+        self.outputConveyor1 = conveyor
+    
+    def connectOutput2(self, conveyor):
+        self.outputConveyor2 = conveyor

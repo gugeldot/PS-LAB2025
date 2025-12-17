@@ -1,7 +1,7 @@
 import pygame as pg
 from collections import deque
 from .structure import Structure
-from .flowIterator import FlowIterator
+from patterns.iterator import FlowIterator
 
 
 class Conveyor(Structure):
@@ -17,6 +17,7 @@ class Conveyor(Structure):
         self.width = 8
         self.color = (128, 128, 128)
         self.travel_time = 2000
+        self.outputConveyor = None
         
     def push(self, number):
         self.queue.append({'value': number, 'position': 0.0})
@@ -55,6 +56,14 @@ class Conveyor(Structure):
             item['position'] += delta
             if item['position'] > 1.0:
                 item['position'] = 1.0
+        
+        if self.queue and self.queue[0]['position'] >= 1.0 and self.outputConveyor:
+            number = self.pop()
+            if number is not None:
+                self.outputConveyor.push(number)
+    
+    def connectOutput(self, conveyor):
+        self.outputConveyor = conveyor
     
     def draw(self):
         pg.draw.line(self.gameManager.screen, self.color, 
