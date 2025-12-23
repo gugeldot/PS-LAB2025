@@ -1,5 +1,5 @@
 from .structureCreator import *
-from .splitterModule import *
+from .splitter import *
 
 
 class SplitterCreator(StructureCreator):

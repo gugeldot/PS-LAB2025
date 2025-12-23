@@ -21,18 +21,20 @@ class Conveyor(Structure):
         
     def push(self, number):
         self.queue.append({'value': number, 'position': 0.0})
+        '''
         try:
-            print(f"Conveyor: pushed {number}, queue size now {len(self.queue)}")
+            #print(f"Conveyor: pushed {number}, queue size now {len(self.queue)}")
         except Exception:
-            pass
+            pass '''
     
     def pop(self):
         if self.queue and self.queue[0]['position'] >= 1.0:
             val = self.queue.popleft()['value']
+            '''
             try:
-                print(f"Conveyor: popped {val}, queue size now {len(self.queue)}")
+                #print(f"Conveyor: popped {val}, queue size now {len(self.queue)}")
             except Exception:
-                pass
+                pass'''
             return val
         return None
     

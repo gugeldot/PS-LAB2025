@@ -21,7 +21,7 @@ from patterns.decorator import SpeedUpgrade, EfficiencyUpgrade
 
 class GameManager(Singleton):
     _initialized = False
-
+    # region __init__
     def __init__(self):
         if getattr(self, "_initialized", False):
             return
@@ -69,7 +69,7 @@ class GameManager(Singleton):
 
         # mark initialized
         self._initialized = True
-
+    # region new_game
     def new_game(self):
         """Inicializa los elementos del juego: carga mapa si existe o crea uno por defecto."""
         self.mouse = MouseControl(self)
@@ -236,98 +236,217 @@ class GameManager(Singleton):
             self.production_timer = 0
         if not hasattr(self, 'consumption_timer'):
             self.consumption_timer = 0
+# region update
+    def update(self):
+        # update inputs
+        self.mouse.update()
+        # process any pending upgrade actions from the action buffer
+        try:
+            self.process_action_buffer()
+        except Exception:
+            pass
+        
+        # update map structures
+        self.map.update()
 
-    def _reconnect_structures(self):
-        """Re-establish connections between structures and conveyors after loading from save."""
-        # Find structures by their grid position
-        def find_structure_at(grid_x, grid_y):
-            if 0 <= grid_y < len(self.map.cells) and 0 <= grid_x < len(self.map.cells[grid_y]):
-                cell = self.map.cells[grid_y][grid_x]
-                if not cell.isEmpty():
-                    return cell.structure
-            return None
+        # update conveyors (they are not map-placed structures)
+        for conv in getattr(self, 'conveyors', []):
+            try:
+                conv.update()
+            except Exception:
+                pass
 
-        # Connect conveyors to structures based on their start/end positions
-        for conv in self.conveyors:
-            start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
-            start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
-            end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-            end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+        self.production_timer += self.delta_time
+        if self.production_timer > 2000:
+            if hasattr(self, 'mine') and self.mine and self.conveyors:
+                self.mine.produce(self.conveyors[0])
+            self.production_timer = 0
 
-            start_struct = find_structure_at(start_grid_x, start_grid_y)
-            end_struct = find_structure_at(end_grid_x, end_grid_y)
+        self.consumption_timer += self.delta_time
+        if self.consumption_timer > 2000:
+            if hasattr(self, 'well') and self.well and hasattr(self, 'final_conveyor'):
+                self.well.consume(self.final_conveyor)
+            self.consumption_timer = 0
 
-            # Connect source structure to conveyor
-            if start_struct:
-                if hasattr(start_struct, 'connectOutput'):
-                    start_struct.connectOutput(conv)
-                elif hasattr(start_struct, 'connectOutput1'):
-                    # For splitters, use Y position to determine which output
-                    # If conveyor goes upward (end_y < start_y), use output1
-                    # If conveyor goes downward (end_y > start_y), use output2
-                    if conv.end_pos.y < start_struct.position.y:
-                        start_struct.connectOutput1(conv)
-                        print(f"[Reconnect] Connected splitter output1 (upper path)")
+        # tick (advance clock and compute delta_time)
+        self.delta_time = self.clock.tick(FPS)
+        pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
+# region draw
+    def draw(self):
+        self.screen.fill('black')
+        
+        # mouse grid coords
+        mx, my = int(self.mouse.position.x), int(self.mouse.position.y)
+        gx = mx // CELL_SIZE_PX
+        gy = my // CELL_SIZE_PX
+
+        # draw grid and structures
+        grid_color = (80, 80, 80)
+        hover_fill = (200, 200, 200)
+        for y in range(self.map.height):
+            for x in range(self.map.width):
+                rect = pg.Rect(x * CELL_SIZE_PX, y * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX)
+                # highlight hovered cell
+                if x == gx and y == gy and 0 <= x < self.map.width and 0 <= y < self.map.height:
+                    pg.draw.rect(self.screen, hover_fill, rect)
+                pg.draw.rect(self.screen, grid_color, rect, 1)
+
+                cell = self.map.getCell(x, y)
+                if cell and not cell.isEmpty():
+                    try:
+                        cell.structure.draw()
+                    except Exception:
+                        pass
+
+        # draw non-map structures (e.g., conveyors)
+        for structure in self.structures:
+            if hasattr(structure, 'grid_position'):
+                continue
+            try:
+                structure.draw()
+            except Exception:
+                pass
+
+        # draw Save & Exit button
+        mouse_pt = (int(self.mouse.position.x), int(self.mouse.position.y))
+        hover = self.save_button_rect.collidepoint(mouse_pt)
+        btn_color = (100, 100, 100) if not hover else (150, 150, 150)
+        pg.draw.rect(self.screen, btn_color, self.save_button_rect)
+        # button text
+        font = pg.font.Font(None, 24)
+        text = font.render("Save & Exit", True, (255, 255, 255))
+        text_rect = text.get_rect(center=self.save_button_rect.center)
+        self.screen.blit(text, text_rect)
+        
+        # display total points as a label in the bottom-left corner
+        # draw a dark background box so the text is always legible
+        try:
+            font = pg.font.Font(None, 36)
+            points_text = font.render(f"Puntuación: {self.points}", True, (255, 215, 0))
+            padding = 8
+            text_rect = points_text.get_rect()
+            label_x = 10
+            label_y = HEIGHT - text_rect.height - 10
+            bg_rect = pg.Rect(label_x - padding, label_y - padding,
+                              text_rect.width + padding * 2, text_rect.height + padding * 2)
+            # slightly translucent-ish look (solid color; SDL surfaces do not always support alpha here)
+            pg.draw.rect(self.screen, (30, 30, 30), bg_rect)
+            # thin border
+            pg.draw.rect(self.screen, (180, 180, 180), bg_rect, 1)
+            self.screen.blit(points_text, (label_x, label_y))
+        except Exception:
+            # fallback: try a very small font and a plain blit so draw() never crashes
+            try:
+                font = pg.font.Font(None, 20)
+                points_text = font.render(str(getattr(self, 'points', 0)), True, (255, 215, 0))
+                self.screen.blit(points_text, (10, HEIGHT - 30))
+            except Exception:
+                pass
+
+        # draw Upgrade buttons (Mejora Velocidad / Mejora Eficiencia)
+        font_small = pg.font.Font(None, 20)
+
+        # Speed button shows price and remaining uses, and is shaded if unaffordable or no uses
+        hover_speed = self.speed_button_rect.collidepoint(mouse_pt)
+        # determine next cost for speed (based on how many uses already consumed)
+        next_speed_cost = None
+        try:
+            if 0 <= self.speed_uses_used < len(self.speed_costs):
+                next_speed_cost = int(self.speed_costs[self.speed_uses_used])
+        except Exception:
+            next_speed_cost = None
+
+        can_buy_speed = (getattr(self, 'points', 0) >= (next_speed_cost or 0)) and (self.speed_uses_left > 0)
+        if not can_buy_speed:
+            speed_color = (60, 60, 60)
+        else:
+            speed_color = (150, 150, 150) if hover_speed else (100, 100, 100)
+        pg.draw.rect(self.screen, speed_color, self.speed_button_rect)
+        speed_label_cost = f"{next_speed_cost}pts" if next_speed_cost is not None else "N/A"
+        text_speed = font_small.render(f"Mejora Velocidad ({speed_label_cost}) [{self.speed_uses_left}]", True, (255, 255, 255))
+        self.screen.blit(text_speed, text_speed.get_rect(center=self.speed_button_rect.center))
+
+        # Efficiency button shows price and remaining uses, and is shaded if unaffordable or no uses
+        hover_eff = self.eff_button_rect.collidepoint(mouse_pt)
+        # determine next cost for efficiency
+        next_eff_cost = None
+        try:
+            if 0 <= self.eff_uses_used < len(self.eff_costs):
+                next_eff_cost = int(self.eff_costs[self.eff_uses_used])
+        except Exception:
+            next_eff_cost = None
+
+        can_buy_eff = (getattr(self, 'points', 0) >= (next_eff_cost or 0)) and (self.eff_uses_left > 0)
+        if not can_buy_eff:
+            eff_color = (60, 60, 60)
+        else:
+            eff_color = (150, 150, 150) if hover_eff else (100, 100, 100)
+        pg.draw.rect(self.screen, eff_color, self.eff_button_rect)
+        eff_label_cost = f"{next_eff_cost}pts" if next_eff_cost is not None else "N/A"
+        text_eff = font_small.render(f"Mejora Eficiencia ({eff_label_cost}) [{self.eff_uses_left}]", True, (255, 255, 255))
+        self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
+
+        # draw mouse
+        self.mouse.draw()
+        # present the rendered frame
+        pg.display.flip()
+# region checkEvents
+    def checkEvents(self):
+        for event in pg.event.get():
+            # pass to mouse control (keeps existing debug prints)
+            self.mouse.checkClickEvent(event)
+
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                self.running = False
+                self.save_and_exit()
+
+            # Use MOUSEBUTTONUP for reliable button clicks (handle release)
+            if event.type == pg.MOUSEBUTTONUP and event.button == 1:
+                # check if Save & Exit clicked
+                if self.save_button_rect.collidepoint(event.pos):
+                    self.save_and_exit()
+                # enqueue upgrade actions (global)
+                elif self.speed_button_rect.collidepoint(event.pos):
+                    # avoid enqueueing more than remaining capacity (max 10 uses total)
+                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
+                    if queued + self.speed_uses_used >= 10:
+                        print("No speed upgrades available to queue")
+                    elif queued >= 1:
+                        # already have a pending speed action; ignore extra clicks
+                        print("Ya hay una Mejora Velocidad pendiente")
+                    elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
+                        print("No tienes puntos suficientes para Mejora Velocidad")
                     else:
-                        start_struct.connectOutput2(conv)
-                        print(f"[Reconnect] Connected splitter output2 (lower path)")
+                        # append action (will be processed in update())
+                        self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
+                        print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
 
-            # Connect conveyor to destination structure
-            if end_struct:
-                if hasattr(end_struct, 'connectInput'):
-                    end_struct.connectInput(conv)
-                elif hasattr(end_struct, 'connectInput1'):
-                    # For mergers, use Y position to determine which input
-                    # If conveyor comes from above (start_y < end_y), use input1
-                    # If conveyor comes from below (start_y > end_y), use input2
-                    if conv.start_pos.y < end_struct.position.y:
-                        end_struct.connectInput1(conv)
-                        print(f"[Reconnect] Connected merger input1 (from above)")
+                elif self.eff_button_rect.collidepoint(event.pos):
+                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
+                    if queued + self.eff_uses_used >= 10:
+                        print("No efficiency upgrades available to queue")
+                    elif queued >= 1:
+                        print("Ya hay una Mejora Eficiencia pendiente")
+                    elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
+                        print("No tienes puntos suficientes para Mejora Eficiencia")
                     else:
-                        end_struct.connectInput2(conv)
-                        print(f"[Reconnect] Connected merger input2 (from below)")
+                        self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
+                        print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
+        #modo construccion
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_m:
+                    #construir mina
+                    mine = MineCreator().createStructure((9,9), 1, self)
+                    self.structures.append(mine)
+                    self.map.placeStructure(9,9, mine)
+                    print(f"------------------------Mina creada en ({self.mouse.position.x}, {self.mouse.position.y})")
+# region run
+    def run(self):
+        while self.running:
+            self.checkEvents()
+            self.update()
+            self.draw()
 
-        # Connect conveyors to each other (chain)
-        for i, conv in enumerate(self.conveyors):
-            # Check if this conveyor's end connects to another conveyor's start
-            for other_conv in self.conveyors:
-                if conv != other_conv:
-                    if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
-                        int(conv.end_pos.y) == int(other_conv.start_pos.y)):
-                        
-                        # Only connect if there is NO structure at this junction
-                        # If there is a structure, the structure handles the transfer
-                        grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-                        grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-                        struct = find_structure_at(grid_x, grid_y)
-                        
-                        if struct is None:
-                            conv.connectOutput(other_conv)
-                            print(f"[Reconnect] Connected conveyor {i} to conveyor")
-                        else:
-                            print(f"[Reconnect] Skipping direct conveyor connection at {grid_x},{grid_y} due to structure {struct.__class__.__name__}")
-
-        # Re-establish reference to first and last conveyors
-        if len(self.conveyors) > 0:
-            # Find mine and well to set first/last conveyor references
-            for row in self.map.cells:
-                for cell in row:
-                    if not cell.isEmpty():
-                        if cell.structure.__class__.__name__ == 'Mine':
-                            self.mine = cell.structure
-                        elif cell.structure.__class__.__name__ == 'Well':
-                            self.well = cell.structure
-
-            # Set final conveyor (last one that connects to well)
-            if hasattr(self, 'well') and self.well:
-                for conv in self.conveyors:
-                    end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-                    end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-                    well_grid_x = int(self.well.position.x) // CELL_SIZE_PX
-                    well_grid_y = int(self.well.position.y) // CELL_SIZE_PX
-                    if end_grid_x == well_grid_x and end_grid_y == well_grid_y:
-                        self.final_conveyor = conv
-                        break
 
     def save_map(self):
         """Save map to App/saves/map.json"""
@@ -450,208 +569,7 @@ class GameManager(Singleton):
         pg.quit()
         sys.exit()
 
-    def update(self):
-        # update inputs
-        self.mouse.update()
-        # process any pending upgrade actions from the action buffer
-        try:
-            self.process_action_buffer()
-        except Exception:
-            pass
-
-        # update map structures
-        self.map.update()
-
-        # update conveyors (they are not map-placed structures)
-        for conv in getattr(self, 'conveyors', []):
-            try:
-                conv.update()
-            except Exception:
-                pass
-
-        self.production_timer += self.delta_time
-        if self.production_timer > 2000:
-            if hasattr(self, 'mine') and self.mine and self.conveyors:
-                self.mine.produce(self.conveyors[0])
-            self.production_timer = 0
-
-        self.consumption_timer += self.delta_time
-        if self.consumption_timer > 2000:
-            if hasattr(self, 'well') and self.well and hasattr(self, 'final_conveyor'):
-                self.well.consume(self.final_conveyor)
-            self.consumption_timer = 0
-
-        # tick (advance clock and compute delta_time)
-        self.delta_time = self.clock.tick(FPS)
-        pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
-
-    def draw(self):
-        self.screen.fill('black')
-        
-        # mouse grid coords
-        mx, my = int(self.mouse.position.x), int(self.mouse.position.y)
-        gx = mx // CELL_SIZE_PX
-        gy = my // CELL_SIZE_PX
-
-        # draw grid and structures
-        grid_color = (80, 80, 80)
-        hover_fill = (200, 200, 200)
-        for y in range(self.map.height):
-            for x in range(self.map.width):
-                rect = pg.Rect(x * CELL_SIZE_PX, y * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX)
-                # highlight hovered cell
-                if x == gx and y == gy and 0 <= x < self.map.width and 0 <= y < self.map.height:
-                    pg.draw.rect(self.screen, hover_fill, rect)
-                pg.draw.rect(self.screen, grid_color, rect, 1)
-
-                cell = self.map.getCell(x, y)
-                if cell and not cell.isEmpty():
-                    try:
-                        cell.structure.draw()
-                    except Exception:
-                        pass
-
-        # draw non-map structures (e.g., conveyors)
-        for structure in self.structures:
-            if hasattr(structure, 'grid_position'):
-                continue
-            try:
-                structure.draw()
-            except Exception:
-                pass
-
-        # draw Save & Exit button
-        mouse_pt = (int(self.mouse.position.x), int(self.mouse.position.y))
-        hover = self.save_button_rect.collidepoint(mouse_pt)
-        btn_color = (100, 100, 100) if not hover else (150, 150, 150)
-        pg.draw.rect(self.screen, btn_color, self.save_button_rect)
-        # button text
-        font = pg.font.Font(None, 24)
-        text = font.render("Save & Exit", True, (255, 255, 255))
-        text_rect = text.get_rect(center=self.save_button_rect.center)
-        self.screen.blit(text, text_rect)
-        
-        # display total points as a label in the bottom-left corner
-        # draw a dark background box so the text is always legible
-        try:
-            font = pg.font.Font(None, 36)
-            points_text = font.render(f"Puntuación: {self.points}", True, (255, 215, 0))
-            padding = 8
-            text_rect = points_text.get_rect()
-            label_x = 10
-            label_y = HEIGHT - text_rect.height - 10
-            bg_rect = pg.Rect(label_x - padding, label_y - padding,
-                              text_rect.width + padding * 2, text_rect.height + padding * 2)
-            # slightly translucent-ish look (solid color; SDL surfaces do not always support alpha here)
-            pg.draw.rect(self.screen, (30, 30, 30), bg_rect)
-            # thin border
-            pg.draw.rect(self.screen, (180, 180, 180), bg_rect, 1)
-            self.screen.blit(points_text, (label_x, label_y))
-        except Exception:
-            # fallback: try a very small font and a plain blit so draw() never crashes
-            try:
-                font = pg.font.Font(None, 20)
-                points_text = font.render(str(getattr(self, 'points', 0)), True, (255, 215, 0))
-                self.screen.blit(points_text, (10, HEIGHT - 30))
-            except Exception:
-                pass
-
-        # draw Upgrade buttons (Mejora Velocidad / Mejora Eficiencia)
-        font_small = pg.font.Font(None, 20)
-
-        # Speed button shows price and remaining uses, and is shaded if unaffordable or no uses
-        hover_speed = self.speed_button_rect.collidepoint(mouse_pt)
-        # determine next cost for speed (based on how many uses already consumed)
-        next_speed_cost = None
-        try:
-            if 0 <= self.speed_uses_used < len(self.speed_costs):
-                next_speed_cost = int(self.speed_costs[self.speed_uses_used])
-        except Exception:
-            next_speed_cost = None
-
-        can_buy_speed = (getattr(self, 'points', 0) >= (next_speed_cost or 0)) and (self.speed_uses_left > 0)
-        if not can_buy_speed:
-            speed_color = (60, 60, 60)
-        else:
-            speed_color = (150, 150, 150) if hover_speed else (100, 100, 100)
-        pg.draw.rect(self.screen, speed_color, self.speed_button_rect)
-        speed_label_cost = f"{next_speed_cost}pts" if next_speed_cost is not None else "N/A"
-        text_speed = font_small.render(f"Mejora Velocidad ({speed_label_cost}) [{self.speed_uses_left}]", True, (255, 255, 255))
-        self.screen.blit(text_speed, text_speed.get_rect(center=self.speed_button_rect.center))
-
-        # Efficiency button shows price and remaining uses, and is shaded if unaffordable or no uses
-        hover_eff = self.eff_button_rect.collidepoint(mouse_pt)
-        # determine next cost for efficiency
-        next_eff_cost = None
-        try:
-            if 0 <= self.eff_uses_used < len(self.eff_costs):
-                next_eff_cost = int(self.eff_costs[self.eff_uses_used])
-        except Exception:
-            next_eff_cost = None
-
-        can_buy_eff = (getattr(self, 'points', 0) >= (next_eff_cost or 0)) and (self.eff_uses_left > 0)
-        if not can_buy_eff:
-            eff_color = (60, 60, 60)
-        else:
-            eff_color = (150, 150, 150) if hover_eff else (100, 100, 100)
-        pg.draw.rect(self.screen, eff_color, self.eff_button_rect)
-        eff_label_cost = f"{next_eff_cost}pts" if next_eff_cost is not None else "N/A"
-        text_eff = font_small.render(f"Mejora Eficiencia ({eff_label_cost}) [{self.eff_uses_left}]", True, (255, 255, 255))
-        self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
-
-        # draw mouse
-        self.mouse.draw()
-        # present the rendered frame
-        pg.display.flip()
-
-    def checkEvents(self):
-        for event in pg.event.get():
-            # pass to mouse control (keeps existing debug prints)
-            self.mouse.checkClickEvent(event)
-
-            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
-                self.running = False
-                self.save_and_exit()
-
-            # Use MOUSEBUTTONUP for reliable button clicks (handle release)
-            if event.type == pg.MOUSEBUTTONUP and event.button == 1:
-                # check if Save & Exit clicked
-                if self.save_button_rect.collidepoint(event.pos):
-                    self.save_and_exit()
-                # enqueue upgrade actions (global)
-                elif self.speed_button_rect.collidepoint(event.pos):
-                    # avoid enqueueing more than remaining capacity (max 10 uses total)
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
-                    if queued + self.speed_uses_used >= 10:
-                        print("No speed upgrades available to queue")
-                    elif queued >= 1:
-                        # already have a pending speed action; ignore extra clicks
-                        print("Ya hay una Mejora Velocidad pendiente")
-                    elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Velocidad")
-                    else:
-                        # append action (will be processed in update())
-                        self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
-
-                elif self.eff_button_rect.collidepoint(event.pos):
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
-                    if queued + self.eff_uses_used >= 10:
-                        print("No efficiency upgrades available to queue")
-                    elif queued >= 1:
-                        print("Ya hay una Mejora Eficiencia pendiente")
-                    elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Eficiencia")
-                    else:
-                        self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
-
-    def run(self):
-        while self.running:
-            self.checkEvents()
-            self.update()
-            self.draw()
-
+    
     # ---- Action buffer processing ----
     def process_action_buffer(self, max_per_frame: int = 5):
         """Process up to `max_per_frame` queued upgrade actions.
@@ -845,3 +763,94 @@ class GameManager(Singleton):
             return True
 
         return False
+    def _reconnect_structures(self):
+        """Re-establish connections between structures and conveyors after loading from save."""
+        # Find structures by their grid position
+        def find_structure_at(grid_x, grid_y):
+            if 0 <= grid_y < len(self.map.cells) and 0 <= grid_x < len(self.map.cells[grid_y]):
+                cell = self.map.cells[grid_y][grid_x]
+                if not cell.isEmpty():
+                    return cell.structure
+            return None
+
+        # Connect conveyors to structures based on their start/end positions
+        for conv in self.conveyors:
+            start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
+            start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
+            end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+            end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+
+            start_struct = find_structure_at(start_grid_x, start_grid_y)
+            end_struct = find_structure_at(end_grid_x, end_grid_y)
+
+            # Connect source structure to conveyor
+            if start_struct:
+                if hasattr(start_struct, 'connectOutput'):
+                    start_struct.connectOutput(conv)
+                elif hasattr(start_struct, 'connectOutput1'):
+                    # For splitters, use Y position to determine which output
+                    # If conveyor goes upward (end_y < start_y), use output1
+                    # If conveyor goes downward (end_y > start_y), use output2
+                    if conv.end_pos.y < start_struct.position.y:
+                        start_struct.connectOutput1(conv)
+                        print(f"[Reconnect] Connected splitter output1 (upper path)")
+                    else:
+                        start_struct.connectOutput2(conv)
+                        print(f"[Reconnect] Connected splitter output2 (lower path)")
+
+            # Connect conveyor to destination structure
+            if end_struct:
+                if hasattr(end_struct, 'connectInput'):
+                    end_struct.connectInput(conv)
+                elif hasattr(end_struct, 'connectInput1'):
+                    # For mergers, use Y position to determine which input
+                    # If conveyor comes from above (start_y < end_y), use input1
+                    # If conveyor comes from below (start_y > end_y), use input2
+                    if conv.start_pos.y < end_struct.position.y:
+                        end_struct.connectInput1(conv)
+                        print(f"[Reconnect] Connected merger input1 (from above)")
+                    else:
+                        end_struct.connectInput2(conv)
+                        print(f"[Reconnect] Connected merger input2 (from below)")
+
+        # Connect conveyors to each other (chain)
+        for i, conv in enumerate(self.conveyors):
+            # Check if this conveyor's end connects to another conveyor's start
+            for other_conv in self.conveyors:
+                if conv != other_conv:
+                    if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
+                        int(conv.end_pos.y) == int(other_conv.start_pos.y)):
+                        
+                        # Only connect if there is NO structure at this junction
+                        # If there is a structure, the structure handles the transfer
+                        grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+                        grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+                        struct = find_structure_at(grid_x, grid_y)
+                        
+                        if struct is None:
+                            conv.connectOutput(other_conv)
+                            print(f"[Reconnect] Connected conveyor {i} to conveyor")
+                        else:
+                            print(f"[Reconnect] Skipping direct conveyor connection at {grid_x},{grid_y} due to structure {struct.__class__.__name__}")
+
+        # Re-establish reference to first and last conveyors
+        if len(self.conveyors) > 0:
+            # Find mine and well to set first/last conveyor references
+            for row in self.map.cells:
+                for cell in row:
+                    if not cell.isEmpty():
+                        if cell.structure.__class__.__name__ == 'Mine':
+                            self.mine = cell.structure
+                        elif cell.structure.__class__.__name__ == 'Well':
+                            self.well = cell.structure
+
+            # Set final conveyor (last one that connects to well)
+            if hasattr(self, 'well') and self.well:
+                for conv in self.conveyors:
+                    end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+                    end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+                    well_grid_x = int(self.well.position.x) // CELL_SIZE_PX
+                    well_grid_y = int(self.well.position.y) // CELL_SIZE_PX
+                    if end_grid_x == well_grid_x and end_grid_y == well_grid_y:
+                        self.final_conveyor = conv
+                        break
