@@ -50,11 +50,35 @@ class SplitterModule(Structure):
         
         self.alternate = not self.alternate
     
+    @property
+    def input(self):
+        return self.inputConveyor
+    
+    @input.setter
+    def input(self, value):
+        self.inputConveyor = value
+
+    @property
+    def output1(self):
+        return self.outputConveyor1
+    
+    @output1.setter
+    def output1(self, value):
+        self.outputConveyor1 = value
+
+    @property
+    def output2(self):
+        return self.outputConveyor2
+    
+    @output2.setter
+    def output2(self, value):
+        self.outputConveyor2 = value
+
     def connectInput(self, conveyor):
-        self.inputConveyor = conveyor
+        self.input = conveyor
     
     def connectOutput1(self, conveyor):
-        self.outputConveyor1 = conveyor
+        self.output1 = conveyor
     
     def connectOutput2(self, conveyor):
-        self.outputConveyor2 = conveyor
+        self.output2 = conveyor

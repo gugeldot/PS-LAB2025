@@ -44,6 +44,10 @@ class Conveyor(Structure):
     def isEmpty(self):
         return len(self.queue) == 0
     
+    def isReady(self):
+        '''Returns True if there is an item at the end of the conveyor'''
+        return self.queue and self.queue[0]['position'] >= 1.0
+    
     def size(self):
         return len(self.queue)
     
@@ -62,8 +66,16 @@ class Conveyor(Structure):
             if number is not None:
                 self.outputConveyor.push(number)
     
+    @property
+    def output(self):
+        return self.outputConveyor
+    
+    @output.setter
+    def output(self, value):
+        self.outputConveyor = value
+
     def connectOutput(self, conveyor):
-        self.outputConveyor = conveyor
+        self.output = conveyor
     
     def draw(self):
         cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))

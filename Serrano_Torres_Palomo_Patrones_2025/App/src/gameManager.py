@@ -15,6 +15,7 @@ from core.mineCreator import MineCreator
 from core.wellCreator import WellCreator
 from core.mergerCreator import MergerCreator
 from core.splitterCreator import SplitterCreator
+from core.operationCreator import SumCreator, MultiplyCreator
 from core.conveyor import Conveyor
 from map.map import Map
 from patterns.decorator import SpeedUpgrade, EfficiencyUpgrade
@@ -108,6 +109,8 @@ class GameManager(Singleton):
             "Well": WellCreator(),
             "MergerModule": MergerCreator(),
             "SplitterModule": SplitterCreator(),
+            "SumModule": SumCreator(),
+            "MultiplyModule": MultiplyCreator(),
         }
 
         # ensure save dir exists (create lazily)
@@ -214,15 +217,15 @@ class GameManager(Singleton):
             print(f"No saved map found at {self.save_file}, creating default map.")
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
-            # Test: Mine -> Conveyor1 -> Splitter -> [Conveyor2, Conveyor3] -> Merger -> Conveyor4 -> Well
-            mine = MineCreator().createStructure((2, 2), 1, self)
-            self.map.placeStructure(2, 2, mine)
+            # Test: Two Mines (1) -> SumModule -> Well (2)
+            mine1 = MineCreator().createStructure((2, 1), 1, self)
+            self.map.placeStructure(2, 1, mine1)
 
-            splitter = SplitterCreator().createStructure((4, 2), self)
-            self.map.placeStructure(4, 2, splitter)
+            mine2 = MineCreator().createStructure((2, 3), 1, self)
+            self.map.placeStructure(2, 3, mine2)
 
-            merger = MergerCreator().createStructure((6, 2), self)
-            self.map.placeStructure(6, 2, merger)
+            sum_mod = SumCreator().createStructure((5, 2), self)
+            self.map.placeStructure(5, 2, sum_mod)
 
             # place a row of 10 wells with consuming numbers 1..10 using the configured positions
             self.wells = []
@@ -236,18 +239,20 @@ class GameManager(Singleton):
                 self.map.placeStructure(int(pos[0]), int(pos[1]), w)
                 self.wells.append(w)
 
-            # Create conveyors with visual deviation
-            conv1 = Conveyor(mine.position, splitter.position, self)
+            # Create conveyors
+            conv1 = Conveyor(mine1.position, sum_mod.position, self)
+            conv2 = Conveyor(mine2.position, sum_mod.position, self)
+            conv3 = Conveyor(sum_mod.position, well.position, self)
             
-            # Upper path: splitter -> waypoint up -> merger
-            waypoint_up = pg.Vector2(merger.position.x - 40, merger.position.y - 40)
-            conv2 = Conveyor(splitter.position, waypoint_up, self)
-            conv2_merge = Conveyor(waypoint_up, merger.position, self)
+            self.conveyors = [conv1, conv2, conv3]
             
-            # Lower path: splitter -> waypoint down -> merger
-            waypoint_down = pg.Vector2(merger.position.x - 40, merger.position.y + 40)
-            conv3 = Conveyor(splitter.position, waypoint_down, self)
-            conv3_merge = Conveyor(waypoint_down, merger.position, self)
+            # Use new setter syntax for connections
+            mine1.output = conv1
+            mine2.output = conv2
+            sum_mod.input1 = conv1
+            sum_mod.input2 = conv2
+            sum_mod.output = conv3
+            conv3.output = well
             
             # connect merger to the first well (consumingNumber=1) for the sample conveyor path
             target_well = self.wells[0] if getattr(self, 'wells', None) and len(self.wells) > 0 else None
@@ -279,7 +284,6 @@ class GameManager(Singleton):
             self.final_conveyor = conv4
             self.production_timer = 0
             self.consumption_timer = 0
-            self.points = 0
 
         # ensure conveyors list exists
         if not hasattr(self, 'conveyors'):
