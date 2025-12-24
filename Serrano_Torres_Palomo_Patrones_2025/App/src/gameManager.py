@@ -3,6 +3,7 @@ import sys
 import pathlib
 import os
 import json
+import random
 from collections import deque
 
 from settings import *
@@ -56,13 +57,19 @@ class GameManager(Singleton):
         self.eff_uses_left = 10
         self.speed_uses_used = 0
         self.eff_uses_used = 0
+        # New Mine purchase counters (max 10 uses)
+        self.mine_uses_left = 10
+        self.mine_uses_used = 0
+        # Hardcoded costs for creating a mine per use (10 entries)
+        # These mirror the style of `speed_costs` and `eff_costs` and can be tuned
+        self.mine_costs = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
         # Cost (in points) to redeem each upgrade
         # These can be tuned or moved to settings.py if desired
         # incremental cost schedule for each of the 10 possible uses
         # define as tuples/lists of length 10 (one cost per use index)
         # Example default costs; adjust as desired
-        self.speed_costs = (5, 6, 7, 8, 9, 10, 12, 14, 16, 20)
-        self.eff_costs = (8, 9, 10, 11, 12, 14, 16, 18, 20, 25)
+        self.speed_costs = (10, 12, 14, 16, 18, 20, 24, 28, 32, 40)
+        self.eff_costs = (16, 18, 20, 22, 24, 28, 32, 36, 40, 50)
         # action buffer to store pending upgrade actions (processed in update())
         # each entry: { 'type': 'speed'|'eff', 'tries': int, 'max_tries': int }
         self.action_buffer = deque()
@@ -124,9 +131,16 @@ class GameManager(Singleton):
                         upgrades = saved.get('upgrades', {})
                     speed_used = int(upgrades.get('speed_uses_used', 0))
                     eff_used = int(upgrades.get('eff_uses_used', 0))
+                    mine_used = int(upgrades.get('mine_uses_used', 0))
                     # set counters
                     self.speed_uses_used = speed_used
                     self.eff_uses_used = eff_used
+                    # restore mine purchase counters (do not change game state beyond counters)
+                    try:
+                        self.mine_uses_used = mine_used
+                        self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+                    except Exception:
+                        pass
                     self.speed_uses_left = max(0, 10 - self.speed_uses_used)
                     self.eff_uses_left = max(0, 10 - self.eff_uses_used)
                     # apply effects without consuming uses
@@ -491,7 +505,8 @@ class GameManager(Singleton):
             # include applied upgrades so they persist
             base['upgrades'] = {
                 'speed_uses_used': getattr(self, 'speed_uses_used', 0),
-                'eff_uses_used': getattr(self, 'eff_uses_used', 0)
+                'eff_uses_used': getattr(self, 'eff_uses_used', 0),
+                'mine_uses_used': getattr(self, 'mine_uses_used', 0)
             }
             # persist current score with the map
             try:
@@ -515,6 +530,22 @@ class GameManager(Singleton):
     def update(self):
         # update inputs
         self.mouse.update()
+        # update transient UI popup timer (if present)
+        try:
+            if hasattr(self, '_popup_timer') and getattr(self, '_popup_timer', 0) is not None:
+                # decrement by delta_time from previous frame
+                try:
+                    self._popup_timer -= int(self.delta_time)
+                except Exception:
+                    self._popup_timer -= 0
+                if self._popup_timer <= 0:
+                    try:
+                        self._popup_timer = None
+                        self._popup_message = None
+                    except Exception:
+                        pass
+        except Exception:
+            pass
         # process any pending upgrade actions from the action buffer
         try:
             self.process_action_buffer()
@@ -705,10 +736,47 @@ class GameManager(Singleton):
 
         # New Mine button (reactive, prints a message for now)
         hover_new_mine = self.new_mine_button_rect.collidepoint(mouse_pt)
-        new_mine_color = (150, 150, 150) if hover_new_mine else (100, 100, 100)
+        # determine next cost for creating a mine
+        next_mine_cost = None
+        try:
+            if 0 <= self.mine_uses_used < len(self.mine_costs):
+                next_mine_cost = int(self.mine_costs[self.mine_uses_used])
+        except Exception:
+            next_mine_cost = None
+
+        can_buy_mine = (getattr(self, 'points', 0) >= (next_mine_cost or 0)) and (self.mine_uses_left > 0)
+        if not can_buy_mine:
+            new_mine_color = (60, 60, 60)
+        else:
+            new_mine_color = (150, 150, 150) if hover_new_mine else (100, 100, 100)
         pg.draw.rect(self.screen, new_mine_color, self.new_mine_button_rect)
-        text_new = font_small.render("Nueva mina", True, (255, 255, 255))
+        mine_label_cost = f"{next_mine_cost}pts" if next_mine_cost is not None else "N/A"
+        text_new = font_small.render(f"Nueva Mina ({mine_label_cost}) [{self.mine_uses_left}]", True, (255, 255, 255))
         self.screen.blit(text_new, text_new.get_rect(center=self.new_mine_button_rect.center))
+
+        # transient popup message (e.g., "Mina creada en (x,y)")
+        try:
+            msg = getattr(self, '_popup_message', None)
+            t = getattr(self, '_popup_timer', None)
+            if msg and t and t > 0:
+                popup_font = pg.font.Font(None, 26)
+                text_surf = popup_font.render(msg, True, (0, 0, 0))
+                padding_x = 16
+                padding_y = 10
+                w = text_surf.get_width() + padding_x * 2
+                h = text_surf.get_height() + padding_y * 2
+                px = WIDTH // 2 - w // 2
+                py = 10
+                popup_rect = pg.Rect(px, py, w, h)
+                # background and border
+                pg.draw.rect(self.screen, (250, 240, 120), popup_rect)
+                pg.draw.rect(self.screen, (120, 120, 120), popup_rect, 2)
+                # blit text centered in popup
+                tx = px + (w - text_surf.get_width()) // 2
+                ty = py + (h - text_surf.get_height()) // 2
+                self.screen.blit(text_surf, (tx, ty))
+        except Exception:
+            pass
 
         # draw mouse
         self.mouse.draw()
@@ -771,13 +839,134 @@ class GameManager(Singleton):
                         print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
 
                 elif self.new_mine_button_rect.collidepoint(event.pos):
-                    print("Accion nueva mina")
+                    # enqueue a 'mine' purchase action (similar to speed/eff)
+                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
+                    if queued + self.mine_uses_used >= 10:
+                        print("No hay compras de Mina disponibles para poner en cola")
+                    elif queued >= 1:
+                        print("Ya hay una compra de Mina pendiente")
+                    else:
+                        # determine next cost
+                        next_cost = None
+                        try:
+                            if 0 <= self.mine_uses_used < len(self.mine_costs):
+                                next_cost = int(self.mine_costs[self.mine_uses_used])
+                        except Exception:
+                            next_cost = None
+
+                        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+                            print("No tienes puntos suficientes para comprar una Mina")
+                        else:
+                            self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
 
     def run(self):
         while self.running:
             self.checkEvents()
             self.update()
             self.draw()
+
+    def create_new_mine(self) -> bool:
+        """Locate a random empty cell and create/place a Mine that produces 1.
+
+        Returns True when a mine was successfully placed, False otherwise.
+        """
+        # simple guard
+        if not hasattr(self, 'map') or self.map is None:
+            print("Mapa no inicializado")
+            return False
+
+        width = int(getattr(self.map, 'width', 0))
+        height = int(getattr(self.map, 'height', 0))
+        if width <= 0 or height <= 0:
+            print("Mapa con dimensiones inválidas")
+            return False
+
+        max_tries = width * height * 2
+        tries = 0
+        while tries < max_tries:
+            x = random.randrange(0, width)
+            y = random.randrange(0, height)
+            cell = self.map.getCell(x, y)
+            if cell and cell.isEmpty():
+                try:
+                    mine = MineCreator().createStructure((x, y), 1, self)
+                    ok = self.map.placeStructure(x, y, mine)
+                    if ok:
+                        # add to structures list so it gets drawn/updated
+                        try:
+                            if not hasattr(self, 'structures'):
+                                self.structures = []
+                            self.structures.append(mine)
+                        except Exception:
+                            pass
+                        # if no primary mine exists, set reference
+                        if not hasattr(self, 'mine') or self.mine is None:
+                            self.mine = mine
+                        # set a transient popup message for the UI (2 seconds)
+                        try:
+                            self._popup_message = f"Mina creada en ({x},{y})"
+                            self._popup_timer = 2000
+                        except Exception:
+                            pass
+                        print(f"Nueva mina creada en {x},{y}")
+                        return True
+                except Exception as e:
+                    print("Fallo al crear mina:", e)
+            tries += 1
+
+        return False
+
+    def _apply_mine_action(self) -> bool:
+        """Attempt to purchase and create a new mine in a random empty cell.
+
+        Returns True on success, False to retry later (e.g., no empty cells or insufficient points).
+        """
+        # determine next cost
+        try:
+            next_cost = int(self.mine_costs[self.mine_uses_used]) if 0 <= self.mine_uses_used < len(self.mine_costs) else None
+        except Exception:
+            next_cost = None
+
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+            print("[Action] Not enough points to purchase Mine; will retry")
+            return False
+
+        # attempt to create a new mine; create_new_mine will set a popup message on success
+        created = False
+        try:
+            created = self.create_new_mine()
+        except Exception:
+            created = False
+
+        if not created:
+            # no empty cell or creation failed; retry a few times
+            print("[Action] Failed to place Mine; will retry")
+            return False
+
+        # commit the purchase: deduct points and decrement available uses
+        try:
+            self.mine_uses_used += 1
+            self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+            if next_cost is not None:
+                try:
+                    self.points = max(0, int(self.points) - int(next_cost))
+                except Exception:
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            # ensure there's a popup if create_new_mine didn't set one
+            if not getattr(self, '_popup_message', None):
+                try:
+                    self._popup_message = f"Mina creada ({self.mine_uses_left} restantes)"
+                    self._popup_timer = 2000
+                except Exception:
+                    pass
+            print(f"[Action] Mine purchase applied (uses left={self.mine_uses_left}) | -{next_cost} pts (total={self.points})")
+            return True
+        except Exception:
+            return True
 
     # ---- Action buffer processing ----
     def process_action_buffer(self, max_per_frame: int = 5):
@@ -800,6 +989,11 @@ class GameManager(Singleton):
             elif action.get('type') == 'eff':
                 try:
                     ok = self._apply_eff_action()
+                except Exception:
+                    ok = False
+            elif action.get('type') == 'mine':
+                try:
+                    ok = self._apply_mine_action()
                 except Exception:
                     ok = False
 
@@ -876,6 +1070,12 @@ class GameManager(Singleton):
                         self.points -= next_cost
                     except Exception:
                         pass
+            # show popup for user feedback
+            try:
+                self._popup_message = f"Mejora Velocidad aplicada ({self.speed_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
             print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={self.points})")
             return True
 
@@ -993,6 +1193,12 @@ class GameManager(Singleton):
                         self.points -= next_cost
                     except Exception:
                         pass
+            # popup for efficiency
+            try:
+                self._popup_message = f"Mejora Eficiencia aplicada ({self.eff_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
             print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={self.points})")
             return True
 

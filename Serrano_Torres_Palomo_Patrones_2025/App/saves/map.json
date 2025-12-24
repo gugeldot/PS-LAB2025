@@ -581,7 +581,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -781,8 +784,9 @@
     }
   ],
   "upgrades": {
-    "speed_uses_used": 10,
-    "eff_uses_used": 10
+    "speed_uses_used": 2,
+    "eff_uses_used": 1,
+    "mine_uses_used": 1
   },
-  "score": 242
+  "score": 18
 }
