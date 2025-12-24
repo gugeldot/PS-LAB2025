@@ -1,0 +1,8 @@
+/saves/
+pycache/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+.DS_Store
