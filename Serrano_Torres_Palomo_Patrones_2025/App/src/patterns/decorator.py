@@ -37,11 +37,13 @@ class UpgradeDecorator(Structure, ABC):
         '''
         pass
     
-    def __getattr__(self, name):
-        '''
-        Delegate attribute access to the wrapped target.
-        This allows the decorator to act as a transparent wrapper.
-        '''
+        import pygame as pg
+        if hasattr(self.target, 'position') and hasattr(self.target, 'gameManager'):
+            pos = self.target.position
+            radius = getattr(self.target, 'radius', 12)
+            cam = getattr(self.target.gameManager, 'camera', pg.Vector2(0, 0))
+            draw_pos = (int(pos.x - cam.x), int(pos.y - cam.y))
+            pg.draw.circle(self.target.gameManager.screen, (0, 150, 255), draw_pos, radius + 6, 2)
         return getattr(self.target, name)
 
 
@@ -56,10 +58,30 @@ class SpeedUpgrade(UpgradeDecorator):
         super().__init__(target)
         # apply upgrade only once
         try:
+            # If this decorates a Conveyor-like object, reduce its travel_time once
             if hasattr(self.target, 'travel_time') and not getattr(self.target, '_speed_upgraded', False):
                 # reduce travel time to make it faster (cap to avoid too small)
                 self.target.travel_time = max(50, int(self.target.travel_time * 0.5))
                 setattr(self.target, '_speed_upgraded', True)
+
+            # If this decorates a Mine, also reduce the global production interval
+            # so the mine produces faster. We try to update the gameManager if available.
+            if hasattr(self.target, 'number') and not getattr(self.target, '_speed_upgraded', False):
+                try:
+                    gm = getattr(self.target, 'gameManager', None)
+                    # mark mine as speed-upgraded to avoid repeated application
+                    setattr(self.target, '_speed_upgraded', True)
+                    if gm is not None:
+                        # ensure base interval exists
+                        if not hasattr(gm, '_base_production_interval'):
+                            gm._base_production_interval = int(getattr(gm, 'production_interval', 2000))
+                        # apply a one-time halving of the production interval
+                        try:
+                            gm.production_interval = max(100, int(gm._base_production_interval * 0.5))
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
         except Exception:
             pass
 
@@ -101,11 +123,39 @@ class EfficiencyUpgrade(UpgradeDecorator):
             # double mine output if applicable
             if hasattr(self.target, 'number') and not getattr(self.target, '_efficiency_upgraded', False):
                 try:
-                    self.target.number = int(self.target.number * 2)
+                    old = int(getattr(self.target, 'number', 0))
+                except Exception:
+                    try:
+                        old = int(self.target.number)
+                    except Exception:
+                        old = 0
+                try:
+                    new = int(old * 2)
+                    self.target.number = new
                 except Exception:
                     # fallback: increment
-                    self.target.number = getattr(self.target, 'number') + 1
+                    try:
+                        self.target.number = int(getattr(self.target, 'number', 0)) + 1
+                        new = int(self.target.number)
+                    except Exception:
+                        new = getattr(self.target, 'number', 0)
                 setattr(self.target, '_efficiency_upgraded', True)
+                # update any in-flight items on conveyors so the change is visible immediately
+                try:
+                    gm = getattr(self.target, 'gameManager', None)
+                    delta = int(new) - int(old)
+                    if gm is not None and delta != 0:
+                        for conv in getattr(gm, 'conveyors', []):
+                            try:
+                                for item in conv.queue:
+                                    try:
+                                        item['value'] = int(item.get('value', 0)) + delta
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
             # if well consumingNumber exists, bump it slightly (best-effort)
             elif hasattr(self.target, 'consumingNumber') and not getattr(self.target, '_efficiency_upgraded', False):
                 try:
@@ -133,6 +183,8 @@ class EfficiencyUpgrade(UpgradeDecorator):
             if hasattr(self.target, 'position') and hasattr(self.target, 'gameManager'):
                 pos = self.target.position
                 radius = getattr(self.target, 'radius', 12)
-                pg.draw.circle(self.target.gameManager.screen, (0, 200, 0), (int(pos.x), int(pos.y)), radius + 6, 2)
+                cam = getattr(self.target.gameManager, 'camera', pg.Vector2(0, 0))
+                draw_pos = (int(pos.x - cam.x), int(pos.y - cam.y))
+                pg.draw.circle(self.target.gameManager.screen, (0, 200, 0), draw_pos, radius + 6, 2)
         except Exception:
             pass
