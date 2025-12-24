@@ -14,6 +14,7 @@ from core.mineCreator import MineCreator
 from core.wellCreator import WellCreator
 from core.mergerCreator import MergerCreator
 from core.splitterCreator import SplitterCreator
+from core.operationCreator import SumCreator, MultiplyCreator
 from core.conveyor import Conveyor
 from map.map import Map
 from patterns.decorator import SpeedUpgrade, EfficiencyUpgrade
@@ -80,6 +81,8 @@ class GameManager(Singleton):
             "Well": WellCreator(),
             "MergerModule": MergerCreator(),
             "SplitterModule": SplitterCreator(),
+            "SumModule": SumCreator(),
+            "MultiplyModule": MultiplyCreator(),
         }
 
         # ensure save dir exists (create lazily)
@@ -172,42 +175,37 @@ class GameManager(Singleton):
             print(f"No saved map found at {self.save_file}, creating default map.")
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
-            # Test: Mine -> Conveyor1 -> Splitter -> [Conveyor2, Conveyor3] -> Merger -> Conveyor4 -> Well
-            mine = MineCreator().createStructure((2, 2), 1, self)
-            self.map.placeStructure(2, 2, mine)
+            # Test: Two Mines (1) -> SumModule -> Well (2)
+            mine1 = MineCreator().createStructure((2, 1), 1, self)
+            self.map.placeStructure(2, 1, mine1)
 
-            splitter = SplitterCreator().createStructure((4, 2), self)
-            self.map.placeStructure(4, 2, splitter)
+            mine2 = MineCreator().createStructure((2, 3), 1, self)
+            self.map.placeStructure(2, 3, mine2)
 
-            merger = MergerCreator().createStructure((6, 2), self)
-            self.map.placeStructure(6, 2, merger)
+            sum_mod = SumCreator().createStructure((5, 2), self)
+            self.map.placeStructure(5, 2, sum_mod)
 
-            well = WellCreator().createStructure((8, 2), 1, self)
+            well = WellCreator().createStructure((8, 2), 2, self)
             self.map.placeStructure(8, 2, well)
 
-            # Create conveyors with visual deviation
-            conv1 = Conveyor(mine.position, splitter.position, self)
+            # Create conveyors
+            conv1 = Conveyor(mine1.position, sum_mod.position, self)
+            conv2 = Conveyor(mine2.position, sum_mod.position, self)
+            conv3 = Conveyor(sum_mod.position, well.position, self)
             
-            # Upper path: splitter -> waypoint up -> merger
-            waypoint_up = pg.Vector2(merger.position.x - 40, merger.position.y - 40)
-            conv2 = Conveyor(splitter.position, waypoint_up, self)
-            conv2_merge = Conveyor(waypoint_up, merger.position, self)
+            self.conveyors = [conv1, conv2, conv3]
             
-            # Lower path: splitter -> waypoint down -> merger
-            waypoint_down = pg.Vector2(merger.position.x - 40, merger.position.y + 40)
-            conv3 = Conveyor(splitter.position, waypoint_down, self)
-            conv3_merge = Conveyor(waypoint_down, merger.position, self)
+            # Use new setter syntax for connections
+            mine1.output = conv1
+            mine2.output = conv2
+            sum_mod.input1 = conv1
+            sum_mod.input2 = conv2
+            sum_mod.output = conv3
+            conv3.output = well
             
-            conv4 = Conveyor(merger.position, well.position, self)
-            
-            self.conveyors = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
-            
-            self.mine = mine
-            self.well = well
-            self.final_conveyor = conv4
+            self.points = 0
             self.production_timer = 0
             self.consumption_timer = 0
-            self.points = 0
 
         # ensure conveyors list exists
         if not hasattr(self, 'conveyors'):
@@ -306,28 +304,6 @@ class GameManager(Singleton):
                             print(f"[Reconnect] Connected conveyor {i} to conveyor")
                         else:
                             print(f"[Reconnect] Skipping direct conveyor connection at {grid_x},{grid_y} due to structure {struct.__class__.__name__}")
-
-        # Re-establish reference to first and last conveyors
-        if len(self.conveyors) > 0:
-            # Find mine and well to set first/last conveyor references
-            for row in self.map.cells:
-                for cell in row:
-                    if not cell.isEmpty():
-                        if cell.structure.__class__.__name__ == 'Mine':
-                            self.mine = cell.structure
-                        elif cell.structure.__class__.__name__ == 'Well':
-                            self.well = cell.structure
-
-            # Set final conveyor (last one that connects to well)
-            if hasattr(self, 'well') and self.well:
-                for conv in self.conveyors:
-                    end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-                    end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-                    well_grid_x = int(self.well.position.x) // CELL_SIZE_PX
-                    well_grid_y = int(self.well.position.y) // CELL_SIZE_PX
-                    if end_grid_x == well_grid_x and end_grid_y == well_grid_y:
-                        self.final_conveyor = conv
-                        break
 
     def save_map(self):
         """Save map to App/saves/map.json"""
@@ -471,14 +447,18 @@ class GameManager(Singleton):
 
         self.production_timer += self.delta_time
         if self.production_timer > 2000:
-            if hasattr(self, 'mine') and self.mine and self.conveyors:
-                self.mine.produce(self.conveyors[0])
+            # Produce from all mines in the map
+            for row in self.map.cells:
+                for cell in row:
+                    if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Mine':
+                        cell.structure.produce()
             self.production_timer = 0
 
         self.consumption_timer += self.delta_time
         if self.consumption_timer > 2000:
-            if hasattr(self, 'well') and self.well and hasattr(self, 'final_conveyor'):
-                self.well.consume(self.final_conveyor)
+            # Wells now handle their own consumption if connected via conveyors
+            # but we can still trigger a manual check if needed for legacy reasons
+            # or just let the conveyors push into them.
             self.consumption_timer = 0
 
         # tick (advance clock and compute delta_time)

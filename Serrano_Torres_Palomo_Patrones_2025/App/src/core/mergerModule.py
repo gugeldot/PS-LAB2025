@@ -42,11 +42,35 @@ class MergerModule(Structure):
             if number is not None:
                 self.outputConveyor.push(number)
     
+    @property
+    def input1(self):
+        return self.inputConveyor1
+    
+    @input1.setter
+    def input1(self, value):
+        self.inputConveyor1 = value
+
+    @property
+    def input2(self):
+        return self.inputConveyor2
+    
+    @input2.setter
+    def input2(self, value):
+        self.inputConveyor2 = value
+
+    @property
+    def output(self):
+        return self.outputConveyor
+    
+    @output.setter
+    def output(self, value):
+        self.outputConveyor = value
+
     def connectInput1(self, conveyor):
-        self.inputConveyor1 = conveyor
+        self.input1 = conveyor
     
     def connectInput2(self, conveyor):
-        self.inputConveyor2 = conveyor
+        self.input2 = conveyor
     
     def connectOutput(self, conveyor):
-        self.outputConveyor = conveyor
+        self.output = conveyor

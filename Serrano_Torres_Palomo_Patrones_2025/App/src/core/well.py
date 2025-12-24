@@ -33,13 +33,22 @@ class Well(Structure):
         '''
         pass
     
-    def consume(self, conveyor):
-        number = conveyor.pop()
+    def connectInput(self, conveyor):
+        '''Permite que el sistema de reconexión conecte una cinta al pozo'''
+        # En el caso del pozo, la cinta debe saber que su salida es el pozo
+        if hasattr(conveyor, 'connectOutput'):
+            conveyor.connectOutput(self)
+
+    def push(self, number):
+        '''Permite que un conveyor empuje un número directamente al pozo'''
         if number is not None and number == self.consumingNumber:
             points = number
-            # NOTE: prime-based doubling removed per request — points equal the consumed number
             self.gameManager.points += points
             print(f"Well consumed {number}! +{points} points | Total: {self.gameManager.points}")
+
+    def consume(self, conveyor):
+        number = conveyor.pop()
+        self.push(number)
 
     def draw(self):
         pg.draw.circle(self.gameManager.screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)

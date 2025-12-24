@@ -19,16 +19,31 @@ class Mine(Structure):
         self.gameManager = gameManager
         self.radius = 15
         self.color = (255, 0, 0)  # rojo
+        self._outputConveyor = None
+
+    @property
+    def output(self):
+        return self._outputConveyor
+    
+    @output.setter
+    def output(self, value):
+        self._outputConveyor = value
+
+    def connectOutput(self, conveyor):
+        self.output = conveyor
 
     def update(self):
         '''
         '''
         pass
     
-    def produce(self, conveyor):
-        # Use an effective upgraded number if present, else the base `number`.
-        val = getattr(self, '_effective_number', self.number)
-        conveyor.push(val)
+    def produce(self, conveyor=None):
+        # Use provided conveyor or the connected output
+        target = conveyor or self.output
+        if target:
+            # Use an effective upgraded number if present, else the base `number`.
+            val = getattr(self, '_effective_number', self.number)
+            target.push(val)
 
     def draw(self):
         '''
