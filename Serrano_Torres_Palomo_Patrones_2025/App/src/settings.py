@@ -18,5 +18,5 @@ CELL_SIZE_PX = 55
 
 # Tamaño por defecto del mapa (si no se carga uno desde archivo)
 # ancho (columns) y alto (rows)
-DEFAULT_MAP_WIDTH = 10
-DEFAULT_MAP_HEIGHT = 10
+DEFAULT_MAP_WIDTH = 25
+DEFAULT_MAP_HEIGHT = 25

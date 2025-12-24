@@ -34,11 +34,13 @@ class Mine(Structure):
         '''
         Dibuja la mina en la pantalla
         '''
-        pg.draw.circle(self.gameManager.screen, self.color, (self.position.x, self.position.y), self.radius)
+        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+        draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
+        pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
         # Dibujar el numero en el centro de la mina; show effective upgraded number if present
         effective = getattr(self, '_effective_number', getattr(self, '_base_number', self.number))
         font = pg.font.Font(None, 24)
         text = font.render(str(effective), True, (255, 255, 255))
-        text_rect = text.get_rect(center=(self.position.x, self.position.y))
+        text_rect = text.get_rect(center=draw_pos)
         self.gameManager.screen.blit(text, text_rect)
                                                     

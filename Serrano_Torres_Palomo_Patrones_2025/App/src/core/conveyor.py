@@ -66,15 +66,16 @@ class Conveyor(Structure):
         self.outputConveyor = conveyor
     
     def draw(self):
-        pg.draw.line(self.gameManager.screen, self.color, 
-                    (int(self.start_pos.x), int(self.start_pos.y)),
-                    (int(self.end_pos.x), int(self.end_pos.y)), self.width)
-        
+        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+        start = (int(self.start_pos.x - cam.x), int(self.start_pos.y - cam.y))
+        end = (int(self.end_pos.x - cam.x), int(self.end_pos.y - cam.y))
+        pg.draw.line(self.gameManager.screen, self.color, start, end, self.width)
+
         font = pg.font.Font(None, 22)
         for item in self.queue:
             t = item['position']
-            pos_x = self.start_pos.x + (self.end_pos.x - self.start_pos.x) * t
-            pos_y = self.start_pos.y + (self.end_pos.y - self.start_pos.y) * t
+            pos_x = (self.start_pos.x + (self.end_pos.x - self.start_pos.x) * t) - cam.x
+            pos_y = (self.start_pos.y + (self.end_pos.y - self.start_pos.y) * t) - cam.y
             
             text = font.render(str(item['value']), True, (255, 255, 0))
             text_rect = text.get_rect(center=(pos_x, pos_y))

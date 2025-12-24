@@ -42,8 +42,12 @@ class MouseControl:
         Detecta clicks del mouse
         '''
         if event.type == pg.MOUSEBUTTONDOWN:
-            # calculate grid cell from current mouse pos
-            mx, my = int(self.position.x), int(self.position.y)
+            # calculate grid cell from current mouse pos, taking camera offset into account
+            try:
+                cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+            except Exception:
+                cam = pg.Vector2(0, 0)
+            mx, my = int(self.position.x + cam.x), int(self.position.y + cam.y)
             gx = mx // CELL_SIZE_PX
             gy = my // CELL_SIZE_PX
 

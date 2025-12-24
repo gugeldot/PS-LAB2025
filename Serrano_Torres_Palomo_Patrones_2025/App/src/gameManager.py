@@ -3,6 +3,7 @@ import sys
 import pathlib
 import os
 import json
+import random
 from collections import deque
 
 from settings import *
@@ -33,6 +34,9 @@ class GameManager(Singleton):
         # timing
         self.clock = pg.time.Clock()
         self.delta_time = 1
+        # camera offset in pixels for panning a large map
+        self.camera = pg.Vector2(0, 0)
+        self.camera_speed = 400  # pixels per second when moving with WASD
 
         # save paths (App/saves/map.json)
         base_dir = pathlib.Path(__file__).resolve().parent
@@ -45,22 +49,46 @@ class GameManager(Singleton):
         # UI: Upgrade buttons (stacked under Save)
         self.speed_button_rect = pg.Rect(WIDTH - 170, 60, 160, 40)
         self.eff_button_rect = pg.Rect(WIDTH - 170, 110, 160, 40)
+        # UI: New Mine button (reactive, no functionality yet)
+        self.new_mine_button_rect = pg.Rect(WIDTH - 170, 160, 160, 40)
 
         # Upgrade usage counters (max 10 uses each)
         self.speed_uses_left = 10
         self.eff_uses_left = 10
         self.speed_uses_used = 0
         self.eff_uses_used = 0
+        # New Mine purchase counters (max 10 uses)
+        self.mine_uses_left = 10
+        self.mine_uses_used = 0
+        # Hardcoded costs for creating a mine per use (10 entries)
+        # These mirror the style of `speed_costs` and `eff_costs` and can be tuned
+        self.mine_costs = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
         # Cost (in points) to redeem each upgrade
         # These can be tuned or moved to settings.py if desired
         # incremental cost schedule for each of the 10 possible uses
         # define as tuples/lists of length 10 (one cost per use index)
         # Example default costs; adjust as desired
-        self.speed_costs = (5, 6, 7, 8, 9, 10, 12, 14, 16, 20)
-        self.eff_costs = (8, 9, 10, 11, 12, 14, 16, 18, 20, 25)
+        self.speed_costs = (10, 12, 14, 16, 18, 20, 24, 28, 32, 40)
+        self.eff_costs = (16, 18, 20, 22, 24, 28, 32, 36, 40, 50)
         # action buffer to store pending upgrade actions (processed in update())
         # each entry: { 'type': 'speed'|'eff', 'tries': int, 'max_tries': int }
         self.action_buffer = deque()
+
+        # default well positions as individual variables posWell1..posWell10
+        # Edit these tuples to reposition each well. They are (grid_x, grid_y).
+        self.posWell1 = (8, 2)
+        self.posWell2 = (3, 6)    # Retrocede un poco en X, sube en Y
+        self.posWell3 = (11, 4)   # Salto a la derecha
+        self.posWell4 = (6, 12)   # Vuelve a la izquierda pero sube
+        self.posWell5 = (15, 10)  # Salto al centro
+        self.posWell6 = (12, 18)  # Sube bastante
+        self.posWell7 = (22, 13)  # Se dispara a la derecha
+        self.posWell8 = (18, 21)  # Ajuste hacia arriba
+        self.posWell9 = (24, 17)  # Casi al borde derecho
+        self.posWell10 = (22, 25)
+        # convenience tuple to iterate over if needed
+        self.well_positions = (self.posWell1, self.posWell2, self.posWell3, self.posWell4, self.posWell5,
+                self.posWell6, self.posWell7, self.posWell8, self.posWell9, self.posWell10)
 
         self.running = True
 
@@ -103,9 +131,16 @@ class GameManager(Singleton):
                         upgrades = saved.get('upgrades', {})
                     speed_used = int(upgrades.get('speed_uses_used', 0))
                     eff_used = int(upgrades.get('eff_uses_used', 0))
+                    mine_used = int(upgrades.get('mine_uses_used', 0))
                     # set counters
                     self.speed_uses_used = speed_used
                     self.eff_uses_used = eff_used
+                    # restore mine purchase counters (do not change game state beyond counters)
+                    try:
+                        self.mine_uses_used = mine_used
+                        self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+                    except Exception:
+                        pass
                     self.speed_uses_left = max(0, 10 - self.speed_uses_used)
                     self.eff_uses_left = max(0, 10 - self.eff_uses_used)
                     # apply effects without consuming uses
@@ -120,6 +155,13 @@ class GameManager(Singleton):
                                 if not hasattr(base_conv, '_base_travel_time'):
                                     base_conv._base_travel_time = getattr(base_conv, 'travel_time', 2000)
                                 base_conv.travel_time = max(50, int(base_conv._base_travel_time * multiplier))
+                            # also reduce mine production interval using same multiplier
+                            try:
+                                if not hasattr(self, '_base_production_interval'):
+                                    self._base_production_interval = 2000
+                                self.production_interval = max(100, int(self._base_production_interval * multiplier))
+                            except Exception:
+                                pass
                         except Exception:
                             pass
                     if eff_used > 0:
@@ -182,8 +224,17 @@ class GameManager(Singleton):
             merger = MergerCreator().createStructure((6, 2), self)
             self.map.placeStructure(6, 2, merger)
 
-            well = WellCreator().createStructure((8, 2), 1, self)
-            self.map.placeStructure(8, 2, well)
+            # place a row of 10 wells with consuming numbers 1..10 using the configured positions
+            self.wells = []
+            for idx, num in enumerate(range(1, 11)):
+                try:
+                    pos = self.well_positions[idx]
+                except Exception:
+                    # fallback: place to the right of merger if not enough positions
+                    pos = (8 + idx, 2)
+                w = WellCreator().createStructure(pos, num, self)
+                self.map.placeStructure(int(pos[0]), int(pos[1]), w)
+                self.wells.append(w)
 
             # Create conveyors with visual deviation
             conv1 = Conveyor(mine.position, splitter.position, self)
@@ -198,12 +249,33 @@ class GameManager(Singleton):
             conv3 = Conveyor(splitter.position, waypoint_down, self)
             conv3_merge = Conveyor(waypoint_down, merger.position, self)
             
-            conv4 = Conveyor(merger.position, well.position, self)
-            
+            # connect merger to the first well (consumingNumber=1) for the sample conveyor path
+            target_well = self.wells[0] if getattr(self, 'wells', None) and len(self.wells) > 0 else None
+            if target_well:
+                conv4 = Conveyor(merger.position, target_well.position, self)
+            else:
+                conv4 = Conveyor(merger.position, pg.Vector2(0, 0), self)
+
+            # Explicitly connect conveyors/structures for deterministic flow
+            try:
+                # connect intermediate conveyor segments
+                conv2.connectOutput(conv2_merge)
+                conv3.connectOutput(conv3_merge)
+                # connect logical structure ports
+                splitter.connectInput(conv1)
+                splitter.connectOutput1(conv2)
+                splitter.connectOutput2(conv3)
+                merger.connectInput1(conv2_merge)
+                merger.connectInput2(conv3_merge)
+                merger.connectOutput(conv4)
+            except Exception:
+                pass
+
             self.conveyors = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
             
             self.mine = mine
-            self.well = well
+            # convenience reference to the first well (consumingNumber==1)
+            self.well = target_well if target_well else None
             self.final_conveyor = conv4
             self.production_timer = 0
             self.consumption_timer = 0
@@ -309,24 +381,28 @@ class GameManager(Singleton):
 
         # Re-establish reference to first and last conveyors
         if len(self.conveyors) > 0:
-            # Find mine and well to set first/last conveyor references
+            # Find mine (first encountered) for reference
             for row in self.map.cells:
                 for cell in row:
-                    if not cell.isEmpty():
-                        if cell.structure.__class__.__name__ == 'Mine':
-                            self.mine = cell.structure
-                        elif cell.structure.__class__.__name__ == 'Well':
-                            self.well = cell.structure
+                    if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Mine':
+                        self.mine = cell.structure
+                        break
+                if hasattr(self, 'mine') and self.mine:
+                    break
 
-            # Set final conveyor (last one that connects to well)
-            if hasattr(self, 'well') and self.well:
-                for conv in self.conveyors:
-                    end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-                    end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-                    well_grid_x = int(self.well.position.x) // CELL_SIZE_PX
-                    well_grid_y = int(self.well.position.y) // CELL_SIZE_PX
-                    if end_grid_x == well_grid_x and end_grid_y == well_grid_y:
+            # Determine which conveyor connects directly into a Well and treat that as final_conveyor
+            self.final_conveyor = None
+            self.well = None
+            for conv in self.conveyors:
+                end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+                end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+                # find structure at conveyor end
+                if 0 <= end_grid_y < len(self.map.cells) and 0 <= end_grid_x < len(self.map.cells[end_grid_y]):
+                    cell = self.map.cells[end_grid_y][end_grid_x]
+                    if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Well':
                         self.final_conveyor = conv
+                        self.well = cell.structure
+                        print(f"[Reconnect] Final conveyor set to one that ends at Well at {end_grid_x},{end_grid_y}")
                         break
 
     def save_map(self):
@@ -429,7 +505,8 @@ class GameManager(Singleton):
             # include applied upgrades so they persist
             base['upgrades'] = {
                 'speed_uses_used': getattr(self, 'speed_uses_used', 0),
-                'eff_uses_used': getattr(self, 'eff_uses_used', 0)
+                'eff_uses_used': getattr(self, 'eff_uses_used', 0),
+                'mine_uses_used': getattr(self, 'mine_uses_used', 0)
             }
             # persist current score with the map
             try:
@@ -453,9 +530,42 @@ class GameManager(Singleton):
     def update(self):
         # update inputs
         self.mouse.update()
+        # update transient UI popup timer (if present)
+        try:
+            if hasattr(self, '_popup_timer') and getattr(self, '_popup_timer', 0) is not None:
+                # decrement by delta_time from previous frame
+                try:
+                    self._popup_timer -= int(self.delta_time)
+                except Exception:
+                    self._popup_timer -= 0
+                if self._popup_timer <= 0:
+                    try:
+                        self._popup_timer = None
+                        self._popup_message = None
+                    except Exception:
+                        pass
+        except Exception:
+            pass
         # process any pending upgrade actions from the action buffer
         try:
             self.process_action_buffer()
+        except Exception:
+            pass
+
+        # camera movement (smooth) using keyboard
+        try:
+            keys = pg.key.get_pressed()
+            if keys[pg.K_w] or keys[pg.K_UP]:
+                self.camera.y = max(0, self.camera.y - self.camera_speed * (self.delta_time / 1000.0))
+            if keys[pg.K_s] or keys[pg.K_DOWN]:
+                # limit to map pixel height - screen height
+                max_y = max(0, self.map.height * CELL_SIZE_PX - HEIGHT)
+                self.camera.y = min(max_y, self.camera.y + self.camera_speed * (self.delta_time / 1000.0))
+            if keys[pg.K_a] or keys[pg.K_LEFT]:
+                self.camera.x = max(0, self.camera.x - self.camera_speed * (self.delta_time / 1000.0))
+            if keys[pg.K_d] or keys[pg.K_RIGHT]:
+                max_x = max(0, self.map.width * CELL_SIZE_PX - WIDTH)
+                self.camera.x = min(max_x, self.camera.x + self.camera_speed * (self.delta_time / 1000.0))
         except Exception:
             pass
 
@@ -469,17 +579,35 @@ class GameManager(Singleton):
             except Exception:
                 pass
 
+        # production driven by a configurable interval so speed upgrades can affect it
+        # ensure we have a base production interval that can be modified by upgrades
+        if not hasattr(self, '_base_production_interval'):
+            self._base_production_interval = 2000
+        if not hasattr(self, 'production_interval'):
+            self.production_interval = int(self._base_production_interval)
+
         self.production_timer += self.delta_time
-        if self.production_timer > 2000:
+        prod_int = int(getattr(self, 'production_interval', getattr(self, '_base_production_interval', 2000)))
+        if self.production_timer > prod_int:
             if hasattr(self, 'mine') and self.mine and self.conveyors:
                 self.mine.produce(self.conveyors[0])
             self.production_timer = 0
 
-        self.consumption_timer += self.delta_time
-        if self.consumption_timer > 2000:
-            if hasattr(self, 'well') and self.well and hasattr(self, 'final_conveyor'):
-                self.well.consume(self.final_conveyor)
-            self.consumption_timer = 0
+        # Consume immediately when an item has arrived at the end of the final conveyor.
+        # Previously this was driven by a 2000ms timer which introduced an extra delay
+        # between arrival and scoring. Check the front item's position so wells act
+        # as soon as the conveyor reports readiness.
+        try:
+            if hasattr(self, 'well') and self.well and hasattr(self, 'final_conveyor') and self.final_conveyor is not None:
+                q = getattr(self.final_conveyor, 'queue', None)
+                if q and len(q) > 0 and q[0].get('position', 0) >= 1.0:
+                    # consume will pop the ready item and award points immediately
+                    try:
+                        self.well.consume(self.final_conveyor)
+                    except Exception:
+                        pass
+        except Exception:
+            pass
 
         # tick (advance clock and compute delta_time)
         self.delta_time = self.clock.tick(FPS)
@@ -488,18 +616,24 @@ class GameManager(Singleton):
     def draw(self):
         self.screen.fill('black')
         
-        # mouse grid coords
-        mx, my = int(self.mouse.position.x), int(self.mouse.position.y)
-        gx = mx // CELL_SIZE_PX
-        gy = my // CELL_SIZE_PX
+        # camera (viewport) and mouse grid coords in world space
+        cam = getattr(self, 'camera', pg.Vector2(0, 0))
+        # convert mouse screen position to world coordinates by adding camera offset
+        world_mx = int(self.mouse.position.x + cam.x)
+        world_my = int(self.mouse.position.y + cam.y)
+        gx = world_mx // CELL_SIZE_PX
+        gy = world_my // CELL_SIZE_PX
 
         # draw grid and structures
         grid_color = (80, 80, 80)
         hover_fill = (200, 200, 200)
+    # draw world grid and map-placed structures applying camera offset
         for y in range(self.map.height):
             for x in range(self.map.width):
-                rect = pg.Rect(x * CELL_SIZE_PX, y * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX)
-                # highlight hovered cell
+                rect_x = x * CELL_SIZE_PX - cam.x
+                rect_y = y * CELL_SIZE_PX - cam.y
+                rect = pg.Rect(rect_x, rect_y, CELL_SIZE_PX, CELL_SIZE_PX)
+                # highlight hovered cell (we compute gx,gy in screen coords earlier)
                 if x == gx and y == gy and 0 <= x < self.map.width and 0 <= y < self.map.height:
                     pg.draw.rect(self.screen, hover_fill, rect)
                 pg.draw.rect(self.screen, grid_color, rect, 1)
@@ -507,6 +641,7 @@ class GameManager(Singleton):
                 cell = self.map.getCell(x, y)
                 if cell and not cell.isEmpty():
                     try:
+                        # map-placed structure draw methods were updated to account for camera
                         cell.structure.draw()
                     except Exception:
                         pass
@@ -599,6 +734,50 @@ class GameManager(Singleton):
         text_eff = font_small.render(f"Mejora Eficiencia ({eff_label_cost}) [{self.eff_uses_left}]", True, (255, 255, 255))
         self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
 
+        # New Mine button (reactive, prints a message for now)
+        hover_new_mine = self.new_mine_button_rect.collidepoint(mouse_pt)
+        # determine next cost for creating a mine
+        next_mine_cost = None
+        try:
+            if 0 <= self.mine_uses_used < len(self.mine_costs):
+                next_mine_cost = int(self.mine_costs[self.mine_uses_used])
+        except Exception:
+            next_mine_cost = None
+
+        can_buy_mine = (getattr(self, 'points', 0) >= (next_mine_cost or 0)) and (self.mine_uses_left > 0)
+        if not can_buy_mine:
+            new_mine_color = (60, 60, 60)
+        else:
+            new_mine_color = (150, 150, 150) if hover_new_mine else (100, 100, 100)
+        pg.draw.rect(self.screen, new_mine_color, self.new_mine_button_rect)
+        mine_label_cost = f"{next_mine_cost}pts" if next_mine_cost is not None else "N/A"
+        text_new = font_small.render(f"Nueva Mina ({mine_label_cost}) [{self.mine_uses_left}]", True, (255, 255, 255))
+        self.screen.blit(text_new, text_new.get_rect(center=self.new_mine_button_rect.center))
+
+        # transient popup message (e.g., "Mina creada en (x,y)")
+        try:
+            msg = getattr(self, '_popup_message', None)
+            t = getattr(self, '_popup_timer', None)
+            if msg and t and t > 0:
+                popup_font = pg.font.Font(None, 26)
+                text_surf = popup_font.render(msg, True, (0, 0, 0))
+                padding_x = 16
+                padding_y = 10
+                w = text_surf.get_width() + padding_x * 2
+                h = text_surf.get_height() + padding_y * 2
+                px = WIDTH // 2 - w // 2
+                py = 10
+                popup_rect = pg.Rect(px, py, w, h)
+                # background and border
+                pg.draw.rect(self.screen, (250, 240, 120), popup_rect)
+                pg.draw.rect(self.screen, (120, 120, 120), popup_rect, 2)
+                # blit text centered in popup
+                tx = px + (w - text_surf.get_width()) // 2
+                ty = py + (h - text_surf.get_height()) // 2
+                self.screen.blit(text_surf, (tx, ty))
+        except Exception:
+            pass
+
         # draw mouse
         self.mouse.draw()
         # present the rendered frame
@@ -606,8 +785,21 @@ class GameManager(Singleton):
 
     def checkEvents(self):
         for event in pg.event.get():
-            # pass to mouse control (keeps existing debug prints)
-            self.mouse.checkClickEvent(event)
+            # pass to mouse control only for clicks not over UI buttons (prevents UI clicks selecting map cells)
+            # MouseControl uses MOUSEBUTTONDOWN events to inspect map cells; we call it only for events
+            # that are not over the UI button rects so clicking a button won't also select a cell underneath.
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                pos = event.pos
+                over_ui = False
+                try:
+                    if self.save_button_rect.collidepoint(pos) or self.speed_button_rect.collidepoint(pos) \
+                       or self.eff_button_rect.collidepoint(pos) or self.new_mine_button_rect.collidepoint(pos):
+                        over_ui = True
+                except Exception:
+                    over_ui = False
+
+                if not over_ui:
+                    self.mouse.checkClickEvent(event)
 
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 self.running = False
@@ -646,11 +838,135 @@ class GameManager(Singleton):
                         self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
                         print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
 
+                elif self.new_mine_button_rect.collidepoint(event.pos):
+                    # enqueue a 'mine' purchase action (similar to speed/eff)
+                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
+                    if queued + self.mine_uses_used >= 10:
+                        print("No hay compras de Mina disponibles para poner en cola")
+                    elif queued >= 1:
+                        print("Ya hay una compra de Mina pendiente")
+                    else:
+                        # determine next cost
+                        next_cost = None
+                        try:
+                            if 0 <= self.mine_uses_used < len(self.mine_costs):
+                                next_cost = int(self.mine_costs[self.mine_uses_used])
+                        except Exception:
+                            next_cost = None
+
+                        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+                            print("No tienes puntos suficientes para comprar una Mina")
+                        else:
+                            self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
+
     def run(self):
         while self.running:
             self.checkEvents()
             self.update()
             self.draw()
+
+    def create_new_mine(self) -> bool:
+        """Locate a random empty cell and create/place a Mine that produces 1.
+
+        Returns True when a mine was successfully placed, False otherwise.
+        """
+        # simple guard
+        if not hasattr(self, 'map') or self.map is None:
+            print("Mapa no inicializado")
+            return False
+
+        width = int(getattr(self.map, 'width', 0))
+        height = int(getattr(self.map, 'height', 0))
+        if width <= 0 or height <= 0:
+            print("Mapa con dimensiones inválidas")
+            return False
+
+        max_tries = width * height * 2
+        tries = 0
+        while tries < max_tries:
+            x = random.randrange(0, width)
+            y = random.randrange(0, height)
+            cell = self.map.getCell(x, y)
+            if cell and cell.isEmpty():
+                try:
+                    mine = MineCreator().createStructure((x, y), 1, self)
+                    ok = self.map.placeStructure(x, y, mine)
+                    if ok:
+                        # add to structures list so it gets drawn/updated
+                        try:
+                            if not hasattr(self, 'structures'):
+                                self.structures = []
+                            self.structures.append(mine)
+                        except Exception:
+                            pass
+                        # if no primary mine exists, set reference
+                        if not hasattr(self, 'mine') or self.mine is None:
+                            self.mine = mine
+                        # set a transient popup message for the UI (2 seconds)
+                        try:
+                            self._popup_message = f"Mina creada en ({x},{y})"
+                            self._popup_timer = 2000
+                        except Exception:
+                            pass
+                        print(f"Nueva mina creada en {x},{y}")
+                        return True
+                except Exception as e:
+                    print("Fallo al crear mina:", e)
+            tries += 1
+
+        return False
+
+    def _apply_mine_action(self) -> bool:
+        """Attempt to purchase and create a new mine in a random empty cell.
+
+        Returns True on success, False to retry later (e.g., no empty cells or insufficient points).
+        """
+        # determine next cost
+        try:
+            next_cost = int(self.mine_costs[self.mine_uses_used]) if 0 <= self.mine_uses_used < len(self.mine_costs) else None
+        except Exception:
+            next_cost = None
+
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+            print("[Action] Not enough points to purchase Mine; will retry")
+            return False
+
+        # attempt to create a new mine; create_new_mine will set a popup message on success
+        created = False
+        try:
+            created = self.create_new_mine()
+        except Exception:
+            created = False
+
+        if not created:
+            # no empty cell or creation failed; retry a few times
+            print("[Action] Failed to place Mine; will retry")
+            return False
+
+        # commit the purchase: deduct points and decrement available uses
+        try:
+            self.mine_uses_used += 1
+            self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+            if next_cost is not None:
+                try:
+                    self.points = max(0, int(self.points) - int(next_cost))
+                except Exception:
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            # ensure there's a popup if create_new_mine didn't set one
+            if not getattr(self, '_popup_message', None):
+                try:
+                    self._popup_message = f"Mina creada ({self.mine_uses_left} restantes)"
+                    self._popup_timer = 2000
+                except Exception:
+                    pass
+            print(f"[Action] Mine purchase applied (uses left={self.mine_uses_left}) | -{next_cost} pts (total={self.points})")
+            return True
+        except Exception:
+            return True
 
     # ---- Action buffer processing ----
     def process_action_buffer(self, max_per_frame: int = 5):
@@ -673,6 +989,11 @@ class GameManager(Singleton):
             elif action.get('type') == 'eff':
                 try:
                     ok = self._apply_eff_action()
+                except Exception:
+                    ok = False
+            elif action.get('type') == 'mine':
+                try:
+                    ok = self._apply_mine_action()
                 except Exception:
                     ok = False
 
@@ -729,6 +1050,15 @@ class GameManager(Singleton):
                 pass
 
         if applied > 0:
+            # also update global production interval for mines so speed upgrades
+            # affect production frequency (use same multiplier as conveyors)
+            try:
+                if not hasattr(self, '_base_production_interval'):
+                    self._base_production_interval = 2000
+                # compute new production interval using the same multiplier
+                self.production_interval = max(100, int(self._base_production_interval * multiplier))
+            except Exception:
+                pass
             # commit the use and subtract points
             self.speed_uses_used += 1
             self.speed_uses_left = max(0, 10 - self.speed_uses_used)
@@ -740,6 +1070,12 @@ class GameManager(Singleton):
                         self.points -= next_cost
                     except Exception:
                         pass
+            # show popup for user feedback
+            try:
+                self._popup_message = f"Mejora Velocidad aplicada ({self.speed_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
             print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={self.points})")
             return True
 
@@ -830,6 +1166,22 @@ class GameManager(Singleton):
                             pass
 
         if applied > 0:
+            # update in-flight items on conveyors so they reflect the new efficiency
+            # The efficiency upgrade increments mine output by +1 per use in this implementation,
+            # so add the same delta to all queued numeric items so wells see the increased values
+            try:
+                delta = 1
+                for conv in getattr(self, 'conveyors', []):
+                    try:
+                        for item in conv.queue:
+                            try:
+                                item['value'] = int(item.get('value', 0)) + delta
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+            except Exception:
+                pass
             # commit the use and subtract points
             self.eff_uses_used += 1
             self.eff_uses_left = max(0, 10 - self.eff_uses_used)
@@ -841,6 +1193,12 @@ class GameManager(Singleton):
                         self.points -= next_cost
                     except Exception:
                         pass
+            # popup for efficiency
+            try:
+                self._popup_message = f"Mejora Eficiencia aplicada ({self.eff_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
             print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={self.points})")
             return True
 

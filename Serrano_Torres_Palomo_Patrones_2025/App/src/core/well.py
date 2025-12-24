@@ -42,21 +42,23 @@ class Well(Structure):
             print(f"Well consumed {number}! +{points} points | Total: {self.gameManager.points}")
 
     def draw(self):
-        pg.draw.circle(self.gameManager.screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
+        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+        draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
+        pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
         
         font = pg.font.Font(None, 24)
         text = font.render(str(self.consumingNumber), True, (255, 255, 255))
-        text_rect = text.get_rect(center=(self.position.x, self.position.y))
+        text_rect = text.get_rect(center=draw_pos)
         self.gameManager.screen.blit(text, text_rect)
         
         points_value = self.consumingNumber
         
         if self.coin_img:
-            coin_x = self.position.x - 25
-            coin_y = self.position.y - 35
+            coin_x = draw_pos[0] - 25
+            coin_y = draw_pos[1] - 35
             self.gameManager.screen.blit(self.coin_img, (coin_x, coin_y))
         
         points_font = pg.font.Font(None, 20)
         points_text = points_font.render(f"+{points_value}", True, (255, 215, 0))
-        points_rect = points_text.get_rect(center=(self.position.x + 5, self.position.y - 35))
+        points_rect = points_text.get_rect(center=(draw_pos[0] + 5, draw_pos[1] - 35))
         self.gameManager.screen.blit(points_text, points_rect)
