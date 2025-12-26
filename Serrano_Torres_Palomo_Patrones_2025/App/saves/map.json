@@ -3,10 +3,7 @@
   "height": 10,
   "grid": [
     [
-      {
-        "class": "Mine",
-        "number": 1
-      },
+      null,
       null,
       null,
       null,
@@ -78,54 +75,10 @@
     [
       null,
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    [
-      null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -135,11 +88,64 @@
         "number": 1
       },
       null,
-      null,
       {
         "class": "Mine",
         "number": 1
       }
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
+      null,
+      null,
+      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     ]
   ],
   "conveyors": [
@@ -211,8 +217,8 @@
     }
   ],
   "upgrades": {
-    "speed_uses_used": 10,
-    "eff_uses_used": 10
+    "speed_uses_used": 0,
+    "eff_uses_used": 0
   },
-  "score": 611
+  "score": 14
 }

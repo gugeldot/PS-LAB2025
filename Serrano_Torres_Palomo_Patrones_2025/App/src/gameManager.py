@@ -5,6 +5,8 @@ import os
 import json
 from collections import deque
 
+from buildState import BuildState
+from normalState import NormalState
 from placementController import PlacementController
 from settings import *
 from mouseControl import MouseControl
@@ -61,6 +63,8 @@ class GameManager(Singleton):
         self.eff_costs = (8, 9, 10, 11, 12, 14, 16, 18, 20, 25)
         # action buffer to store pending upgrade actions (processed in update())
         # each entry: { 'type': 'speed'|'eff', 'tries': int, 'max_tries': int }
+
+        
         self.action_buffer = deque()
 
         self.running = True
@@ -74,7 +78,13 @@ class GameManager(Singleton):
     def new_game(self):
         """Inicializa los elementos del juego: carga mapa si existe o crea uno por defecto."""
         self.mouse = MouseControl(self)
-        self.placementController= PlacementController(self,None)
+
+        #modo normal o construccion
+        self.buildMode= False
+        
+        self.normalState= NormalState(self.mouse)
+        self.buildState= BuildState(PlacementController(self,MineCreator()))
+        self.state= self.normalState
         # creator mapping for loading
         creators = {
             "Mine": MineCreator(),
@@ -241,7 +251,7 @@ class GameManager(Singleton):
     def update(self):
         # update inputs
         self.mouse.update()
-        self.placementController.update()
+        self.state.update()
         # process any pending upgrade actions from the action buffer
         try:
             self.process_action_buffer()
@@ -388,7 +398,9 @@ class GameManager(Singleton):
         text_eff = font_small.render(f"Mejora Eficiencia ({eff_label_cost}) [{self.eff_uses_left}]", True, (255, 255, 255))
         self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
 
-        # draw mouse
+        # esto dibuja la preview del build en caso de que estemos en modo build
+        if hasattr(self.state, "draw"):
+            self.state.draw()
         self.mouse.draw()
         # present the rendered frame
         pg.display.flip()
@@ -396,11 +408,19 @@ class GameManager(Singleton):
     def checkEvents(self):
         for event in pg.event.get():
             # pass to mouse control (keeps existing debug prints)
-            self.mouse.checkClickEvent(event)
-            self.placementController.checkKeyEvent(event)
+
+            #el estado aqui sustituye al mouse para manejar los clicks, dependeidneo de si modo construccion o no
+            
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 self.running = False
                 self.save_and_exit()
+
+            #gestion de teclas
+            if event.type == pg.KEYDOWN:
+                    #se activa modo construccion
+                    if event.key == pg.K_b:
+                            
+                            self.toggleBuildMode()
 
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
@@ -434,7 +454,7 @@ class GameManager(Singleton):
                     else:
                         self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
                         print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
-        
+            self.state.handleClickEvent(event)
 # region run
     def run(self):
         while self.running:
@@ -442,6 +462,20 @@ class GameManager(Singleton):
             self.update()
             self.draw()
 
+
+
+
+#region toggleBuildMode
+
+    def toggleBuildMode(self):
+        if self.buildMode:
+            self.buildMode= False
+            self.state= self.normalState
+            print(f"modo construccion desactivado  --- {self.state}")
+        else:
+            self.buildMode= True
+            self.state= self.buildState
+            print(f"modo construccion activado --- {self.state}")
 
     def save_map(self):
         """Save map to App/saves/map.json"""

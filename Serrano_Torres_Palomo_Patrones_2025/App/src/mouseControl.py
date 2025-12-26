@@ -39,7 +39,7 @@ class MouseControl:
     
     def checkClickEvent(self,event):
         '''
-        Detecta clicks del mouse
+        Detecta clicks del mouse y lo procesa
         '''
         if event.type == pg.MOUSEBUTTONDOWN:
             # calculate grid cell from current mouse pos
