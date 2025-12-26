@@ -6,6 +6,7 @@ import json
 from collections import deque
 
 from buildState import BuildState
+from core.sumModuleCreator import SumModuleCreator
 from normalState import NormalState
 from placementController import PlacementController
 from settings import *
@@ -184,7 +185,7 @@ class GameManager(Singleton):
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
             # Test: Mine -> Conveyor1 -> Splitter -> [Conveyor2, Conveyor3] -> Merger -> Conveyor4 -> Well
-            mine = MineCreator().createStructure((2, 2), 1, self)
+            mine = MineCreator().createStructure((2, 2),  self,1)
             self.map.placeStructure(2, 2, mine)
 
             splitter = SplitterCreator().createStructure((4, 2), self)
@@ -193,7 +194,7 @@ class GameManager(Singleton):
             merger = MergerCreator().createStructure((6, 2), self)
             self.map.placeStructure(6, 2, merger)
 
-            well = WellCreator().createStructure((8, 2), 1, self)
+            well = WellCreator().createStructure((8, 2),  self,1)
             self.map.placeStructure(8, 2, well)
 
             # Create conveyors with visual deviation
@@ -424,9 +425,11 @@ class GameManager(Singleton):
                     if event.key == pg.K_n:
                             self.toggleBuildMode(True)
                             self.state.setFactory(WellCreator())
-                    if event.key == pg.K_ESCAPE:
+                    if event.key == pg.K_BACKSPACE:
                             self.toggleBuildMode(False)
-                            
+                    if event.key == pg.K_v:
+                            self.toggleBuildMode(True)
+                            self.state.setFactory(SumModuleCreator())        
 
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:

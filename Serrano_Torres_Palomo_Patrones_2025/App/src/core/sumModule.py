@@ -1,6 +1,6 @@
 import pygame as pg
-from Serrano_Torres_Palomo_Patrones_2025.App.src.core import conveyor
-from module import *
+from core import conveyor
+from .module import *
 
 class SumModule(Module):
     def __init__(self, position, gameManager):
@@ -28,6 +28,13 @@ class SumModule(Module):
             self.outConveyor.push(number1 + number2)
         return None
     
+    def draw(self):
+        pg.draw.rect(self.gameManager.screen, (173, 216, 230), (self.position.x, self.position.y, 17, 17))
+        font = pg.font.Font(None, 24)
+        text = font.render('+', True, (255, 255, 255))
+        text_rect = text.get_rect(center=(self.position.x, self.position.y))
+        self.gameManager.screen.blit(text, text_rect)
+
     def setConveyor(self, conveyor, position):
         if position == 1:
             self.inConveyor1 = conveyor

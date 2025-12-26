@@ -38,7 +38,7 @@ class PlacementController:
     def buildStructure(self):
           if self.factory is not None and not self.checkStructureInCell():
                     #construir mina
-                    structure=self.factory.createStructure((self.cellPosX, self.cellPosY), 1, self.gameManager)
+                    structure=self.factory.createStructure((self.cellPosX, self.cellPosY), self.gameManager)
                     self.gameManager.structures.append(structure)
                     self.gameManager.map.placeStructure(self.cellPosX, self.cellPosY, structure)
                     print(f"------------------------Mina creada en ({self.cellPosX}, {self.cellPosY})")
