@@ -83,7 +83,7 @@ class GameManager(Singleton):
         self.buildMode= False
         
         self.normalState= NormalState(self.mouse)
-        self.buildState= BuildState(PlacementController(self,MineCreator()))
+        self.buildState= BuildState(PlacementController(self,None))
         self.state= self.normalState
         # creator mapping for loading
         creators = {
@@ -419,8 +419,14 @@ class GameManager(Singleton):
             if event.type == pg.KEYDOWN:
                     #se activa modo construccion
                     if event.key == pg.K_b:
+                            self.toggleBuildMode(True)
+                            self.state.setFactory(MineCreator())  
+                    if event.key == pg.K_n:
+                            self.toggleBuildMode(True)
+                            self.state.setFactory(WellCreator())
+                    if event.key == pg.K_ESCAPE:
+                            self.toggleBuildMode(False)
                             
-                            self.toggleBuildMode()
 
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
@@ -467,15 +473,12 @@ class GameManager(Singleton):
 
 #region toggleBuildMode
 
-    def toggleBuildMode(self):
-        if self.buildMode:
-            self.buildMode= False
-            self.state= self.normalState
-            print(f"modo construccion desactivado  --- {self.state}")
-        else:
-            self.buildMode= True
+    def toggleBuildMode(self,boolean):
+        self.buildMode= boolean
+        if boolean:
             self.state= self.buildState
-            print(f"modo construccion activado --- {self.state}")
+        else:
+            self.state= self.normalState
 
     def save_map(self):
         """Save map to App/saves/map.json"""

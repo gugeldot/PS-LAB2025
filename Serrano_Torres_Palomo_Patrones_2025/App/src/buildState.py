@@ -14,3 +14,6 @@ class BuildState(GameState):
     
     def draw(self):
         self.placementController.draw()
+
+    def setFactory(self, factory):
+        self.placementController.setFactory(factory)

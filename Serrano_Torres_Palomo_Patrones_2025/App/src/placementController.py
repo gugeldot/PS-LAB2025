@@ -31,7 +31,7 @@ class PlacementController:
         #metodo basico de dibujar ciruclo
         offset= -15
         #cicrulo de color rosa (rojo desaturado)
-        pg.draw.circle(self.gameManager.screen, (200, 128, 128), (int(self.mousePosition.x+offset), int(self.mousePosition.y+offset)), 15)
+        pg.draw.circle(self.gameManager.screen, self.factory.getSpritePreview(), (int(self.mousePosition.x+offset), int(self.mousePosition.y+offset)), 15)
         font = pg.font.Font(None, 24)
         
 

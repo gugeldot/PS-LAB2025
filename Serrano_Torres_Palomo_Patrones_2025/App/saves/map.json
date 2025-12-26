@@ -69,7 +69,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Well",
+        "consumingNumber": 1
+      },
       null
     ],
     [
@@ -99,7 +102,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Well",
+        "consumingNumber": 1
+      },
       null,
       null,
       null,
@@ -220,5 +226,5 @@
     "speed_uses_used": 0,
     "eff_uses_used": 0
   },
-  "score": 14
+  "score": 19
 }
