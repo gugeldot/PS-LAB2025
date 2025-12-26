@@ -5,6 +5,7 @@ import os
 import json
 from collections import deque
 
+from placementController import PlacementController
 from settings import *
 from mouseControl import MouseControl
 from patterns.singleton import Singleton
@@ -73,7 +74,7 @@ class GameManager(Singleton):
     def new_game(self):
         """Inicializa los elementos del juego: carga mapa si existe o crea uno por defecto."""
         self.mouse = MouseControl(self)
-
+        self.placementController= PlacementController(self,None)
         # creator mapping for loading
         creators = {
             "Mine": MineCreator(),
@@ -240,6 +241,7 @@ class GameManager(Singleton):
     def update(self):
         # update inputs
         self.mouse.update()
+        self.placementController.update()
         # process any pending upgrade actions from the action buffer
         try:
             self.process_action_buffer()
@@ -395,7 +397,7 @@ class GameManager(Singleton):
         for event in pg.event.get():
             # pass to mouse control (keeps existing debug prints)
             self.mouse.checkClickEvent(event)
-
+            self.placementController.checkKeyEvent(event)
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 self.running = False
                 self.save_and_exit()
@@ -432,14 +434,7 @@ class GameManager(Singleton):
                     else:
                         self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
                         print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
-        #modo construccion
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_m:
-                    #construir mina
-                    mine = MineCreator().createStructure((9,9), 1, self)
-                    self.structures.append(mine)
-                    self.map.placeStructure(9,9, mine)
-                    print(f"------------------------Mina creada en ({self.mouse.position.x}, {self.mouse.position.y})")
+        
 # region run
     def run(self):
         while self.running:

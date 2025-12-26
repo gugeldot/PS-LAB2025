@@ -3,7 +3,10 @@
   "height": 10,
   "grid": [
     [
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -127,7 +130,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       {
@@ -208,5 +214,5 @@
     "speed_uses_used": 10,
     "eff_uses_used": 10
   },
-  "score": 61
+  "score": 611
 }
