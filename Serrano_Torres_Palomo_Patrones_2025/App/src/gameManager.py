@@ -185,7 +185,7 @@ class GameManager(Singleton):
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
             # Test: Mine -> Conveyor1 -> Splitter -> [Conveyor2, Conveyor3] -> Merger -> Conveyor4 -> Well
-            mine = MineCreator().createStructure((2, 2),  self,1)
+            mine = MineCreator().createStructure((2, 2),  1, self)
             self.map.placeStructure(2, 2, mine)
 
             splitter = SplitterCreator().createStructure((4, 2), self)
@@ -194,7 +194,7 @@ class GameManager(Singleton):
             merger = MergerCreator().createStructure((6, 2), self)
             self.map.placeStructure(6, 2, merger)
 
-            well = WellCreator().createStructure((8, 2),  self,1)
+            well = WellCreator().createStructure((8, 2),  1, self   )
             self.map.placeStructure(8, 2, well)
 
             # Create conveyors with visual deviation

@@ -4,7 +4,7 @@ from settings import CELL_SIZE_PX
 
 
 class Mine(Structure):
-    def __init__(self, position,  gameManager, number=None):
+    def __init__(self, position,  number, gameManager):
         '''
         Inicializa la mina usando coordenadas de grilla (x,y). La posición
         pixel se calcula a partir de CELL_SIZE_PX y el centro de la celda.

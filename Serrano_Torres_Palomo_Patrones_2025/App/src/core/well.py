@@ -5,7 +5,7 @@ from settings import CELL_SIZE_PX
 
 
 class Well(Structure):
-    def __init__(self, position,  gameManager,consumingNumber=None):
+    def __init__(self, position,  consumingNumber, gameManager):
         ''' 
         Inicializa el pozo usando coordenadas de grilla (x,y). La posición
         pixel se calcula a partir de CELL_SIZE_PX y el centro de la celda.

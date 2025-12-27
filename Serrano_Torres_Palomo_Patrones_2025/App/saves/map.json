@@ -1,0 +1,209 @@
+{
+  "width": 10,
+  "height": 10,
+  "grid": [
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
+      null,
+      {
+        "class": "SplitterModule"
+      },
+      null,
+      {
+        "class": "MergerModule"
+      },
+      null,
+      {
+        "class": "Well",
+        "consumingNumber": 1
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "conveyors": [
+    {
+      "start": [
+        2,
+        2
+      ],
+      "end": [
+        4,
+        2
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        4,
+        2
+      ],
+      "end": [
+        5,
+        1
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        5,
+        1
+      ],
+      "end": [
+        6,
+        2
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        4,
+        2
+      ],
+      "end": [
+        5,
+        3
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        5,
+        3
+      ],
+      "end": [
+        6,
+        2
+      ],
+      "travel_time": 2000
+    },
+    {
+      "start": [
+        6,
+        2
+      ],
+      "end": [
+        8,
+        2
+      ],
+      "travel_time": 2000
+    }
+  ],
+  "upgrades": {
+    "speed_uses_used": 0,
+    "eff_uses_used": 0
+  },
+  "score": 0
+}
