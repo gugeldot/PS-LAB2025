@@ -76,6 +76,24 @@
       null,
       null,
       null,
+      {
+        "class": "SumModule"
+      },
+      null,
+      {
+        "class": "SumModule"
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "class": "SumModule"
+      },
+      null,
       null,
       null,
       null,
@@ -86,19 +104,9 @@
     ],
     [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    [
-      null,
-      null,
+      {
+        "class": "SumModule"
+      },
       null,
       null,
       null,
@@ -205,5 +213,5 @@
     "speed_uses_used": 0,
     "eff_uses_used": 0
   },
-  "score": 15
+  "score": 30
 }

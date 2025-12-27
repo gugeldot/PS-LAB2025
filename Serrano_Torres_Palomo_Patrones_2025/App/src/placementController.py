@@ -69,7 +69,9 @@ class PlacementController:
                     print(f"Estructura en {structure.grid_position} destruida.")
             else:
                     print("Estructura no encontrada en la lista.")
-
+    def checkCost(self):
+        #comprobar si tiene recursos suficientes
+        return True
     def checkStructureInCell(self):
         #comprobar si es valido
        try:
