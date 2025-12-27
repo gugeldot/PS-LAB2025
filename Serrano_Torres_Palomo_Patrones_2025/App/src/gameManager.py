@@ -7,6 +7,7 @@ from collections import deque
 
 from buildState import BuildState
 from core.sumModuleCreator import SumModuleCreator
+from destroyState import DestroyState
 from normalState import NormalState
 from placementController import PlacementController
 from settings import *
@@ -81,10 +82,10 @@ class GameManager(Singleton):
         self.mouse = MouseControl(self)
 
         #modo normal o construccion
-        self.buildMode= False
         
         self.normalState= NormalState(self.mouse)
         self.buildState= BuildState(PlacementController(self,None))
+        self.destroyState= DestroyState(PlacementController(self,None))
         self.state= self.normalState
         # creator mapping for loading
         creators = {
@@ -419,16 +420,17 @@ class GameManager(Singleton):
             #gestion de teclas
             if event.type == pg.KEYDOWN:
                     #se activa modo construccion
-                    if event.key == pg.K_b:
-                            self.toggleBuildMode(True)
-                            self.state.setFactory(MineCreator())  
+                    if event.key == pg.K_b: #b ded bulldozer para destruir por ahora
+                            
+                            self.setState(self.destroyState)  
                     if event.key == pg.K_n:
-                            self.toggleBuildMode(True)
+                            self.setState(self.buildState)
+                            
                             self.state.setFactory(WellCreator())
                     if event.key == pg.K_BACKSPACE:
-                            self.toggleBuildMode(False)
+                            self.setState(self.normalState)
                     if event.key == pg.K_v:
-                            self.toggleBuildMode(True)
+                            self.setState(self.buildState)
                             self.state.setFactory(SumModuleCreator())        
 
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
@@ -474,14 +476,10 @@ class GameManager(Singleton):
 
 
 
-#region toggleBuildMode
+#region setState
 
-    def toggleBuildMode(self,boolean):
-        self.buildMode= boolean
-        if boolean:
-            self.state= self.buildState
-        else:
-            self.state= self.normalState
+    def setState(self,state):
+        self.state= state
 
     def save_map(self):
         """Save map to App/saves/map.json"""
