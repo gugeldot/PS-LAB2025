@@ -1,3 +1,4 @@
+import pathlib
 import pygame as pg
 from core import conveyor
 from .module import *
@@ -16,7 +17,13 @@ class SumModule(Module):
         self.inConveyor1 = None
         self.inConveyor2 = None
         self.outConveyor = None
+        #  Ruta base del proyecto (un nivel arriba de src)
+        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent  # parent de src
 
+        #  Construir la ruta de cualquier recurso en Assets
+        IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "sum-module.png"
+        self.img = pg.image.load(IMG_PATH).convert_alpha()
+        self.img = pg.transform.scale(self.img, (60, 60)) 
 
     def calcular(self):
         '''
@@ -29,11 +36,16 @@ class SumModule(Module):
         return None
     
     def draw(self):
+        self.gameManager.screen.blit(self.img, (self.position.x -30, self.position.y -30 ))
+    
+        '''
         pg.draw.rect(self.gameManager.screen, (173, 216, 230), (self.position.x, self.position.y, 17, 17))
         font = pg.font.Font(None, 24)
         text = font.render('+', True, (255, 255, 255))
         text_rect = text.get_rect(center=(self.position.x, self.position.y))
         self.gameManager.screen.blit(text, text_rect)
+        '''
+        
 
     def setConveyor(self, conveyor, position):
         if position == 1:
