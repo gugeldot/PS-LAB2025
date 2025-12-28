@@ -9,6 +9,7 @@ from collections import deque
 from settings import *
 from mouseControl import MouseControl
 from patterns.singleton import Singleton
+from ui.hud import HUD, Colors
 from core.mine import Mine
 from core.well import Well
 from core.mineCreator import MineCreator
@@ -45,13 +46,8 @@ class GameManager(Singleton):
         self.save_dir = app_dir / "saves"
         self.save_file = self.save_dir / "map.json"
 
-        # UI: Save & Exit button
-        self.save_button_rect = pg.Rect(WIDTH - 170, 10, 160, 40)
-        # UI: Upgrade buttons (stacked under Save)
-        self.speed_button_rect = pg.Rect(WIDTH - 170, 60, 160, 40)
-        self.eff_button_rect = pg.Rect(WIDTH - 170, 110, 160, 40)
-        # UI: New Mine button (reactive, no functionality yet)
-        self.new_mine_button_rect = pg.Rect(WIDTH - 170, 160, 160, 40)
+        # UI: Inicializar HUD
+        self.hud = None  # Se inicializará después de new_game()
 
         # Upgrade usage counters (max 10 uses each)
         self.speed_uses_left = 10
@@ -95,6 +91,9 @@ class GameManager(Singleton):
 
         # start
         self.new_game()
+        
+        # Inicializar HUD después de que el juego esté configurado
+        self.hud = HUD(self)
 
         # mark initialized
         self._initialized = True
@@ -534,23 +533,12 @@ class GameManager(Singleton):
     def update(self):
         # update inputs
         self.mouse.update()
-        # update transient UI popup timer (if present)
-        try:
-            if hasattr(self, '_popup_timer') and getattr(self, '_popup_timer', 0) is not None:
-                # decrement by delta_time from previous frame
-                try:
-                    self._popup_timer -= int(self.delta_time)
-                except Exception:
-                    self._popup_timer -= 0
-                if self._popup_timer <= 0:
-                    try:
-                        self._popup_timer = None
-                        self._popup_message = None
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-        # process any pending upgrade actions from the action buffer
+        
+        # Actualizar HUD (popups, temporizadores, etc)
+        if self.hud:
+            self.hud.update(self.delta_time)
+        
+        # process any pending upgrade actions from the action_buffer
         try:
             self.process_action_buffer()
         except Exception:
@@ -618,7 +606,8 @@ class GameManager(Singleton):
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
 
     def draw(self):
-        self.screen.fill('black')
+        # Fondo con color pastel suave
+        self.screen.fill(Colors.BG_DARK)
         
         # camera (viewport) and mouse grid coords in world space
         cam = getattr(self, 'camera', pg.Vector2(0, 0))
@@ -629,8 +618,8 @@ class GameManager(Singleton):
         gy = world_my // CELL_SIZE_PX
 
         # draw grid and structures
-        grid_color = (80, 80, 80)
-        hover_fill = (200, 200, 200)
+        grid_color = Colors.GRID_LINE
+        hover_fill = Colors.GRID_HOVER
     # draw world grid and map-placed structures applying camera offset
         for y in range(self.map.height):
             for x in range(self.map.width):
@@ -642,15 +631,7 @@ class GameManager(Singleton):
                     pg.draw.rect(self.screen, hover_fill, rect)
                 pg.draw.rect(self.screen, grid_color, rect, 1)
 
-                cell = self.map.getCell(x, y)
-                if cell and not cell.isEmpty():
-                    try:
-                        # map-placed structure draw methods were updated to account for camera
-                        cell.structure.draw()
-                    except Exception:
-                        pass
-
-        # draw non-map structures (e.g., conveyors)
+        # Dibujar conveyors PRIMERO (capa inferior)
         for structure in self.structures:
             if hasattr(structure, 'grid_position'):
                 continue
@@ -659,128 +640,21 @@ class GameManager(Singleton):
             except Exception:
                 pass
 
-        # draw Save & Exit button
+        # Dibujar estructuras del mapa DESPUÉS (capa superior)
+        for y in range(self.map.height):
+            for x in range(self.map.width):
+                cell = self.map.getCell(x, y)
+                if cell and not cell.isEmpty():
+                    try:
+                        # map-placed structure draw methods were updated to account for camera
+                        cell.structure.draw()
+                    except Exception:
+                        pass
+
+        # Dibujar HUD (botones, puntos, popup)
         mouse_pt = (int(self.mouse.position.x), int(self.mouse.position.y))
-        hover = self.save_button_rect.collidepoint(mouse_pt)
-        btn_color = (100, 100, 100) if not hover else (150, 150, 150)
-        pg.draw.rect(self.screen, btn_color, self.save_button_rect)
-        # button text
-        font = pg.font.Font(None, 24)
-        text = font.render("Save & Exit", True, (255, 255, 255))
-        text_rect = text.get_rect(center=self.save_button_rect.center)
-        self.screen.blit(text, text_rect)
-        
-        # display total points as a label in the bottom-left corner
-        # draw a dark background box so the text is always legible
-        try:
-            font = pg.font.Font(None, 36)
-            points_text = font.render(f"Puntuación: {self.points}", True, (255, 215, 0))
-            padding = 8
-            text_rect = points_text.get_rect()
-            label_x = 10
-            label_y = HEIGHT - text_rect.height - 10
-            bg_rect = pg.Rect(label_x - padding, label_y - padding,
-                              text_rect.width + padding * 2, text_rect.height + padding * 2)
-            # slightly translucent-ish look (solid color; SDL surfaces do not always support alpha here)
-            pg.draw.rect(self.screen, (30, 30, 30), bg_rect)
-            # thin border
-            pg.draw.rect(self.screen, (180, 180, 180), bg_rect, 1)
-            self.screen.blit(points_text, (label_x, label_y))
-        except Exception:
-            # fallback: try a very small font and a plain blit so draw() never crashes
-            try:
-                font = pg.font.Font(None, 20)
-                points_text = font.render(str(getattr(self, 'points', 0)), True, (255, 215, 0))
-                self.screen.blit(points_text, (10, HEIGHT - 30))
-            except Exception:
-                pass
-
-        # draw Upgrade buttons (Mejora Velocidad / Mejora Eficiencia)
-        font_small = pg.font.Font(None, 20)
-
-        # Speed button shows price and remaining uses, and is shaded if unaffordable or no uses
-        hover_speed = self.speed_button_rect.collidepoint(mouse_pt)
-        # determine next cost for speed (based on how many uses already consumed)
-        next_speed_cost = None
-        try:
-            if 0 <= self.speed_uses_used < len(self.speed_costs):
-                next_speed_cost = int(self.speed_costs[self.speed_uses_used])
-        except Exception:
-            next_speed_cost = None
-
-        can_buy_speed = (getattr(self, 'points', 0) >= (next_speed_cost or 0)) and (self.speed_uses_left > 0)
-        if not can_buy_speed:
-            speed_color = (60, 60, 60)
-        else:
-            speed_color = (150, 150, 150) if hover_speed else (100, 100, 100)
-        pg.draw.rect(self.screen, speed_color, self.speed_button_rect)
-        speed_label_cost = f"{next_speed_cost}pts" if next_speed_cost is not None else "N/A"
-        text_speed = font_small.render(f"Mejora Velocidad ({speed_label_cost}) [{self.speed_uses_left}]", True, (255, 255, 255))
-        self.screen.blit(text_speed, text_speed.get_rect(center=self.speed_button_rect.center))
-
-        # Efficiency button shows price and remaining uses, and is shaded if unaffordable or no uses
-        hover_eff = self.eff_button_rect.collidepoint(mouse_pt)
-        # determine next cost for efficiency
-        next_eff_cost = None
-        try:
-            if 0 <= self.eff_uses_used < len(self.eff_costs):
-                next_eff_cost = int(self.eff_costs[self.eff_uses_used])
-        except Exception:
-            next_eff_cost = None
-
-        can_buy_eff = (getattr(self, 'points', 0) >= (next_eff_cost or 0)) and (self.eff_uses_left > 0)
-        if not can_buy_eff:
-            eff_color = (60, 60, 60)
-        else:
-            eff_color = (150, 150, 150) if hover_eff else (100, 100, 100)
-        pg.draw.rect(self.screen, eff_color, self.eff_button_rect)
-        eff_label_cost = f"{next_eff_cost}pts" if next_eff_cost is not None else "N/A"
-        text_eff = font_small.render(f"Mejora Eficiencia ({eff_label_cost}) [{self.eff_uses_left}]", True, (255, 255, 255))
-        self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
-
-        # New Mine button (reactive, prints a message for now)
-        hover_new_mine = self.new_mine_button_rect.collidepoint(mouse_pt)
-        # determine next cost for creating a mine
-        next_mine_cost = None
-        try:
-            if 0 <= self.mine_uses_used < len(self.mine_costs):
-                next_mine_cost = int(self.mine_costs[self.mine_uses_used])
-        except Exception:
-            next_mine_cost = None
-
-        can_buy_mine = (getattr(self, 'points', 0) >= (next_mine_cost or 0)) and (self.mine_uses_left > 0)
-        if not can_buy_mine:
-            new_mine_color = (60, 60, 60)
-        else:
-            new_mine_color = (150, 150, 150) if hover_new_mine else (100, 100, 100)
-        pg.draw.rect(self.screen, new_mine_color, self.new_mine_button_rect)
-        mine_label_cost = f"{next_mine_cost}pts" if next_mine_cost is not None else "N/A"
-        text_new = font_small.render(f"Nueva Mina ({mine_label_cost}) [{self.mine_uses_left}]", True, (255, 255, 255))
-        self.screen.blit(text_new, text_new.get_rect(center=self.new_mine_button_rect.center))
-
-        # transient popup message (e.g., "Mina creada en (x,y)")
-        try:
-            msg = getattr(self, '_popup_message', None)
-            t = getattr(self, '_popup_timer', None)
-            if msg and t and t > 0:
-                popup_font = pg.font.Font(None, 26)
-                text_surf = popup_font.render(msg, True, (0, 0, 0))
-                padding_x = 16
-                padding_y = 10
-                w = text_surf.get_width() + padding_x * 2
-                h = text_surf.get_height() + padding_y * 2
-                px = WIDTH // 2 - w // 2
-                py = 10
-                popup_rect = pg.Rect(px, py, w, h)
-                # background and border
-                pg.draw.rect(self.screen, (250, 240, 120), popup_rect)
-                pg.draw.rect(self.screen, (120, 120, 120), popup_rect, 2)
-                # blit text centered in popup
-                tx = px + (w - text_surf.get_width()) // 2
-                ty = py + (h - text_surf.get_height()) // 2
-                self.screen.blit(text_surf, (tx, ty))
-        except Exception:
-            pass
+        if self.hud:
+            self.hud.draw(self.screen, mouse_pt)
 
         # draw mouse
         self.mouse.draw()
@@ -796,8 +670,7 @@ class GameManager(Singleton):
                 pos = event.pos
                 over_ui = False
                 try:
-                    if self.save_button_rect.collidepoint(pos) or self.speed_button_rect.collidepoint(pos) \
-                       or self.eff_button_rect.collidepoint(pos) or self.new_mine_button_rect.collidepoint(pos):
+                    if self.hud and self.hud.is_over_button(pos):
                         over_ui = True
                 except Exception:
                     over_ui = False
@@ -812,10 +685,10 @@ class GameManager(Singleton):
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                 # check if Save & Exit clicked
-                if self.save_button_rect.collidepoint(event.pos):
+                if self.hud and self.hud.save_button.collidepoint(event.pos):
                     self.save_and_exit()
                 # enqueue upgrade actions (global)
-                elif self.speed_button_rect.collidepoint(event.pos):
+                elif self.hud and self.hud.speed_button.collidepoint(event.pos):
                     # avoid enqueueing more than remaining capacity (max 10 uses total)
                     queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
                     if queued + self.speed_uses_used >= 10:
@@ -830,7 +703,7 @@ class GameManager(Singleton):
                         self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
                         print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
 
-                elif self.eff_button_rect.collidepoint(event.pos):
+                elif self.hud and self.hud.efficiency_button.collidepoint(event.pos):
                     queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
                     if queued + self.eff_uses_used >= 10:
                         print("No efficiency upgrades available to queue")
@@ -842,7 +715,7 @@ class GameManager(Singleton):
                         self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
                         print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
 
-                elif self.new_mine_button_rect.collidepoint(event.pos):
+                elif self.hud and self.hud.new_mine_button.collidepoint(event.pos):
                     # enqueue a 'mine' purchase action (similar to speed/eff)
                     queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
                     if queued + self.mine_uses_used >= 10:
@@ -961,12 +834,8 @@ class GameManager(Singleton):
                     except Exception:
                         pass
             # ensure there's a popup if create_new_mine didn't set one
-            if not getattr(self, '_popup_message', None):
-                try:
-                    self._popup_message = f"Mina creada ({self.mine_uses_left} restantes)"
-                    self._popup_timer = 2000
-                except Exception:
-                    pass
+            if self.hud:
+                self.hud.show_popup(f"Mina creada ({self.mine_uses_left} restantes)")
             print(f"[Action] Mine purchase applied (uses left={self.mine_uses_left}) | -{next_cost} pts (total={self.points})")
             return True
         except Exception:

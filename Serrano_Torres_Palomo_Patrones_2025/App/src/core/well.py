@@ -18,7 +18,7 @@ class Well(Structure):
         self.consumingNumber = consumingNumber
         self.gameManager = gameManager
         self.radius = 15
-        self.color = (0, 150, 0)
+        self.color = (163, 228, 215)  # Verde menta pastel
         
         BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
         COIN_PATH = BASE_DIR / "Assets" / "Sprites" / "coin.svg"
@@ -55,8 +55,8 @@ class Well(Structure):
         draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
         pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
         
-        font = pg.font.Font(None, 24)
-        text = font.render(str(self.consumingNumber), True, (255, 255, 255))
+        font = pg.font.Font(None, 28)
+        text = font.render(str(self.consumingNumber), True, (44, 62, 80))  # Azul oscuro para buen contraste
         text_rect = text.get_rect(center=draw_pos)
         self.gameManager.screen.blit(text, text_rect)
         

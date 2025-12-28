@@ -14,8 +14,8 @@ class Conveyor(Structure):
         self.gameManager = gameManager
         self.speed = speed
         self.queue = deque()
-        self.width = 8
-        self.color = (128, 128, 128)
+        self.width = 12  # Más ancho para mejor visibilidad
+        self.color = (189, 195, 199)  # Gris plateado pastel
         self.travel_time = 2000
         self.outputConveyor = None
         
@@ -83,12 +83,14 @@ class Conveyor(Structure):
         end = (int(self.end_pos.x - cam.x), int(self.end_pos.y - cam.y))
         pg.draw.line(self.gameManager.screen, self.color, start, end, self.width)
 
-        font = pg.font.Font(None, 22)
+        font = pg.font.Font(None, 20)
         for item in self.queue:
             t = item['position']
             pos_x = (self.start_pos.x + (self.end_pos.x - self.start_pos.x) * t) - cam.x
             pos_y = (self.start_pos.y + (self.end_pos.y - self.start_pos.y) * t) - cam.y
             
-            text = font.render(str(item['value']), True, (255, 255, 0))
+            # Color azul oscuro, igual que los números en minas/pozos para consistencia
+            text = font.render(str(item['value']), True, (44, 62, 80))
             text_rect = text.get_rect(center=(pos_x, pos_y))
             self.gameManager.screen.blit(text, text_rect)
+

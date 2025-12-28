@@ -178,7 +178,10 @@
       null
     ],
     [
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       {
@@ -786,7 +789,7 @@
   "upgrades": {
     "speed_uses_used": 2,
     "eff_uses_used": 1,
-    "mine_uses_used": 1
+    "mine_uses_used": 2
   },
-  "score": 18
+  "score": 1952
 }

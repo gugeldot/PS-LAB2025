@@ -1,0 +1,25 @@
+<svg width="100" height="100" viewBox="45 10 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box-fill { fill: #5FAFB6; stroke: #000000; stroke-width: 2; }
+      .arrow-dark { fill: #2F606A; }
+      .arrow-light { fill: #D4F4F6; }
+      .center-box { fill: #AEEEEE; stroke: #000000; stroke-width: 1.5; }
+    </style>
+    <path id="arrow" d="M0,4 L12,4 L12,9 L22,0 L12,-9 L12,-4 L0,-4 Z" />
+  </defs>
+
+  <rect x="45" y="10" width="100" height="100" rx="10" ry="10" class="box-fill" />
+
+  <g transform="translate(95, 60)">
+    <rect x="-12" y="-12" width="24" height="24" class="center-box" />
+    <line x1="-12" y1="-12" x2="12" y2="12" stroke="black" stroke-width="1.5" />
+    <line x1="-12" y1="12" x2="12" y2="-12" stroke="black" stroke-width="1.5" />
+    <path d="M-12,-12 L0,0 L-12,12 Z" fill="#2F606A" opacity="0.5" />
+  </g>
+
+  <use href="#arrow" x="50" y="60" class="arrow-dark" />
+  <use href="#arrow" x="95" y="35" transform="rotate(-90, 95, 35)" class="arrow-light" />
+  <use href="#arrow" x="95" y="85" transform="rotate(90, 95, 85)" class="arrow-light" />
+  <use href="#arrow" x="118" y="60" class="arrow-light" />
+</svg>
