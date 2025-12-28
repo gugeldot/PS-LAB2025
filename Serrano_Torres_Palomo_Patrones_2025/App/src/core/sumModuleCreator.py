@@ -7,3 +7,6 @@ class SumModuleCreator(StructureCreator):
     
     def getSpritePreview(self):
         return ((173, 216, 230))
+    
+    def getCost(self) -> int:
+        return 15

@@ -481,6 +481,14 @@ class GameManager(Singleton):
     def setState(self,state):
         self.state= state
 
+
+    def canAffordBuilding(self, creator) -> bool:
+        #comprueba que hay puntos suficientes para construir la estructura, el coste se guarda en creator
+        cost = creator.getCost()
+        return getattr(self, 'points', 0) >= cost
+    def spendPoints(self, amount: int):
+        # resta los puntos gastados impidendo que sea negativoS
+        self.points = max(0, getattr(self, 'points', 0) - amount)
     def save_map(self):
         """Save map to App/saves/map.json"""
         try:

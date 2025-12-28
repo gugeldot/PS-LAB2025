@@ -10,7 +10,7 @@ class PlacementController:
         self.mousePosition= None
         self.buildMode= False
         self.factory = factory  #el creator
-
+        
     def setFactory(self, factory):
         self.factory = factory
 
@@ -49,11 +49,12 @@ class PlacementController:
 
     def buildStructure(self):
         self.mouseCellConversion()
-        if self.factory is not None and not self.checkStructureInCell():
+        if self.factory is not None and not self.checkStructureInCell() and self.checkCost():
             #construir mina
             structure=self.factory.createStructure((self.cellPosX, self.cellPosY), self.gameManager)
             self.gameManager.structures.append(structure)
             self.gameManager.map.placeStructure(self.cellPosX, self.cellPosY, structure)
+            self.gameManager.spendPoints(self.factory.getCost())
             print(f"------------------------Mina creada en ({self.cellPosX}, {self.cellPosY})")
     
     def destroyStructure(self):
@@ -71,7 +72,8 @@ class PlacementController:
                     print("Estructura no encontrada en la lista.")
     def checkCost(self):
         #comprobar si tiene recursos suficientes
-        return True
+        return self.gameManager.canAffordBuilding(self.factory)
+    
     def checkStructureInCell(self):
         #comprobar si es valido
        try:
