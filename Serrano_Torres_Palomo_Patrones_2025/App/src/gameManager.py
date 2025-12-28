@@ -47,7 +47,7 @@ class GameManager(Singleton):
 
         # Marcar como inicializado
         self._initialized = True
-
+#region new_game
     def new_game(self):
         """Inicializa los elementos del juego: carga mapa si existe o crea uno por defecto."""
         self.mouse = MouseControl(self)
@@ -413,21 +413,21 @@ class GameManager(Singleton):
         print("Exiting game after save.")
         pg.quit()
         sys.exit()
-
+#region update
     def update(self):
         """Delegamos el loop de update a gm_update.py"""
         try:
             gm_update(self)
         except Exception:
             pass
-
+#region draw
     def draw(self):
         """Delegamos el loop de draw a gm_draw.py"""
         try:
             gm_draw(self)
         except Exception:
             pass
-
+#region checkEvents
     def checkEvents(self):
         for event in pg.event.get():
             if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
@@ -493,7 +493,7 @@ class GameManager(Singleton):
                         else:
                             self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
                             print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
-
+#region run
     def run(self):
         while self.running:
             self.checkEvents()
