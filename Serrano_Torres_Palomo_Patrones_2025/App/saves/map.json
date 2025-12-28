@@ -101,13 +101,9 @@
       null,
       null,
       null,
-      {
-        "class": "SumModule"
-      },
       null,
-      {
-        "class": "MulModule"
-      },
+      null,
+      null,
       null,
       null,
       null
@@ -209,5 +205,5 @@
     "speed_uses_used": 0,
     "eff_uses_used": 0
   },
-  "score": 13
+  "score": 12
 }

@@ -6,6 +6,7 @@ import json
 from collections import deque
 
 from buildState import BuildState
+from core.divModuleCreator import DivModuleCreator
 from core.mulModuleCreator import MulModuleCreator
 from core.sumModuleCreator import SumModuleCreator
 from destroyState import DestroyState
@@ -431,7 +432,10 @@ class GameManager(Singleton):
                             self.setState(self.normalState)
                     if event.key == pg.K_v:
                             self.setState(self.buildState)
-                            self.state.setFactory(SumModuleCreator())        
+                            self.state.setFactory(SumModuleCreator()) 
+                    if event.key == pg.K_n:
+                            self.setState(self.buildState)
+                            self.state.setFactory(DivModuleCreator())       
 
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
