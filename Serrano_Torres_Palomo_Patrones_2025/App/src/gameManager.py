@@ -6,6 +6,7 @@ import json
 from collections import deque
 
 from buildState import BuildState
+from core.mulModuleCreator import MulModuleCreator
 from core.sumModuleCreator import SumModuleCreator
 from destroyState import DestroyState
 from normalState import NormalState
@@ -423,10 +424,9 @@ class GameManager(Singleton):
                     if event.key == pg.K_b: #b ded bulldozer para destruir por ahora
                             
                             self.setState(self.destroyState)  
-                    if event.key == pg.K_n:
+                    if event.key == pg.K_m:
                             self.setState(self.buildState)
-                            
-                            self.state.setFactory(WellCreator())
+                            self.state.setFactory(MulModuleCreator())
                     if event.key == pg.K_BACKSPACE:
                             self.setState(self.normalState)
                     if event.key == pg.K_v:
