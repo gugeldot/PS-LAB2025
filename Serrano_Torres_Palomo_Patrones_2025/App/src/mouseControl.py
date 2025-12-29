@@ -23,7 +23,7 @@ class MouseControl:
         # Cargar la imagen
         self.cursor_img = pg.image.load(CURSOR_IMG_PATH).convert_alpha()
         self.cursor_img = pg.transform.scale(self.cursor_img, (MOUSE_WIDTH, MOUSE_HEIGHT)) #ajustar tamaño a tamaño especificado en setting
-    
+        self.cursor_offset = pg.Vector2(-25, -20) 
     def update(self):
         '''
         '''
@@ -34,8 +34,8 @@ class MouseControl:
         '''
         Dibuja el cursor en la posicion
         '''
-        cursor_offset = (self.cursor_img.get_width()//2, self.cursor_img.get_height()//2) #para ajustarlo a la pantalla segun el centro o algo asi
-        self.gameManager.screen.blit(self.cursor_img, (self.position.x - cursor_offset[0], self.position.y - cursor_offset[1]))
+        
+        self.gameManager.screen.blit(self.cursor_img, (self.position.x + self.cursor_offset.x, self.position.y + self.cursor_offset.y))
     
     def checkClickEvent(self,event):
         '''
