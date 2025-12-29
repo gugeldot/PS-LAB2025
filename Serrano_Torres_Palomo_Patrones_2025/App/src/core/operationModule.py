@@ -16,7 +16,7 @@ class OperationModule(Structure):
         self._outputConveyor = None
 
         self.radius = 15
-        self.color = (255, 165, 0) # Orange for operations
+        self.color = (255, 218, 185)  # Melocotón pastel (naranja suave)
 
     @property
     def input1(self):

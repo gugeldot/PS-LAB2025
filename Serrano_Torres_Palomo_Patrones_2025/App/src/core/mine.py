@@ -18,7 +18,7 @@ class Mine(Structure):
         self.number = number
         self.gameManager = gameManager
         self.radius = 15
-        self.color = (255, 0, 0)  # rojo
+        self.color = (255, 177, 193)  # Rosa pastel
         self._outputConveyor = None
 
     @property
@@ -54,8 +54,8 @@ class Mine(Structure):
         pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
         # Dibujar el numero en el centro de la mina; show effective upgraded number if present
         effective = getattr(self, '_effective_number', getattr(self, '_base_number', self.number))
-        font = pg.font.Font(None, 24)
-        text = font.render(str(effective), True, (255, 255, 255))
+        font = pg.font.Font(None, 28)
+        text = font.render(str(effective), True, (44, 62, 80))  # Azul oscuro para buen contraste
         text_rect = text.get_rect(center=draw_pos)
         self.gameManager.screen.blit(text, text_rect)
                                                     

@@ -15,6 +15,7 @@ from gm_draw import draw as gm_draw
 
 from mouseControl import MouseControl
 from patterns.singleton import Singleton
+from ui.hud import HUD, Colors
 from core.mine import Mine
 from core.well import Well
 from core.mineCreator import MineCreator
@@ -44,6 +45,9 @@ class GameManager(Singleton):
 
         # Construir mapa y estructuras
         self.new_game()
+        
+        # Inicializar HUD después de que el juego esté configurado
+        self.hud = HUD(self)
 
         # Marcar como inicializado
         self._initialized = True
@@ -434,8 +438,7 @@ class GameManager(Singleton):
                 pos = event.pos
                 over_ui = False
                 try:
-                    if self.save_button_rect.collidepoint(pos) or self.speed_button_rect.collidepoint(pos) \
-                       or self.eff_button_rect.collidepoint(pos) or self.new_mine_button_rect.collidepoint(pos):
+                    if self.hud and self.hud.is_over_button(pos):
                         over_ui = True
                 except Exception:
                     over_ui = False
@@ -488,12 +491,71 @@ class GameManager(Singleton):
                         except Exception:
                             next_cost = None
 
-                        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
-                            print("No tienes puntos suficientes para comprar una Mina")
+                elif self.hud and self.hud.shop_mode == "BUILD":
+                    if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
+                        pass
+                    elif self.hud and self.hud.mul_module_button.collidepoint(event.pos):
+                        pass
+                    elif self.hud and self.hud.div_module_button.collidepoint(event.pos):
+                        pass
+                
+
+                elif self.hud and self.hud.shop_mode == "SHOP":
+                    
+                    # enqueue upgrade actions (global)
+                    if self.hud and self.hud.speed_button.collidepoint(event.pos):
+                        # avoid enqueueing more than remaining capacity (max 10 uses total)
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
+                        if queued + self.speed_uses_used >= 10:
+                            print("No speed upgrades available to queue")
+                        elif queued >= 1:
+                            # already have a pending speed action; ignore extra clicks
+                            print("Ya hay una Mejora Velocidad pendiente")
+                        elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
+                            print("No tienes puntos suficientes para Mejora Velocidad")
                         else:
-                            self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
-                            print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
-#region run
+                            # append action (will be processed in update())
+                            self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
+
+                    elif self.hud and self.hud.efficiency_button.collidepoint(event.pos):
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
+                        if queued + self.eff_uses_used >= 10:
+                            print("No efficiency upgrades available to queue")
+                        elif queued >= 1:
+                            print("Ya hay una Mejora Eficiencia pendiente")
+                        elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
+                            print("No tienes puntos suficientes para Mejora Eficiencia")
+                        
+                        else:
+                            self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
+
+                    elif self.hud and self.hud.new_mine_button.collidepoint(event.pos):
+                        # enqueue a 'mine' purchase action (similar to speed/eff)
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
+                        if queued + self.mine_uses_used >= 10:
+                            print("No hay compras de Mina disponibles para poner en cola")
+                        elif queued >= 1:
+                            print("Ya hay una compra de Mina pendiente")
+                        else:
+                            # determine next cost
+                            next_cost = None
+                            try:
+                                if 0 <= self.mine_uses_used < len(self.mine_costs):
+                                    next_cost = int(self.mine_costs[self.mine_uses_used])
+                            except Exception:
+                                next_cost = None
+
+                            if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+                                print("No tienes puntos suficientes para comprar una Mina")
+                            else:
+                                self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
+                                print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
+                    elif self.hud and self.hud.shop_button.collidepoint(event.pos):
+                        print("Has pulsado el botón nuevo")
+                        self.hud.show_popup("¡Botón activado!") 
+
     def run(self):
         while self.running:
             self.checkEvents()
@@ -541,5 +603,288 @@ class GameManager(Singleton):
                 except Exception as e:
                     print("Fallo al crear mina:", e)
             tries += 1
+
+        return False
+
+    def _apply_mine_action(self) -> bool:
+        """Attempt to purchase and create a new mine in a random empty cell.
+
+        Returns True on success, False to retry later (e.g., no empty cells or insufficient points).
+        """
+        # determine next cost
+        try:
+            next_cost = int(self.mine_costs[self.mine_uses_used]) if 0 <= self.mine_uses_used < len(self.mine_costs) else None
+        except Exception:
+            next_cost = None
+
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+            print("[Action] Not enough points to purchase Mine; will retry")
+            return False
+
+        # attempt to create a new mine; create_new_mine will set a popup message on success
+        created = False
+        try:
+            created = self.create_new_mine()
+        except Exception:
+            created = False
+
+        if not created:
+            # no empty cell or creation failed; retry a few times
+            print("[Action] Failed to place Mine; will retry")
+            return False
+
+        # commit the purchase: deduct points and decrement available uses
+        try:
+            self.mine_uses_used += 1
+            self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+            if next_cost is not None:
+                try:
+                    self.points = max(0, int(self.points) - int(next_cost))
+                except Exception:
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            # ensure there's a popup if create_new_mine didn't set one
+            if self.hud:
+                self.hud.show_popup(f"Mina creada ({self.mine_uses_left} restantes)")
+            print(f"[Action] Mine purchase applied (uses left={self.mine_uses_left}) | -{next_cost} pts (total={self.points})")
+            return True
+        except Exception:
+            return True
+
+    # ---- Action buffer processing ----
+    def process_action_buffer(self, max_per_frame: int = 5):
+        """Process up to `max_per_frame` queued upgrade actions.
+
+        Actions are retried up to `max_tries`. If an action is successfully
+        applied we decrement the remaining uses and remove it from the queue.
+        If an action repeatedly fails it will be dropped after max_tries.
+        """
+        to_process = min(max_per_frame, len(self.action_buffer))
+        applied_this_frame = set()  # types applied successfully this frame
+        for _ in range(to_process):
+            action = self.action_buffer.popleft()
+            ok = False
+            if action.get('type') == 'speed':
+                try:
+                    ok = self._apply_speed_action()
+                except Exception:
+                    ok = False
+            elif action.get('type') == 'eff':
+                try:
+                    ok = self._apply_eff_action()
+                except Exception:
+                    ok = False
+            elif action.get('type') == 'mine':
+                try:
+                    ok = self._apply_mine_action()
+                except Exception:
+                    ok = False
+
+            if ok:
+                # applied successfully; log handled in apply function
+                applied_this_frame.add(action.get('type'))
+                # avoid applying more than one successful upgrade of any type per frame
+                # (prevents many queued retries from consuming all uses at once)
+                break
+
+            # failed to apply: retry later unless too many tries
+            action['tries'] = action.get('tries', 0) + 1
+            if action['tries'] < action.get('max_tries', 30):
+                self.action_buffer.append(action)
+            else:
+                print(f"Dropping action {action.get('type')} after {action['tries']} failed tries")
+
+    def _apply_speed_action(self) -> bool:
+        """Attempt to apply a single global speed upgrade.
+
+        Returns True on success, False if conditions not met (will retry).
+        """
+        convs = list(getattr(self, 'conveyors', []))
+        if not convs:
+            return False
+
+        # determine current cost for this next use
+        try:
+            next_cost = int(self.speed_costs[self.speed_uses_used]) if 0 <= self.speed_uses_used < len(self.speed_costs) else None
+        except Exception:
+            next_cost = None
+
+        # ensure enough points at application time
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+            # not enough points now; retry later
+            print("[Action] Not enough points to apply Speed upgrade; will retry")
+            return False
+
+        # compute multiplier as if this use is applied
+        prospective_uses = self.speed_uses_used + 1
+        multiplier = 0.9 ** prospective_uses
+
+        applied = 0
+        for conv in convs:
+            try:
+                base_conv = conv
+                while hasattr(base_conv, 'target'):
+                    base_conv = base_conv.target
+                if not hasattr(base_conv, '_base_travel_time'):
+                    base_conv._base_travel_time = getattr(base_conv, 'travel_time', 2000)
+                base_conv.travel_time = max(50, int(base_conv._base_travel_time * multiplier))
+                applied += 1
+            except Exception:
+                pass
+
+        if applied > 0:
+            # also update global production interval for mines so speed upgrades
+            # affect production frequency (use same multiplier as conveyors)
+            try:
+                if not hasattr(self, '_base_production_interval'):
+                    self._base_production_interval = 2000
+                # compute new production interval using the same multiplier
+                self.production_interval = max(100, int(self._base_production_interval * multiplier))
+            except Exception:
+                pass
+            # commit the use and subtract points
+            self.speed_uses_used += 1
+            self.speed_uses_left = max(0, 10 - self.speed_uses_used)
+            if next_cost is not None:
+                try:
+                    self.points = max(0, int(self.points) - int(next_cost))
+                except Exception:
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            # show popup for user feedback
+            try:
+                self._popup_message = f"Mejora Velocidad aplicada ({self.speed_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
+            print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={self.points})")
+            return True
+
+        return False
+
+    def _apply_eff_action(self) -> bool:
+        """Attempt to apply a single global efficiency upgrade.
+
+        Returns True on success, False if no applicable mines found (will retry).
+        """
+        mines_found = False
+        # scan map for mines (structures with attribute 'number')
+        for y, row in enumerate(self.map.cells):
+            for x, cell in enumerate(row):
+                if cell and not cell.isEmpty():
+                    s = cell.structure
+                    base_s = s
+                    try:
+                        while hasattr(base_s, 'target'):
+                            base_s = base_s.target
+                    except Exception:
+                        pass
+                    if hasattr(base_s, 'number'):
+                        mines_found = True
+                        break
+            if mines_found:
+                break
+
+        if not mines_found:
+            return False
+
+        # determine next cost for efficiency
+        try:
+            next_cost = int(self.eff_costs[self.eff_uses_used]) if 0 <= self.eff_uses_used < len(self.eff_costs) else None
+        except Exception:
+            next_cost = None
+
+        # ensure enough points at application time
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+            print("[Action] Not enough points to apply Efficiency upgrade; will retry")
+            return False
+
+        applied = 0
+        for y, row in enumerate(self.map.cells):
+            for x, cell in enumerate(row):
+                if cell and not cell.isEmpty():
+                    s = cell.structure
+                    base_s = s
+                    try:
+                        while hasattr(base_s, 'target'):
+                            base_s = base_s.target
+                    except Exception:
+                        pass
+                    # If it's a Mine, adjust its base/effective production number
+                    if hasattr(base_s, 'number'):
+                        if not hasattr(base_s, '_base_number'):
+                            try:
+                                base_s._base_number = int(base_s.number)
+                            except Exception:
+                                base_s._base_number = getattr(base_s, 'number', 1)
+                        try:
+                            base_s._base_number = int(base_s._base_number) + 1
+                            base_s._effective_number = max(1, int(base_s._base_number))
+                            applied += 1
+                        except Exception:
+                            pass
+                    # If it's a Well, adjust its consumingNumber so it consumes more per tick
+                    if hasattr(base_s, 'consumingNumber'):
+                        if not hasattr(base_s, '_base_consumingNumber'):
+                            try:
+                                base_s._base_consumingNumber = int(base_s.consumingNumber)
+                            except Exception:
+                                base_s._base_consumingNumber = getattr(base_s, 'consumingNumber', 1)
+                        try:
+                            base_s._base_consumingNumber = int(base_s._base_consumingNumber) + 1
+                            # update the runtime consumingNumber so consume() uses the new value
+                            base_val = max(1, int(base_s._base_consumingNumber))
+                            base_s.consumingNumber = base_val
+                            # propagate to outer wrapper/object so draw/consume calls using the
+                            # top-level reference see the updated value immediately
+                            try:
+                                if s is not base_s and hasattr(s, 'consumingNumber'):
+                                    s.consumingNumber = base_val
+                            except Exception:
+                                pass
+                            applied += 1
+                        except Exception:
+                            pass
+
+        if applied > 0:
+            # update in-flight items on conveyors so they reflect the new efficiency
+            # The efficiency upgrade increments mine output by +1 per use in this implementation,
+            # so add the same delta to all queued numeric items so wells see the increased values
+            try:
+                delta = 1
+                for conv in getattr(self, 'conveyors', []):
+                    try:
+                        for item in conv.queue:
+                            try:
+                                item['value'] = int(item.get('value', 0)) + delta
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+            # commit the use and subtract points
+            self.eff_uses_used += 1
+            self.eff_uses_left = max(0, 10 - self.eff_uses_used)
+            if next_cost is not None:
+                try:
+                    self.points = max(0, int(self.points) - int(next_cost))
+                except Exception:
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            # popup for efficiency
+            try:
+                self._popup_message = f"Mejora Eficiencia aplicada ({self.eff_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
+            print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={self.points})")
+            return True
 
         return False
