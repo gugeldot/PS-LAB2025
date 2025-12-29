@@ -23,7 +23,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -43,7 +46,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -97,6 +103,10 @@
       null,
       null,
       null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -112,8 +122,10 @@
       null,
       null,
       null,
-      null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -389,7 +401,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -486,7 +501,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null
     ],
     [
@@ -564,7 +582,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null,
@@ -685,7 +706,10 @@
       null,
       null,
       null,
-      null,
+      {
+        "class": "Mine",
+        "number": 1
+      },
       null,
       null,
       null
@@ -787,9 +811,9 @@
     }
   ],
   "upgrades": {
-    "speed_uses_used": 2,
-    "eff_uses_used": 1,
-    "mine_uses_used": 2
+    "speed_uses_used": 10,
+    "eff_uses_used": 4,
+    "mine_uses_used": 10
   },
-  "score": 1974
+  "score": 2007
 }

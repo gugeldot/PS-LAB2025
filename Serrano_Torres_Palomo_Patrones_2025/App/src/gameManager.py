@@ -685,12 +685,32 @@ class GameManager(Singleton):
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                 # check if Save & Exit clicked
-                if self.hud and self.hud.shop_button.collidepoint(event.pos):
-                    self.hud.shop_open = not self.hud.shop_open  # Cambia entre True y False
-                    print(f"Tienda abierta: {self.hud.shop_open}")
                 if self.hud and self.hud.save_button.collidepoint(event.pos):
                     self.save_and_exit()
-                elif self.hud and self.hud.shop_open:
+
+                if self.hud and self.hud.shop_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "SHOP":
+                        self.hud.shop_mode = None
+                    else:
+                        self.hud.shop_mode = "SHOP"
+                    self.hud._setup_buttons()
+                if self.hud and self.hud.build_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "BUILD":
+                        self.hud.shop_mode = None
+                    else:
+                        self.hud.shop_mode = "BUILD"
+                    self.hud._setup_buttons()
+                #si la tienda esta abierta
+                elif self.hud and self.hud.shop_mode == "BUILD":
+                    if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
+                        pass
+                    elif self.hud and self.hud.mul_module_button.collidepoint(event.pos):
+                        pass
+                    elif self.hud and self.hud.div_module_button.collidepoint(event.pos):
+                        pass
+
+
+                elif self.hud and self.hud.shop_mode == "SHOP":
                     
                     # enqueue upgrade actions (global)
                     if self.hud and self.hud.speed_button.collidepoint(event.pos):

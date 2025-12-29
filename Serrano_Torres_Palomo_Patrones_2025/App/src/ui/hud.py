@@ -55,6 +55,10 @@ class HUD:
         # Posiciones de botones (alineados a la derecha con margen)
         self.right_margin = WIDTH - self.button_width - 15
         
+        # para tienda de mejoras
+        self.shop_open = False
+        self.shop_mode = None  # Puede ser: None, "SHOP" o "BUILD"
+
         # Definir rectángulos de botones
         self._setup_buttons()
         
@@ -62,12 +66,21 @@ class HUD:
         self.popup_message = None
         self.popup_timer = 0
         self.popup_duration = 2000  # ms
-        # para tienda de mejoras
-        self.shop_open = False
-    
+        
+
     def _setup_buttons(self):
         """Configura las posiciones de todos los botones del HUD"""
         y_start = 15
+        up_pos = y_start + (self.button_height + self.button_margin) * 1
+        bot_pos = y_start + (self.button_height + self.button_margin) * 5
+
+        if self.shop_mode == "SHOP":
+            y_shop = up_pos
+            y_build = bot_pos
+        else:
+            y_shop = up_pos
+            y_build = up_pos + (self.button_height + self.button_margin)
+
         self.save_button = pg.Rect(
             self.right_margin, 
             y_start  ,
@@ -77,11 +90,16 @@ class HUD:
 
         self.shop_button = pg.Rect(
             self.right_margin, 
-            y_start + (self.button_height + self.button_margin) * 1,
+            y_shop,
             self.button_width, 
             self.button_height
             )
-    
+        self.build_button = pg.Rect(
+            self.right_margin,
+            y_build,
+            self.button_width,
+            self.button_height
+        )
         self.speed_button = pg.Rect(
             self.right_margin,
             y_start + (self.button_height + self.button_margin) * 2,
@@ -99,6 +117,25 @@ class HUD:
         self.new_mine_button = pg.Rect(
             self.right_margin,
             y_start + (self.button_height + self.button_margin) * 4,
+            self.button_width,
+            self.button_height
+        )
+
+        self.sum_module_button = pg.Rect(
+            self.right_margin,
+            y_build + (self.button_height + self.button_margin) * 1,
+            self.button_width,
+            self.button_height
+        )
+        self.mul_module_button = pg.Rect(
+            self.right_margin,
+            y_build + (self.button_height + self.button_margin) * 2,
+            self.button_width,
+            self.button_height
+        )
+        self.div_module_button = pg.Rect(
+            self.right_margin,
+            y_build + (self.button_height + self.button_margin) * 3,
             self.button_width,
             self.button_height
         )
@@ -168,17 +205,24 @@ class HUD:
             special_style=True
             )
         
-        shop_text = "CERRAR TIENDA" if self.shop_open else "ABRIR TIENDA"
+        shop_text = "CERRAR TIENDA" if self.shop_mode=="SHOP" else "ABRIR TIENDA"
         #shop button
         self._draw_button(
             screen, 
             self.shop_button, 
             shop_text, 
             mouse_pos, 
-            special_style=not self.shop_open)
+            special_style=not self.shop_mode=="SHOP")
         
-        if self.shop_open:
-            
+        self._draw_button(
+                screen, 
+                self.build_button, 
+                "MODO CONSTRUCCIÓN", 
+                mouse_pos, 
+                special_style=True)
+        
+        if self.shop_mode=="SHOP":
+            #si esta modo tienda se dibujan las opciones de compra
             # Speed Upgrade Button
             next_speed_cost = self._get_next_cost(self.game.speed_costs, self.game.speed_uses_used)
             can_buy_speed = (self.game.points >= (next_speed_cost or 0)) and (self.game.speed_uses_left > 0)
@@ -223,6 +267,27 @@ class HUD:
                 can_use=can_buy_mine,
                 sublabel=sublabel
             )
+        elif self.shop_mode=="BUILD":
+            #si esta en modo construccion se dibujan las opciones de modulos
+            self._draw_button(
+                screen,
+                self.sum_module_button,
+                "Módulo Suma",
+                mouse_pos
+            )
+            self._draw_button(
+                screen,
+                self.mul_module_button,
+                "Módulo Multiplicación",
+                mouse_pos
+            )
+            self._draw_button(
+                screen,
+                self.div_module_button,
+                "Módulo División",
+                mouse_pos
+            )
+            
 
             
     
