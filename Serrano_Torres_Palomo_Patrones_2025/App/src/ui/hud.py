@@ -57,7 +57,7 @@ class HUD:
         
         # para tienda de mejoras
         self.shop_open = False
-        self.shop_mode = None  # Puede ser: None, "SHOP" o "BUILD"
+        self.shop_mode = None  # Puede ser: None, "SHOP","BUILD" o "DESTROY"
 
         # Definir rectángulos de botones
         self._setup_buttons()
@@ -77,9 +77,15 @@ class HUD:
         if self.shop_mode == "SHOP":
             y_shop = up_pos
             y_build = bot_pos
+            y_destroy = y_build + (self.button_height + self.button_margin) * 1
+        elif self.shop_mode == "BUILD":
+            y_shop = up_pos
+            y_build = up_pos + (self.button_height + self.button_margin)
+            y_destroy = y_build + (self.button_height + self.button_margin) * 4
         else:
             y_shop = up_pos
             y_build = up_pos + (self.button_height + self.button_margin)
+            y_destroy = y_build + (self.button_height + self.button_margin) * 1
 
         self.save_button = pg.Rect(
             self.right_margin, 
@@ -136,6 +142,12 @@ class HUD:
         self.div_module_button = pg.Rect(
             self.right_margin,
             y_build + (self.button_height + self.button_margin) * 3,
+            self.button_width,
+            self.button_height
+        )
+        self.destroy_button = pg.Rect(
+            self.right_margin,
+            y_destroy,
             self.button_width,
             self.button_height
         )
@@ -220,6 +232,14 @@ class HUD:
                 "MODO CONSTRUCCIÓN", 
                 mouse_pos, 
                 special_style=True)
+        
+        self._draw_button(
+                screen,
+                self.destroy_button,
+                "MODO DESTRUCCIÓN",
+                mouse_pos,
+                special_style=True)
+        
         
         if self.shop_mode=="SHOP":
             #si esta modo tienda se dibujan las opciones de compra

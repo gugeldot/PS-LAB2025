@@ -812,8 +812,8 @@
   ],
   "upgrades": {
     "speed_uses_used": 10,
-    "eff_uses_used": 4,
+    "eff_uses_used": 10,
     "mine_uses_used": 10
   },
-  "score": 2007
+  "score": 2037
 }

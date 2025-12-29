@@ -701,6 +701,13 @@ class GameManager(Singleton):
                         self.hud.shop_mode = "BUILD"
                     self.hud._setup_buttons()
                 #si la tienda esta abierta
+                if self.hud and self.hud.destroy_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "DESTROY":
+                        self.hud.shop_mode = None
+                    else:
+                        self.hud.shop_mode = "DESTROY"
+                    self.hud._setup_buttons()
+
                 elif self.hud and self.hud.shop_mode == "BUILD":
                     if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
                         pass
@@ -708,7 +715,7 @@ class GameManager(Singleton):
                         pass
                     elif self.hud and self.hud.div_module_button.collidepoint(event.pos):
                         pass
-
+                
 
                 elif self.hud and self.hud.shop_mode == "SHOP":
                     
