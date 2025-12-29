@@ -453,43 +453,28 @@ class GameManager(Singleton):
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                 if self.save_button_rect.collidepoint(event.pos):
                     self.save_and_exit()
-                elif self.speed_button_rect.collidepoint(event.pos):
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
-                    if queued + self.speed_uses_used >= 10:
-                        print("No speed upgrades available to queue")
-                    elif queued >= 1:
-                        print("Ya hay una Mejora Velocidad pendiente")
-                    elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Velocidad")
-                    else:
-                        self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
+                if self.hud and self.hud.save_button.collidepoint(event.pos):
+                    self.save_and_exit()
 
-                elif self.eff_button_rect.collidepoint(event.pos):
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
-                    if queued + self.eff_uses_used >= 10:
-                        print("No efficiency upgrades available to queue")
-                    elif queued >= 1:
-                        print("Ya hay una Mejora Eficiencia pendiente")
-                    elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Eficiencia")
+                if self.hud and self.hud.shop_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "SHOP":
+                        self.hud.shop_mode = None
                     else:
-                        self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
-
-                elif self.new_mine_button_rect.collidepoint(event.pos):
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
-                    if queued + self.mine_uses_used >= 10:
-                        print("No hay compras de Mina disponibles para poner en cola")
-                    elif queued >= 1:
-                        print("Ya hay una compra de Mina pendiente")
+                        self.hud.shop_mode = "SHOP"
+                    self.hud._setup_buttons()
+                if self.hud and self.hud.build_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "BUILD":
+                        self.hud.shop_mode = None
                     else:
-                        next_cost = None
-                        try:
-                            if 0 <= self.mine_uses_used < len(self.mine_costs):
-                                next_cost = int(self.mine_costs[self.mine_uses_used])
-                        except Exception:
-                            next_cost = None
+                        self.hud.shop_mode = "BUILD"
+                    self.hud._setup_buttons()
+                #si la tienda esta abierta
+                if self.hud and self.hud.destroy_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "DESTROY":
+                        self.hud.shop_mode = None
+                    else:
+                        self.hud.shop_mode = "DESTROY"
+                    self.hud._setup_buttons()
 
                 elif self.hud and self.hud.shop_mode == "BUILD":
                     if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
@@ -501,7 +486,6 @@ class GameManager(Singleton):
                 
 
                 elif self.hud and self.hud.shop_mode == "SHOP":
-                    
                     # enqueue upgrade actions (global)
                     if self.hud and self.hud.speed_button.collidepoint(event.pos):
                         # avoid enqueueing more than remaining capacity (max 10 uses total)
