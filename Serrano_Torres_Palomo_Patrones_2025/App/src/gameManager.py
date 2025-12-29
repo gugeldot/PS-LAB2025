@@ -660,7 +660,7 @@ class GameManager(Singleton):
         self.mouse.draw()
         # present the rendered frame
         pg.display.flip()
-
+#region checkevents
     def checkEvents(self):
         for event in pg.event.get():
             # pass to mouse control only for clicks not over UI buttons (prevents UI clicks selecting map cells)
@@ -685,57 +685,66 @@ class GameManager(Singleton):
             # Use MOUSEBUTTONUP for reliable button clicks (handle release)
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                 # check if Save & Exit clicked
+                if self.hud and self.hud.shop_button.collidepoint(event.pos):
+                    self.hud.shop_open = not self.hud.shop_open  # Cambia entre True y False
+                    print(f"Tienda abierta: {self.hud.shop_open}")
                 if self.hud and self.hud.save_button.collidepoint(event.pos):
                     self.save_and_exit()
-                # enqueue upgrade actions (global)
-                elif self.hud and self.hud.speed_button.collidepoint(event.pos):
-                    # avoid enqueueing more than remaining capacity (max 10 uses total)
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
-                    if queued + self.speed_uses_used >= 10:
-                        print("No speed upgrades available to queue")
-                    elif queued >= 1:
-                        # already have a pending speed action; ignore extra clicks
-                        print("Ya hay una Mejora Velocidad pendiente")
-                    elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Velocidad")
-                    else:
-                        # append action (will be processed in update())
-                        self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
-
-                elif self.hud and self.hud.efficiency_button.collidepoint(event.pos):
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
-                    if queued + self.eff_uses_used >= 10:
-                        print("No efficiency upgrades available to queue")
-                    elif queued >= 1:
-                        print("Ya hay una Mejora Eficiencia pendiente")
-                    elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Eficiencia")
-                    else:
-                        self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
-
-                elif self.hud and self.hud.new_mine_button.collidepoint(event.pos):
-                    # enqueue a 'mine' purchase action (similar to speed/eff)
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
-                    if queued + self.mine_uses_used >= 10:
-                        print("No hay compras de Mina disponibles para poner en cola")
-                    elif queued >= 1:
-                        print("Ya hay una compra de Mina pendiente")
-                    else:
-                        # determine next cost
-                        next_cost = None
-                        try:
-                            if 0 <= self.mine_uses_used < len(self.mine_costs):
-                                next_cost = int(self.mine_costs[self.mine_uses_used])
-                        except Exception:
-                            next_cost = None
-
-                        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
-                            print("No tienes puntos suficientes para comprar una Mina")
+                elif self.hud and self.hud.shop_open:
+                    
+                    # enqueue upgrade actions (global)
+                    if self.hud and self.hud.speed_button.collidepoint(event.pos):
+                        # avoid enqueueing more than remaining capacity (max 10 uses total)
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
+                        if queued + self.speed_uses_used >= 10:
+                            print("No speed upgrades available to queue")
+                        elif queued >= 1:
+                            # already have a pending speed action; ignore extra clicks
+                            print("Ya hay una Mejora Velocidad pendiente")
+                        elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
+                            print("No tienes puntos suficientes para Mejora Velocidad")
                         else:
-                            self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
-                            print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
+                            # append action (will be processed in update())
+                            self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
+
+                    elif self.hud and self.hud.efficiency_button.collidepoint(event.pos):
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
+                        if queued + self.eff_uses_used >= 10:
+                            print("No efficiency upgrades available to queue")
+                        elif queued >= 1:
+                            print("Ya hay una Mejora Eficiencia pendiente")
+                        elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
+                            print("No tienes puntos suficientes para Mejora Eficiencia")
+                        
+                        else:
+                            self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
+
+                    elif self.hud and self.hud.new_mine_button.collidepoint(event.pos):
+                        # enqueue a 'mine' purchase action (similar to speed/eff)
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
+                        if queued + self.mine_uses_used >= 10:
+                            print("No hay compras de Mina disponibles para poner en cola")
+                        elif queued >= 1:
+                            print("Ya hay una compra de Mina pendiente")
+                        else:
+                            # determine next cost
+                            next_cost = None
+                            try:
+                                if 0 <= self.mine_uses_used < len(self.mine_costs):
+                                    next_cost = int(self.mine_costs[self.mine_uses_used])
+                            except Exception:
+                                next_cost = None
+
+                            if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+                                print("No tienes puntos suficientes para comprar una Mina")
+                            else:
+                                self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
+                                print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
+                    elif self.hud and self.hud.shop_button.collidepoint(event.pos):
+                        print("Has pulsado el botón nuevo")
+                        self.hud.show_popup("¡Botón activado!") 
 
     def run(self):
         while self.running:

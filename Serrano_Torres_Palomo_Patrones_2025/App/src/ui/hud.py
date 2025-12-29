@@ -62,38 +62,47 @@ class HUD:
         self.popup_message = None
         self.popup_timer = 0
         self.popup_duration = 2000  # ms
+        # para tienda de mejoras
+        self.shop_open = False
     
     def _setup_buttons(self):
         """Configura las posiciones de todos los botones del HUD"""
         y_start = 15
-        
         self.save_button = pg.Rect(
             self.right_margin, 
-            y_start, 
+            y_start  ,
             self.button_width, 
             self.button_height
         )
-        
-        self.speed_button = pg.Rect(
-            self.right_margin,
+
+        self.shop_button = pg.Rect(
+            self.right_margin, 
             y_start + (self.button_height + self.button_margin) * 1,
-            self.button_width,
+            self.button_width, 
             self.button_height
-        )
-        
-        self.efficiency_button = pg.Rect(
+            )
+    
+        self.speed_button = pg.Rect(
             self.right_margin,
             y_start + (self.button_height + self.button_margin) * 2,
             self.button_width,
             self.button_height
         )
         
-        self.new_mine_button = pg.Rect(
+        self.efficiency_button = pg.Rect(
             self.right_margin,
             y_start + (self.button_height + self.button_margin) * 3,
             self.button_width,
             self.button_height
         )
+        
+        self.new_mine_button = pg.Rect(
+            self.right_margin,
+            y_start + (self.button_height + self.button_margin) * 4,
+            self.button_width,
+            self.button_height
+        )
+        
     
     def show_popup(self, message, duration=2000):
         """Muestra un mensaje temporal en pantalla"""
@@ -148,6 +157,7 @@ class HUD:
     
     def _draw_buttons(self, screen, mouse_pos):
         """Dibuja todos los botones del HUD"""
+
         # Save Button
         self._draw_button(
             screen, 
@@ -156,52 +166,65 @@ class HUD:
             mouse_pos,
             can_use=True,
             special_style=True
-        )
+            )
         
-        # Speed Upgrade Button
-        next_speed_cost = self._get_next_cost(self.game.speed_costs, self.game.speed_uses_used)
-        can_buy_speed = (self.game.points >= (next_speed_cost or 0)) and (self.game.speed_uses_left > 0)
-        
-        label = f"Velocidad ({next_speed_cost})"
-        sublabel = f"Quedan: {self.game.speed_uses_left}"
+        shop_text = "CERRAR TIENDA" if self.shop_open else "ABRIR TIENDA"
+        #shop button
         self._draw_button(
-            screen,
-            self.speed_button,
-            label,
-            mouse_pos,
-            can_use=can_buy_speed,
-            sublabel=sublabel
-        )
+            screen, 
+            self.shop_button, 
+            shop_text, 
+            mouse_pos, 
+            special_style=not self.shop_open)
         
-        # Efficiency Upgrade Button
-        next_eff_cost = self._get_next_cost(self.game.eff_costs, self.game.eff_uses_used)
-        can_buy_eff = (self.game.points >= (next_eff_cost or 0)) and (self.game.eff_uses_left > 0)
-        
-        label = f"Eficiencia ({next_eff_cost})"
-        sublabel = f"Quedan: {self.game.eff_uses_left}"
-        self._draw_button(
-            screen,
-            self.efficiency_button,
-            label,
-            mouse_pos,
-            can_use=can_buy_eff,
-            sublabel=sublabel
-        )
-        
-        # New Mine Button
-        next_mine_cost = self._get_next_cost(self.game.mine_costs, self.game.mine_uses_used)
-        can_buy_mine = (self.game.points >= (next_mine_cost or 0)) and (self.game.mine_uses_left > 0)
-        
-        label = f"Nueva Mina ({next_mine_cost})"
-        sublabel = f"Quedan: {self.game.mine_uses_left}"
-        self._draw_button(
-            screen,
-            self.new_mine_button,
-            label,
-            mouse_pos,
-            can_use=can_buy_mine,
-            sublabel=sublabel
-        )
+        if self.shop_open:
+            
+            # Speed Upgrade Button
+            next_speed_cost = self._get_next_cost(self.game.speed_costs, self.game.speed_uses_used)
+            can_buy_speed = (self.game.points >= (next_speed_cost or 0)) and (self.game.speed_uses_left > 0)
+            
+            label = f"Velocidad ({next_speed_cost})"
+            sublabel = f"Quedan: {self.game.speed_uses_left}"
+            self._draw_button(
+                screen,
+                self.speed_button,
+                label,
+                mouse_pos,
+                can_use=can_buy_speed,
+                sublabel=sublabel
+            )
+            
+            # Efficiency Upgrade Button
+            next_eff_cost = self._get_next_cost(self.game.eff_costs, self.game.eff_uses_used)
+            can_buy_eff = (self.game.points >= (next_eff_cost or 0)) and (self.game.eff_uses_left > 0)
+            
+            label = f"Eficiencia ({next_eff_cost})"
+            sublabel = f"Quedan: {self.game.eff_uses_left}"
+            self._draw_button(
+                screen,
+                self.efficiency_button,
+                label,
+                mouse_pos,
+                can_use=can_buy_eff,
+                sublabel=sublabel
+            )
+            
+            # New Mine Button
+            next_mine_cost = self._get_next_cost(self.game.mine_costs, self.game.mine_uses_used)
+            can_buy_mine = (self.game.points >= (next_mine_cost or 0)) and (self.game.mine_uses_left > 0)
+            
+            label = f"Nueva Mina ({next_mine_cost})"
+            sublabel = f"Quedan: {self.game.mine_uses_left}"
+            self._draw_button(
+                screen,
+                self.new_mine_button,
+                label,
+                mouse_pos,
+                can_use=can_buy_mine,
+                sublabel=sublabel
+            )
+
+            
     
     def _draw_button(self, screen, rect, label, mouse_pos, can_use=True, sublabel=None, special_style=False):
         """Dibuja un botón individual con estilo minimalista"""
@@ -293,7 +316,12 @@ class HUD:
     
     def is_over_button(self, pos):
         """Verifica si la posición está sobre algún botón del HUD"""
-        return (self.save_button.collidepoint(pos) or 
+        if self.shop_button.collidepoint(pos):
+            return True
+        
+        if self.shop_open:
+            return (self.save_button.collidepoint(pos) or 
                 self.speed_button.collidepoint(pos) or
                 self.efficiency_button.collidepoint(pos) or
                 self.new_mine_button.collidepoint(pos))
+        return False
