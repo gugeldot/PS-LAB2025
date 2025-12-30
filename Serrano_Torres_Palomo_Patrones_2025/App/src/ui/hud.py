@@ -180,9 +180,34 @@ class HUD:
         padding = 16
         text_surf = self.font_large.render(f"{points}", True, Colors.TEXT_ACCENT)
         label_surf = self.font_small.render("PUNTOS", True, Colors.TEXT_SECONDARY)
-        
-        total_width = max(text_surf.get_width(), label_surf.get_width()) + padding * 2
-        total_height = text_surf.get_height() + label_surf.get_height() + padding * 2
+
+        # determinar objetivo siguiente basándonos en el número del pozo
+        # (consumingNumber). Esto asegura que el siguiente objetivo mostrado
+        # corresponde al siguiente pozo numérico bloqueado (1->2->3...).
+        next_obj = None
+        try:
+            wells = getattr(self.game, 'wells', None)
+            objectives = getattr(self.game, 'well_objectives', None)
+            if wells and objectives:
+                locked_wells = [w for w in wells if getattr(w, 'locked', False)]
+                if locked_wells:
+                    try:
+                        min_num = min(int(getattr(w, 'consumingNumber', float('inf'))) for w in locked_wells)
+                        idx = int(min_num) - 1
+                        if 0 <= idx < len(objectives):
+                            next_obj = int(objectives[idx])
+                    except Exception:
+                        next_obj = None
+        except Exception:
+            next_obj = None
+
+        if next_obj is not None:
+            objective_surf = self.font_small.render(f"Nuevo Objetivo: {next_obj} puntos", True, Colors.TEXT_SECONDARY)
+        else:
+            objective_surf = None
+
+        total_width = max(text_surf.get_width(), label_surf.get_width(), (objective_surf.get_width() if objective_surf else 0)) + padding * 2
+        total_height = text_surf.get_height() + label_surf.get_height() + (objective_surf.get_height() if objective_surf else 0) + padding * 2
         
         x = 15
         y = HEIGHT - total_height - 15
@@ -203,6 +228,11 @@ class HUD:
         label_x = x + (total_width - label_surf.get_width()) // 2
         label_y = text_y + text_surf.get_height() + 4
         screen.blit(label_surf, (label_x, label_y))
+        # Objetivo siguiente (si existe)
+        if objective_surf:
+            obj_x = x + (total_width - objective_surf.get_width()) // 2
+            obj_y = label_y + label_surf.get_height() + 2
+            screen.blit(objective_surf, (obj_x, obj_y))
     
     def _draw_buttons(self, screen, mouse_pos):
         """Dibuja todos los botones del HUD"""
@@ -398,15 +428,35 @@ class HUD:
         except:
             pass
         return None
-    
+
     def is_over_button(self, pos):
-        """Verifica si la posición está sobre algún botón del HUD"""
-        if self.shop_button.collidepoint(pos):
-            return True
-        
-        if self.shop_open:
-            return (self.save_button.collidepoint(pos) or 
-                self.speed_button.collidepoint(pos) or
-                self.efficiency_button.collidepoint(pos) or
-                self.new_mine_button.collidepoint(pos))
+        """Devuelve True si la posición de pantalla `pos` está sobre algún botón del HUD.
+
+        `pos` debe ser una tupla (x, y) en coordenadas de pantalla (igual que event.pos).
+        Esto se usa para evitar que clicks sobre la UI "pasen" al mapa debajo.
+        """
+        try:
+            x, y = pos
+        except Exception:
+            return False
+
+        # Lista de rects potenciales; algunos pueden no existir dependiendo del modo, por eso usamos getattr con default None
+        rects = [
+            getattr(self, 'save_button', None),
+            getattr(self, 'shop_button', None),
+            getattr(self, 'build_button', None),
+            getattr(self, 'speed_button', None),
+            getattr(self, 'efficiency_button', None),
+            getattr(self, 'new_mine_button', None),
+            getattr(self, 'sum_module_button', None),
+            getattr(self, 'mul_module_button', None),
+            getattr(self, 'div_module_button', None),
+            getattr(self, 'destroy_button', None),
+        ]
+
+        for r in rects:
+            if r and r.collidepoint(pos):
+                return True
+
         return False
+

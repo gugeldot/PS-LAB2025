@@ -112,6 +112,12 @@ class Map(Singleton):
 						entry["number"] = getattr(s, "number")
 					if hasattr(s, "consumingNumber"):
 						entry["consumingNumber"] = getattr(s, "consumingNumber")
+					# support serializing locked state for structures that expose it (e.g., Well)
+					if hasattr(s, "locked"):
+						try:
+							entry["locked"] = bool(getattr(s, "locked"))
+						except Exception:
+							entry["locked"] = False
 					row_data.append(entry)
 			grid.append(row_data)
 
@@ -149,7 +155,9 @@ class Map(Singleton):
 					if cls_name == "Mine" and "number" in entry:
 						struct = creator.createStructure((x, y), entry["number"], gameManager)
 					elif cls_name == "Well" and "consumingNumber" in entry:
-						struct = creator.createStructure((x, y), entry["consumingNumber"], gameManager)
+						# pass through locked flag if present in the save
+						locked_flag = entry.get('locked', False)
+						struct = creator.createStructure((x, y), entry["consumingNumber"], gameManager, locked=locked_flag)
 					else:
 						# fallback: try simple creator signatures
 						try:
