@@ -62,31 +62,85 @@ class MainMenu:
             except Exception:
                 pass
 
+        # Cargar imagen de fondo del menú si existe
+        self.background = None
+        try:
+            fondo_path = BASE_DIR / "Assets" / "Sprites" / "fondoIA.png"
+            if fondo_path.exists():
+                img = pg.image.load(str(fondo_path)).convert()
+                # escalar a la resolución de ventana
+                try:
+                    img = pg.transform.smoothscale(img, RESOLUTION)
+                except Exception:
+                    img = pg.transform.scale(img, RESOLUTION)
+                self.background = img
+        except Exception:
+            self.background = None
+
     def draw(self):
-        self.screen.fill((30, 30, 30))
+        # dibujar fondo (imagen si está disponible, sino color)
+        if self.background is not None:
+            try:
+                self.screen.blit(self.background, (0, 0))
+            except Exception:
+                self.screen.fill((30, 30, 30))
+        else:
+            self.screen.fill((30, 30, 30))
         self.option_rects = []
 
         mouse_pos = pg.mouse.get_pos()
 
+        # Separación vertical entre botones (ajustable)
+        spacing = 90  # píxeles entre centros de botones
+        total_h = spacing * (len(self.options) - 1)
+        start_y = HEIGHT // 2 - total_h // 2
+
         for i, option in enumerate(self.options):
             # Si es la opción "Continuar" y no hay guardado, pintarla deshabilitada
-            if i == 1 and not self.save_exists:
-                text = self.font.render(option, True, (120, 120, 120))
+            disabled = (i == 1 and not self.save_exists)
+            # color base del texto
+            base_color = (120, 120, 120) if disabled else (200, 200, 200)
+            text = self.font.render(option, True, base_color)
+            y = start_y + i * spacing
+            rect = text.get_rect(center=(WIDTH // 2, y))
+
+            # Botón: expandir rect para crear fondo/borde (padding)
+            # aumentar ancho ~60px y alto ~28px para tener espacio alrededor del texto
+            btn_rect = rect.inflate(60, 28)
+
+            # Hover con el mouse (usamos btn_rect para el hover/hitbox)
+            hover = btn_rect.collidepoint(mouse_pos)
+            if hover and not disabled:
+                self.selected_option = i
+                # texto resaltado
+                text = self.font.render(option, True, (255, 215, 0))
+
+            # Colores de fondo y borde según estado
+            if disabled:
+                bg_color = (45, 45, 45)
+                border_color = (90, 90, 90)
+            elif hover or i == self.selected_option:
+                bg_color = (70, 60, 20)
+                border_color = (255, 215, 0)
             else:
-                text = self.font.render(option, True, (200, 200, 200))
-            rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + i * 60))
+                bg_color = (30, 30, 30)
+                border_color = (85, 85, 85)
 
-            # Hover con el mouse
-            if rect.collidepoint(mouse_pos):
-                # Si la opción es "Continuar" y no hay guardado, no la activamos
-                if not (i == 1 and not self.save_exists):
-                    self.selected_option = i
-                    text = self.font.render(option, True, (255, 215, 0))
+            # dibujar fondo redondeado y borde
+            try:
+                pg.draw.rect(self.screen, bg_color, btn_rect, border_radius=8)
+                pg.draw.rect(self.screen, border_color, btn_rect, 2, border_radius=8)
+            except Exception:
+                # fallback sin border_radius si no soportado
+                pg.draw.rect(self.screen, bg_color, btn_rect)
+                pg.draw.rect(self.screen, border_color, btn_rect, 2)
 
-            self.option_rects.append(rect)
+            # registrar hitbox para clicks (usamos btn_rect para facilidad)
+            self.option_rects.append(btn_rect)
             # Si la opción "Nueva partida" y hay guardado, dibujar icono de warning a la izquierda
             if i == 0 and self.save_exists:
-                icon_rect = pg.Rect(rect.left - 44, rect.centery - 14, 28, 28)
+                # colocar icono a la izquierda del botón (con pequeño margen)
+                icon_rect = pg.Rect(btn_rect.left - 44, btn_rect.centery - 14, 28, 28)
                 try:
                     self.screen.blit(self.warning_icon, icon_rect.topleft)
                 except Exception:
@@ -96,7 +150,8 @@ class MainMenu:
                     ex_surf = pg.transform.smoothscale(ex_surf, (14, 18))
                     self.screen.blit(ex_surf, ex_surf.get_rect(center=icon_rect.center))
 
-            self.screen.blit(text, rect)
+            # blitear texto centrado en el botón
+            self.screen.blit(text, text.get_rect(center=btn_rect.center))
         # Dibuja el cursor personalizado
         mouse_pos = pg.mouse.get_pos() + self.cursor_offset
         self.screen.blit(self.cursor_img, mouse_pos)

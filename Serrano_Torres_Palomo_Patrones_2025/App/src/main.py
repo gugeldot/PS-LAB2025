@@ -7,7 +7,7 @@ from gameManager import GameManager
 if __name__ == '__main__':
     pg.init()
     screen = pg.display.set_mode(RESOLUTION)
-    pg.display.set_caption("Le jogo")
+    pg.display.set_caption("Number Tycoon")
     
     # Loop principal: mostrar el menú, y si se inicia un juego y vuelve, mostrar el menú de nuevo
     while True:
