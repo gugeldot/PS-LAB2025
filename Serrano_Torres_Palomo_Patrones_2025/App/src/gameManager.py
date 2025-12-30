@@ -183,6 +183,12 @@ class GameManager(Singleton):
                     pos = (8 + idx, 2)
                 w = WellCreator().createStructure(pos, num, self)
                 self.map.placeStructure(int(pos[0]), int(pos[1]), w)
+                # por defecto, todos los pozos salvo el primero estarán bloqueados
+                if idx > 0:
+                    try:
+                        w.locked = True
+                    except Exception:
+                        pass
                 self.wells.append(w)
 
             conv1 = Conveyor(mine.position, splitter.position, self)
@@ -236,6 +242,18 @@ class GameManager(Singleton):
             for cell in row:
                 if not cell.isEmpty():
                     self.structures.append(cell.structure)
+
+        # Build wells list from current map so loaded games have the same
+        # wells collection as newly created maps. Preserve any saved `locked`
+        # state stored on the Well instances.
+        self.wells = []
+        try:
+            for row in self.map.cells:
+                for cell in row:
+                    if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Well':
+                        self.wells.append(cell.structure)
+        except Exception:
+            self.wells = getattr(self, 'wells', [])
 
         if not hasattr(self, 'production_timer'):
             self.production_timer = 0
@@ -309,6 +327,52 @@ class GameManager(Singleton):
                         self.final_conveyor = conv
                         self.well = cell.structure
                         break
+
+    def unlock_next_well_if_needed(self):
+        """Comprueba si la puntuación actual alcanza el objetivo del siguiente pozo bloqueado
+        y lo desbloquea (se usa la tupla `self.well_objectives`)."""
+        try:
+            # Use the well's numeric consumingNumber to determine the sequential
+            # unlocking order. This ensures that the next well to unlock is the
+            # locked well with the smallest consumingNumber (i.e., well #1 -> #2 -> #3 ...),
+            # regardless of the order in which wells are stored in self.wells.
+            if not hasattr(self, 'wells') or not hasattr(self, 'well_objectives'):
+                return
+            # collect locked wells
+            locked_wells = [w for w in self.wells if getattr(w, 'locked', False)]
+            if not locked_wells:
+                return
+            try:
+                # find the lowest-numbered locked well
+                min_num = min(int(getattr(w, 'consumingNumber', float('inf'))) for w in locked_wells)
+                idx = int(min_num) - 1
+                if idx < 0 or idx >= len(self.well_objectives):
+                    return
+                required = int(self.well_objectives[idx])
+            except Exception:
+                return
+            if getattr(self, 'points', 0) >= required:
+                # unlock the well that matches this consumingNumber
+                unlocked = False
+                for w in self.wells:
+                    try:
+                        if int(getattr(w, 'consumingNumber', -1)) == int(min_num) and getattr(w, 'locked', False):
+                            w.locked = False
+                            unlocked = True
+                            break
+                    except Exception:
+                        pass
+                msg = f"Pozo desbloqueado: {int(min_num)} (Objetivo {required} pts)"
+                # Mostrar popup si el HUD ya está inicializado
+                try:
+                    if hasattr(self, 'hud') and self.hud:
+                        self.hud.show_popup(msg)
+                    else:
+                        print(msg)
+                except Exception:
+                    print(msg)
+        except Exception:
+            pass
 
     def save_map(self):
         """Save map to App/saves/map.json"""
@@ -413,10 +477,14 @@ class GameManager(Singleton):
             print("Failed to save map:", e)
 
     def save_and_exit(self):
-        self.save_map()
-        print("Exiting game after save.")
-        pg.quit()
-        sys.exit()
+        # Guardar y volver al menú principal en vez de cerrar la app
+        try:
+            self.save_map()
+        except Exception:
+            pass
+        print("Guardado completado. Regresando al menú principal.")
+        # parar el loop del juego para que la llamada a game.run() regrese
+        self.running = False
 #region update
     def update(self):
         """Delegamos el loop de update a gm_update.py"""
