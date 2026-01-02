@@ -33,6 +33,13 @@ class Well(Structure):
 
         # preparar color/icono para pozo bloqueado (se dibuja un candado simple)
         self._lock_color = (120, 125, 130)
+        
+        # Calcular dificultad y puntos predefinidos basados en la complejidad matemática
+        # Números primos son más difíciles de crear con operaciones
+        # Números compuestos pequeños son más fáciles
+        self.difficulty = consumingNumber
+        self.points_reward = self._calculate_points_by_difficulty(consumingNumber)
+        
         # Intentar cargar un sprite de candado en Assets/Sprites/lock.png o .svg
         lock_paths = [BASE_DIR / "Assets" / "Sprites" / "lock.png",
                       BASE_DIR / "Assets" / "Sprites" / "lock.svg"]
@@ -66,6 +73,37 @@ class Well(Structure):
         '''
         pass
     
+    def _calculate_points_by_difficulty(self, num):
+        """
+        Calcula puntos basados en el número + bonus por dificultad.
+        - Puntos base: el número mismo
+        - Bonus: ×1.2 (redondeado) si es primo (más difícil de generar)
+        """
+        if num <= 1:
+            return num
+        
+        # Verificar si es primo
+        def is_prime(n):
+            if n < 2:
+                return False
+            if n == 2:
+                return True
+            if n % 2 == 0:
+                return False
+            for i in range(3, int(n**0.5) + 1, 2):
+                if n % i == 0:
+                    return False
+            return True
+        
+        # Puntos base = el número consumido
+        points = num
+        
+        # Bonus por ser primo: multiplicar por 1.2 y redondear
+        if is_prime(num):
+            points = round(num * 1.2)
+        
+        return points
+    
     def connectInput(self, conveyor):
         '''Permite que el sistema de reconexión conecte una cinta al pozo'''
         # En el caso del pozo, la cinta debe saber que su salida es el pozo
@@ -80,7 +118,8 @@ class Well(Structure):
             return
 
         if number is not None and number == self.consumingNumber:
-            points = number
+            # Usar los puntos predefinidos basados en dificultad, no el número consumido
+            points = getattr(self, 'points_reward', number)
             try:
                 self.gameManager.points += points
             except Exception:
@@ -119,7 +158,8 @@ class Well(Structure):
         text_rect = text.get_rect(center=draw_pos)
         self.gameManager.screen.blit(text, text_rect)
 
-        points_value = self.consumingNumber
+        # Mostrar puntos predefinidos basados en dificultad
+        points_value = getattr(self, 'points_reward', self.consumingNumber)
 
         if self.coin_img:
             coin_x = draw_pos[0] - 25
