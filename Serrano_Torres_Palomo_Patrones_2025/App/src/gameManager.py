@@ -5,6 +5,13 @@ import json
 import random
 from collections import deque
 
+from buildState import BuildState
+from core.divModuleCreator import DivModuleCreator
+from core.mulModuleCreator import MulModuleCreator
+from core.sumModuleCreator import SumModuleCreator
+from destroyState import DestroyState
+from normalState import NormalState
+from placementController import PlacementController
 from settings import *
 # Módulos delegados (modularización)
 from gm_init import init_pygame, init_paths, init_ui, init_counters, init_well_positions
