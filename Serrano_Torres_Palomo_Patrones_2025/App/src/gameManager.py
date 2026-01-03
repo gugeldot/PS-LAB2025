@@ -567,24 +567,31 @@ class GameManager(Singleton):
                         self.hud.shop_mode = None
                     else:
                         self.hud.shop_mode = "BUILD"
+
                     self.hud._setup_buttons()
-                #si la tienda esta abierta
+                #boton destruir
                 if self.hud and self.hud.destroy_button.collidepoint(event.pos):
                     if self.hud.shop_mode == "DESTROY":
                         self.hud.shop_mode = None
+                        self.setState(self.normalState)
                     else:
                         self.hud.shop_mode = "DESTROY"
+                        self.setState(self.destroyState)
                     self.hud._setup_buttons()
 
+                #botones de construccion
                 elif self.hud and self.hud.shop_mode == "BUILD":
                     if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
-                        pass
+                        self.setState(self.buildState)
+                        self.state.setFactory(SumModuleCreator()) 
                     elif self.hud and self.hud.mul_module_button.collidepoint(event.pos):
-                        pass
+                        self.setState(self.buildState)
+                        self.state.setFactory(MulModuleCreator()) 
                     elif self.hud and self.hud.div_module_button.collidepoint(event.pos):
-                        pass
+                        self.setState(self.buildState)
+                        self.state.setFactory(DivModuleCreator()) 
                 
-
+                #Botones de tienda
                 elif self.hud and self.hud.shop_mode == "SHOP":
                     # enqueue upgrade actions (global)
                     if self.hud and self.hud.speed_button.collidepoint(event.pos):
@@ -660,7 +667,7 @@ class GameManager(Singleton):
     def addPoints(self, amount: int):
         # suma puntos
         self.points = getattr(self, 'points', 0) + amount
-        
+
     def create_new_mine(self) -> bool:
         """Locate a random empty cell and create/place a Mine that produces 1.
         Used by external gm_upgrades logic.
