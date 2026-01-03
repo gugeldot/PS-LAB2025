@@ -4,7 +4,7 @@ from settings import CELL_SIZE_PX
 
 
 class Mine(Structure):
-    def __init__(self, position, number, gameManager):
+    def __init__(self, position,  number, gameManager):
         '''
         Inicializa la mina usando coordenadas de grilla (x,y). La posición
         pixel se calcula a partir de CELL_SIZE_PX y el centro de la celda.
@@ -18,44 +18,27 @@ class Mine(Structure):
         self.number = number
         self.gameManager = gameManager
         self.radius = 15
-        self.color = (255, 177, 193)  # Rosa pastel
-        self._outputConveyor = None
-
-    @property
-    def output(self):
-        return self._outputConveyor
-    
-    @output.setter
-    def output(self, value):
-        self._outputConveyor = value
-
-    def connectOutput(self, conveyor):
-        self.output = conveyor
+        self.color = (255, 0, 0)  # rojo
 
     def update(self):
         '''
         '''
         pass
     
-    def produce(self, conveyor=None):
-        # Use provided conveyor or the connected output
-        target = conveyor or self.output
-        if target:
-            # Use an effective upgraded number if present, else the base `number`.
-            val = getattr(self, '_effective_number', self.number)
-            target.push(val)
+    def produce(self, conveyor):
+        # Use an effective upgraded number if present, else the base `number`.
+        val = getattr(self, '_effective_number', self.number)
+        conveyor.push(val)
 
     def draw(self):
         '''
         Dibuja la mina en la pantalla
         '''
-        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
-        draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
-        pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
+        pg.draw.circle(self.gameManager.screen, self.color, (self.position.x, self.position.y), self.radius)
         # Dibujar el numero en el centro de la mina; show effective upgraded number if present
         effective = getattr(self, '_effective_number', getattr(self, '_base_number', self.number))
-        font = pg.font.Font(None, 28)
-        text = font.render(str(effective), True, (44, 62, 80))  # Azul oscuro para buen contraste
-        text_rect = text.get_rect(center=draw_pos)
+        font = pg.font.Font(None, 24)
+        text = font.render(str(effective), True, (255, 255, 255))
+        text_rect = text.get_rect(center=(self.position.x, self.position.y))
         self.gameManager.screen.blit(text, text_rect)
                                                     

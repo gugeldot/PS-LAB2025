@@ -9,3 +9,5 @@ class Structure(ABC):
     @abstractmethod
     def draw(self):
         pass
+
+    
