@@ -55,6 +55,12 @@ class GameManager(Singleton):
     def new_game(self):
         """Inicializa los elementos del juego: carga mapa si existe o crea uno por defecto."""
         self.mouse = MouseControl(self)
+        #modo normal o construccion
+        
+        self.normalState= NormalState(self.mouse)
+        self.buildState= BuildState(PlacementController(self,None))
+        self.destroyState= DestroyState(PlacementController(self,None))
+        self.state= self.normalState
 
         # Mapeo de creadores para la carga
         creators = {
@@ -518,6 +524,25 @@ class GameManager(Singleton):
                 self.running = False
                 self.save_and_exit()
 
+            #gestion de teclas
+            if event.type == pg.KEYDOWN:
+                    #se activa modo construccion
+                    if event.key == pg.K_b: #b ded bulldozer para destruir por ahora
+                            
+                            self.setState(self.destroyState)  
+                    if event.key == pg.K_m:
+                            self.setState(self.buildState)
+                            self.state.setFactory(MulModuleCreator())
+                    if event.key == pg.K_BACKSPACE:
+                            self.setState(self.normalState)
+                    if event.key == pg.K_v:
+                            self.setState(self.buildState)
+                            self.state.setFactory(SumModuleCreator()) 
+                    if event.key == pg.K_n:
+                            self.setState(self.buildState)
+                            self.state.setFactory(DivModuleCreator())       
+
+            #pulsacion de raton
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                 if self.save_button_rect.collidepoint(event.pos):
                     self.save_and_exit()
@@ -607,13 +632,25 @@ class GameManager(Singleton):
                     elif self.hud and self.hud.shop_button.collidepoint(event.pos):
                         print("Has pulsado el botón nuevo")
                         self.hud.show_popup("¡Botón activado!") 
-
+            self.state.handleClickEvent(event)
     def run(self):
         while self.running:
             self.checkEvents()
             self.update()
             self.draw()
+#region setState
 
+    def setState(self,state):
+        self.state= state
+        
+    def canAffordBuilding(self, creator) -> bool:
+        #comprueba que hay puntos suficientes para construir la estructura, el coste se guarda en creator
+        cost = creator.getCost()
+        return getattr(self, 'points', 0) >= cost
+    def spendPoints(self, amount: int):
+        # resta los puntos gastados impidendo que sea negativoS
+        self.points = max(0, getattr(self, 'points', 0) - amount)
+    
     def create_new_mine(self) -> bool:
         """Locate a random empty cell and create/place a Mine that produces 1.
         Used by external gm_upgrades logic.

@@ -6,7 +6,7 @@ from gm_upgrades import process_action_buffer
 def update(gm):
     # update inputs
     gm.mouse.update()
-
+    gm.state.update()
     # popup timer
     try:
         if hasattr(gm, '_popup_timer') and getattr(gm, '_popup_timer', 0) is not None:
