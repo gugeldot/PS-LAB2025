@@ -657,7 +657,10 @@ class GameManager(Singleton):
     def spendPoints(self, amount: int):
         # resta los puntos gastados impidendo que sea negativoS
         self.points = max(0, getattr(self, 'points', 0) - amount)
-    
+    def addPoints(self, amount: int):
+        # suma puntos
+        self.points = getattr(self, 'points', 0) + amount
+        
     def create_new_mine(self) -> bool:
         """Locate a random empty cell and create/place a Mine that produces 1.
         Used by external gm_upgrades logic.

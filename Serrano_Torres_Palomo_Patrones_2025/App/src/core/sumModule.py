@@ -54,3 +54,5 @@ class SumModule(Module):
             self.inConveyor2 = conveyor
         elif position == 3:
             self.outConveyor = conveyor
+    def getCost(self):
+        return 15

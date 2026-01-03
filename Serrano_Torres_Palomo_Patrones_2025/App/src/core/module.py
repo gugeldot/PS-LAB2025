@@ -28,3 +28,5 @@ class Module(Structure):
         '''
         '''
         pass
+    def getCost(self):
+        pass

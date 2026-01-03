@@ -48,3 +48,6 @@ class DivModule(Module):
             self.outConveyor = conveyor
         elif position ==4:
             self.outConveyor2= conveyor
+    def getCost(self):
+        return 15
+    

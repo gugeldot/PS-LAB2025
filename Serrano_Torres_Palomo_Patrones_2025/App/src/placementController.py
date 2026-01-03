@@ -76,6 +76,7 @@ class PlacementController:
             structure= self.gameManager.map.removeStructure(self.cellPosX, self.cellPosY)
             if structure in self.gameManager.structures:
                     self.gameManager.structures.remove(structure)
+                    self.gameManager.addPoints(structure.getCost())  # Reembolsar la mitad del coste
                     print(f"Estructura en {structure.grid_position} destruida.")
             else:
                     print("Estructura no encontrada en la lista.")

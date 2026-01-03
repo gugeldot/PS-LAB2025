@@ -10,4 +10,7 @@ class Structure(ABC):
     def draw(self):
         pass
 
+    def getCost(self):
+        pass
+
     
