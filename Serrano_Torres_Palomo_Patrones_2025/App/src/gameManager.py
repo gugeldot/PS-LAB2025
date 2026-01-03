@@ -1,132 +1,114 @@
 import pygame as pg
 import sys
-import pathlib
 import os
 import json
+import random
 from collections import deque
 
-from buildState import BuildState
-from core.divModuleCreator import DivModuleCreator
-from core.mulModuleCreator import MulModuleCreator
-from core.sumModuleCreator import SumModuleCreator
-from destroyState import DestroyState
-from normalState import NormalState
-from placementController import PlacementController
 from settings import *
+# Módulos delegados (modularización)
+from gm_init import init_pygame, init_paths, init_ui, init_counters, init_well_positions
+from gm_update import update as gm_update
+from gm_draw import draw as gm_draw
+# No necesitamos importar las funciones de upgrades aquí, ya que gm_update las gestiona,
+# pero sí necesitamos que gm_update funcione correctamente.
+
 from mouseControl import MouseControl
 from patterns.singleton import Singleton
+from ui.hud import HUD, Colors
 from core.mine import Mine
 from core.well import Well
 from core.mineCreator import MineCreator
 from core.wellCreator import WellCreator
 from core.mergerCreator import MergerCreator
 from core.splitterCreator import SplitterCreator
+from core.operationCreator import SumCreator, MultiplyCreator
 from core.conveyor import Conveyor
 from map.map import Map
-from patterns.decorator import SpeedUpgrade, EfficiencyUpgrade
 
 
 class GameManager(Singleton):
     _initialized = False
-    # region __init__
+
     def __init__(self):
         if getattr(self, "_initialized", False):
             return
 
-        pg.init()
-        self.screen = pg.display.set_mode(RESOLUTION)
-        pg.display.set_caption("Jueguito")
-
-        # timing
-        self.clock = pg.time.Clock()
-        self.delta_time = 1
-
-        # save paths (App/saves/map.json)
-        base_dir = pathlib.Path(__file__).resolve().parent
-        app_dir = base_dir.parent
-        self.save_dir = app_dir / "saves"
-        self.save_file = self.save_dir / "map.json"
-
-        # UI: Save & Exit button
-        self.save_button_rect = pg.Rect(WIDTH - 170, 10, 160, 40)
-        # UI: Upgrade buttons (stacked under Save)
-        self.speed_button_rect = pg.Rect(WIDTH - 170, 60, 160, 40)
-        self.eff_button_rect = pg.Rect(WIDTH - 170, 110, 160, 40)
-
-        # Upgrade usage counters (max 10 uses each)
-        self.speed_uses_left = 10
-        self.eff_uses_left = 10
-        self.speed_uses_used = 0
-        self.eff_uses_used = 0
-        # Cost (in points) to redeem each upgrade
-        # These can be tuned or moved to settings.py if desired
-        # incremental cost schedule for each of the 10 possible uses
-        # define as tuples/lists of length 10 (one cost per use index)
-        # Example default costs; adjust as desired
-        self.speed_costs = (5, 6, 7, 8, 9, 10, 12, 14, 16, 20)
-        self.eff_costs = (8, 9, 10, 11, 12, 14, 16, 18, 20, 25)
-        # action buffer to store pending upgrade actions (processed in update())
-        # each entry: { 'type': 'speed'|'eff', 'tries': int, 'max_tries': int }
-
-        
-        self.action_buffer = deque()
+        # Inicialización agrupada delegada a helpers en gm_init
+        init_pygame(self)
+        init_paths(self)
+        init_ui(self)
+        init_counters(self)
+        init_well_positions(self)
 
         self.running = True
 
-        # start
+        # Construir mapa y estructuras
         self.new_game()
+        
+        # Inicializar HUD después de que el juego esté configurado
+        self.hud = HUD(self)
 
-        # mark initialized
+        # Marcar como inicializado
         self._initialized = True
-    # region new_game
+#region new_game
     def new_game(self):
         """Inicializa los elementos del juego: carga mapa si existe o crea uno por defecto."""
         self.mouse = MouseControl(self)
-
         #modo normal o construccion
         
         self.normalState= NormalState(self.mouse)
         self.buildState= BuildState(PlacementController(self,None))
         self.destroyState= DestroyState(PlacementController(self,None))
         self.state= self.normalState
-        # creator mapping for loading
+
+        # Mapeo de creadores para la carga
         creators = {
             "Mine": MineCreator(),
             "Well": WellCreator(),
             "MergerModule": MergerCreator(),
             "SplitterModule": SplitterCreator(),
+            "SumModule": SumCreator(),
+            "MultiplyModule": MultiplyCreator(),
         }
 
-        # ensure save dir exists (create lazily)
+        # Asegurar que existe el directorio de guardado
         os.makedirs(self.save_dir, exist_ok=True)
 
         if self.save_file.exists():
             print(f"Found saved map at {self.save_file}, loading...")
             try:
                 self.map = Map.load_from_file(str(self.save_file), creators=creators, gameManager=self)
-                # try to read persisted upgrades and apply them
+                # Intentar leer mejoras persistidas y aplicarlas
                 try:
                     with open(self.save_file, 'r', encoding='utf-8') as fh:
                         saved = json.load(fh)
-                        # restore saved score (puntuación) if present
+                        # Restaurar puntuación
                         try:
                             self.points = int(saved.get('score', getattr(self, 'points', 0)))
                         except Exception:
-                            # fallback to 0 if parsing fails
                             self.points = int(getattr(self, 'points', 0) or 0)
 
                         upgrades = saved.get('upgrades', {})
                     speed_used = int(upgrades.get('speed_uses_used', 0))
                     eff_used = int(upgrades.get('eff_uses_used', 0))
-                    # set counters
+                    mine_used = int(upgrades.get('mine_uses_used', 0))
+                    
+                    # Set counters
                     self.speed_uses_used = speed_used
                     self.eff_uses_used = eff_used
+                    # Restaurar contadores de compra de minas
+                    try:
+                        self.mine_uses_used = mine_used
+                        self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+                    except Exception:
+                        pass
                     self.speed_uses_left = max(0, 10 - self.speed_uses_used)
                     self.eff_uses_left = max(0, 10 - self.eff_uses_used)
-                    # apply effects without consuming uses
+                    
+                    # Aplicar efectos visuales/lógicos de carga (restauración de estado)
                     if speed_used > 0:
                         try:
-                            # apply speed multiplier corresponding to total uses
                             multiplier = 0.9 ** self.speed_uses_used
                             for conv in getattr(self, 'conveyors', []):
                                 base_conv = conv
@@ -135,11 +117,16 @@ class GameManager(Singleton):
                                 if not hasattr(base_conv, '_base_travel_time'):
                                     base_conv._base_travel_time = getattr(base_conv, 'travel_time', 2000)
                                 base_conv.travel_time = max(50, int(base_conv._base_travel_time * multiplier))
+                            try:
+                                if not hasattr(self, '_base_production_interval'):
+                                    self._base_production_interval = 2000
+                                self.production_interval = max(100, int(self._base_production_interval * multiplier))
+                            except Exception:
+                                pass
                         except Exception:
                             pass
                     if eff_used > 0:
                         try:
-                            # increment mine base numbers by eff_used
                             for row in self.map.cells:
                                 for cell in row:
                                     if cell and not cell.isEmpty():
@@ -150,14 +137,12 @@ class GameManager(Singleton):
                                                 base_s = base_s.target
                                         except Exception:
                                             pass
-                                        # if it's a Mine increase its number, if it's a Well increase consumingNumber
                                         if hasattr(base_s, 'number'):
                                             if not hasattr(base_s, '_base_number'):
                                                 try:
                                                     base_s._base_number = int(base_s.number)
                                                 except Exception:
                                                     base_s._base_number = getattr(base_s, 'number', 1)
-                                            # add cumulative increments
                                             base_s._base_number = int(base_s._base_number) + eff_used
                                             base_s._effective_number = max(1, int(base_s._base_number))
                                         if hasattr(base_s, 'consumingNumber'):
@@ -169,7 +154,6 @@ class GameManager(Singleton):
                                             base_s._base_consumingNumber = int(base_s._base_consumingNumber) + eff_used
                                             base_val = max(1, int(base_s._base_consumingNumber))
                                             base_s.consumingNumber = base_val
-                                            # also propagate to the outer structure (wrapper) so runtime references update
                                             try:
                                                 if s is not base_s and hasattr(s, 'consumingNumber'):
                                                     s.consumingNumber = base_val
@@ -187,8 +171,8 @@ class GameManager(Singleton):
             print(f"No saved map found at {self.save_file}, creating default map.")
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
-            # Test: Mine -> Conveyor1 -> Splitter -> [Conveyor2, Conveyor3] -> Merger -> Conveyor4 -> Well
-            mine = MineCreator().createStructure((2, 2),  1, self)
+            # Estructuras por defecto
+            mine = MineCreator().createStructure((2, 2), 1, self)
             self.map.placeStructure(2, 2, mine)
 
             splitter = SplitterCreator().createStructure((4, 2), self)
@@ -197,310 +181,209 @@ class GameManager(Singleton):
             merger = MergerCreator().createStructure((6, 2), self)
             self.map.placeStructure(6, 2, merger)
 
-            well = WellCreator().createStructure((8, 2),  1, self   )
-            self.map.placeStructure(8, 2, well)
+            self.wells = []
+            for idx, num in enumerate(range(1, 11)):
+                try:
+                    pos = self.well_positions[idx]
+                except Exception:
+                    pos = (8 + idx, 2)
+                w = WellCreator().createStructure(pos, num, self)
+                self.map.placeStructure(int(pos[0]), int(pos[1]), w)
+                # por defecto, todos los pozos salvo el primero estarán bloqueados
+                if idx > 0:
+                    try:
+                        w.locked = True
+                    except Exception:
+                        pass
+                self.wells.append(w)
 
-            # Create conveyors with visual deviation
             conv1 = Conveyor(mine.position, splitter.position, self)
-            
-            # Upper path: splitter -> waypoint up -> merger
+
             waypoint_up = pg.Vector2(merger.position.x - 40, merger.position.y - 40)
             conv2 = Conveyor(splitter.position, waypoint_up, self)
             conv2_merge = Conveyor(waypoint_up, merger.position, self)
-            
-            # Lower path: splitter -> waypoint down -> merger
+
             waypoint_down = pg.Vector2(merger.position.x - 40, merger.position.y + 40)
             conv3 = Conveyor(splitter.position, waypoint_down, self)
             conv3_merge = Conveyor(waypoint_down, merger.position, self)
-            
-            conv4 = Conveyor(merger.position, well.position, self)
-            
+
+            target_well = self.wells[0] if getattr(self, 'wells', None) and len(self.wells) > 0 else None
+            if target_well:
+                conv4 = Conveyor(merger.position, target_well.position, self)
+            else:
+                conv4 = Conveyor(merger.position, pg.Vector2(0, 0), self)
+
+            try:
+                conv2.connectOutput(conv2_merge)
+                conv3.connectOutput(conv3_merge)
+                splitter.connectInput(conv1)
+                splitter.connectOutput1(conv2)
+                splitter.connectOutput2(conv3)
+                merger.connectInput1(conv2_merge)
+                merger.connectInput2(conv3_merge)
+                merger.connectOutput(conv4)
+            except Exception:
+                pass
+
             self.conveyors = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
-            
             self.mine = mine
-            self.well = well
+            self.well = target_well if target_well else None
             self.final_conveyor = conv4
             self.production_timer = 0
             self.consumption_timer = 0
             self.points = 0
 
-        # ensure conveyors list exists
         if not hasattr(self, 'conveyors'):
             self.conveyors = []
-        
         if not hasattr(self, 'points'):
             self.points = 0
 
-        # ALWAYS establish/re-establish connections between structures and conveyors
-        # This handles both new games and loaded games automatically
         print(f"Establishing connections for {len(self.conveyors)} conveyors...")
         self._reconnect_structures()
 
-        # ALWAYS rebuild structures list to include conveyors
         self.structures = []
-        # add conveyors first
         for conv in self.conveyors:
             self.structures.append(conv)
-        # then map structures
         for row in self.map.cells:
             for cell in row:
                 if not cell.isEmpty():
                     self.structures.append(cell.structure)
 
+        # Build wells list from current map so loaded games have the same
+        # wells collection as newly created maps. Preserve any saved `locked`
+        # state stored on the Well instances.
+        self.wells = []
+        try:
+            for row in self.map.cells:
+                for cell in row:
+                    if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Well':
+                        self.wells.append(cell.structure)
+        except Exception:
+            self.wells = getattr(self, 'wells', [])
+
         if not hasattr(self, 'production_timer'):
             self.production_timer = 0
         if not hasattr(self, 'consumption_timer'):
             self.consumption_timer = 0
-# region update
-    def update(self):
-        # update inputs
-        self.mouse.update()
-        self.state.update()
-        # process any pending upgrade actions from the action buffer
+
+    def _reconnect_structures(self):
+        """Re-establish connections between structures and conveyors after loading from save."""
+        def find_structure_at(grid_x, grid_y):
+            if 0 <= grid_y < len(self.map.cells) and 0 <= grid_x < len(self.map.cells[grid_y]):
+                cell = self.map.cells[grid_y][grid_x]
+                if not cell.isEmpty():
+                    return cell.structure
+            return None
+
+        for conv in self.conveyors:
+            start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
+            start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
+            end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+            end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+
+            start_struct = find_structure_at(start_grid_x, start_grid_y)
+            end_struct = find_structure_at(end_grid_x, end_grid_y)
+
+            if start_struct:
+                if hasattr(start_struct, 'connectOutput'):
+                    start_struct.connectOutput(conv)
+                elif hasattr(start_struct, 'connectOutput1'):
+                    if conv.end_pos.y < start_struct.position.y:
+                        start_struct.connectOutput1(conv)
+                    else:
+                        start_struct.connectOutput2(conv)
+
+            if end_struct:
+                if hasattr(end_struct, 'connectInput'):
+                    end_struct.connectInput(conv)
+                elif hasattr(end_struct, 'connectInput1'):
+                    if conv.start_pos.y < end_struct.position.y:
+                        end_struct.connectInput1(conv)
+                    else:
+                        end_struct.connectInput2(conv)
+
+        for i, conv in enumerate(self.conveyors):
+            for other_conv in self.conveyors:
+                if conv != other_conv:
+                    if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
+                        int(conv.end_pos.y) == int(other_conv.start_pos.y)):
+                        grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+                        grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+                        struct = find_structure_at(grid_x, grid_y)
+                        if struct is None:
+                            conv.connectOutput(other_conv)
+
+        if len(self.conveyors) > 0:
+            for row in self.map.cells:
+                for cell in row:
+                    if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Mine':
+                        self.mine = cell.structure
+                        break
+                if hasattr(self, 'mine') and self.mine:
+                    break
+
+            self.final_conveyor = None
+            self.well = None
+            for conv in self.conveyors:
+                end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+                end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+                if 0 <= end_grid_y < len(self.map.cells) and 0 <= end_grid_x < len(self.map.cells[end_grid_y]):
+                    cell = self.map.cells[end_grid_y][end_grid_x]
+                    if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Well':
+                        self.final_conveyor = conv
+                        self.well = cell.structure
+                        break
+
+    def unlock_next_well_if_needed(self):
+        """Comprueba si la puntuación actual alcanza el objetivo del siguiente pozo bloqueado
+        y lo desbloquea (se usa la tupla `self.well_objectives`)."""
         try:
-            self.process_action_buffer()
-        except Exception:
-            pass
-        
-        # update map structures
-        self.map.update()
-
-        # update conveyors (they are not map-placed structures)
-        for conv in getattr(self, 'conveyors', []):
+            # Use the well's numeric consumingNumber to determine the sequential
+            # unlocking order. This ensures that the next well to unlock is the
+            # locked well with the smallest consumingNumber (i.e., well #1 -> #2 -> #3 ...),
+            # regardless of the order in which wells are stored in self.wells.
+            if not hasattr(self, 'wells') or not hasattr(self, 'well_objectives'):
+                return
+            # collect locked wells
+            locked_wells = [w for w in self.wells if getattr(w, 'locked', False)]
+            if not locked_wells:
+                return
             try:
-                conv.update()
+                # find the lowest-numbered locked well
+                min_num = min(int(getattr(w, 'consumingNumber', float('inf'))) for w in locked_wells)
+                idx = int(min_num) - 1
+                if idx < 0 or idx >= len(self.well_objectives):
+                    return
+                required = int(self.well_objectives[idx])
             except Exception:
-                pass
-
-        self.production_timer += self.delta_time
-        if self.production_timer > 2000:
-            if hasattr(self, 'mine') and self.mine and self.conveyors:
-                self.mine.produce(self.conveyors[0])
-            self.production_timer = 0
-
-        self.consumption_timer += self.delta_time
-        if self.consumption_timer > 2000:
-            if hasattr(self, 'well') and self.well and hasattr(self, 'final_conveyor'):
-                self.well.consume(self.final_conveyor)
-            self.consumption_timer = 0
-
-        # tick (advance clock and compute delta_time)
-        self.delta_time = self.clock.tick(FPS)
-        pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
-# region draw
-    def draw(self):
-        self.screen.fill('black')
-        
-        # mouse grid coords
-        mx, my = int(self.mouse.position.x), int(self.mouse.position.y)
-        gx = mx // CELL_SIZE_PX
-        gy = my // CELL_SIZE_PX
-
-        # draw grid and structures
-        grid_color = (80, 80, 80)
-        hover_fill = (200, 200, 200)
-        for y in range(self.map.height):
-            for x in range(self.map.width):
-                rect = pg.Rect(x * CELL_SIZE_PX, y * CELL_SIZE_PX, CELL_SIZE_PX, CELL_SIZE_PX)
-                # highlight hovered cell
-                if x == gx and y == gy and 0 <= x < self.map.width and 0 <= y < self.map.height:
-                    pg.draw.rect(self.screen, hover_fill, rect)
-                pg.draw.rect(self.screen, grid_color, rect, 1)
-
-                cell = self.map.getCell(x, y)
-                if cell and not cell.isEmpty():
+                return
+            if getattr(self, 'points', 0) >= required:
+                # unlock the well that matches this consumingNumber
+                unlocked = False
+                for w in self.wells:
                     try:
-                        cell.structure.draw()
+                        if int(getattr(w, 'consumingNumber', -1)) == int(min_num) and getattr(w, 'locked', False):
+                            w.locked = False
+                            unlocked = True
+                            break
                     except Exception:
                         pass
-
-        # draw non-map structures (e.g., conveyors)
-        for structure in self.structures:
-            if hasattr(structure, 'grid_position'):
-                continue
-            try:
-                structure.draw()
-            except Exception:
-                pass
-
-        # draw Save & Exit button
-        mouse_pt = (int(self.mouse.position.x), int(self.mouse.position.y))
-        hover = self.save_button_rect.collidepoint(mouse_pt)
-        btn_color = (100, 100, 100) if not hover else (150, 150, 150)
-        pg.draw.rect(self.screen, btn_color, self.save_button_rect)
-        # button text
-        font = pg.font.Font(None, 24)
-        text = font.render("Save & Exit", True, (255, 255, 255))
-        text_rect = text.get_rect(center=self.save_button_rect.center)
-        self.screen.blit(text, text_rect)
-        
-        # display total points as a label in the bottom-left corner
-        # draw a dark background box so the text is always legible
-        try:
-            font = pg.font.Font(None, 36)
-            points_text = font.render(f"Puntuación: {self.points}", True, (255, 215, 0))
-            padding = 8
-            text_rect = points_text.get_rect()
-            label_x = 10
-            label_y = HEIGHT - text_rect.height - 10
-            bg_rect = pg.Rect(label_x - padding, label_y - padding,
-                              text_rect.width + padding * 2, text_rect.height + padding * 2)
-            # slightly translucent-ish look (solid color; SDL surfaces do not always support alpha here)
-            pg.draw.rect(self.screen, (30, 30, 30), bg_rect)
-            # thin border
-            pg.draw.rect(self.screen, (180, 180, 180), bg_rect, 1)
-            self.screen.blit(points_text, (label_x, label_y))
-        except Exception:
-            # fallback: try a very small font and a plain blit so draw() never crashes
-            try:
-                font = pg.font.Font(None, 20)
-                points_text = font.render(str(getattr(self, 'points', 0)), True, (255, 215, 0))
-                self.screen.blit(points_text, (10, HEIGHT - 30))
-            except Exception:
-                pass
-
-        # draw Upgrade buttons (Mejora Velocidad / Mejora Eficiencia)
-        font_small = pg.font.Font(None, 20)
-
-        # Speed button shows price and remaining uses, and is shaded if unaffordable or no uses
-        hover_speed = self.speed_button_rect.collidepoint(mouse_pt)
-        # determine next cost for speed (based on how many uses already consumed)
-        next_speed_cost = None
-        try:
-            if 0 <= self.speed_uses_used < len(self.speed_costs):
-                next_speed_cost = int(self.speed_costs[self.speed_uses_used])
-        except Exception:
-            next_speed_cost = None
-
-        can_buy_speed = (getattr(self, 'points', 0) >= (next_speed_cost or 0)) and (self.speed_uses_left > 0)
-        if not can_buy_speed:
-            speed_color = (60, 60, 60)
-        else:
-            speed_color = (150, 150, 150) if hover_speed else (100, 100, 100)
-        pg.draw.rect(self.screen, speed_color, self.speed_button_rect)
-        speed_label_cost = f"{next_speed_cost}pts" if next_speed_cost is not None else "N/A"
-        text_speed = font_small.render(f"Mejora Velocidad ({speed_label_cost}) [{self.speed_uses_left}]", True, (255, 255, 255))
-        self.screen.blit(text_speed, text_speed.get_rect(center=self.speed_button_rect.center))
-
-        # Efficiency button shows price and remaining uses, and is shaded if unaffordable or no uses
-        hover_eff = self.eff_button_rect.collidepoint(mouse_pt)
-        # determine next cost for efficiency
-        next_eff_cost = None
-        try:
-            if 0 <= self.eff_uses_used < len(self.eff_costs):
-                next_eff_cost = int(self.eff_costs[self.eff_uses_used])
-        except Exception:
-            next_eff_cost = None
-
-        can_buy_eff = (getattr(self, 'points', 0) >= (next_eff_cost or 0)) and (self.eff_uses_left > 0)
-        if not can_buy_eff:
-            eff_color = (60, 60, 60)
-        else:
-            eff_color = (150, 150, 150) if hover_eff else (100, 100, 100)
-        pg.draw.rect(self.screen, eff_color, self.eff_button_rect)
-        eff_label_cost = f"{next_eff_cost}pts" if next_eff_cost is not None else "N/A"
-        text_eff = font_small.render(f"Mejora Eficiencia ({eff_label_cost}) [{self.eff_uses_left}]", True, (255, 255, 255))
-        self.screen.blit(text_eff, text_eff.get_rect(center=self.eff_button_rect.center))
-
-        # esto dibuja la preview del build en caso de que estemos en modo build
-        if hasattr(self.state, "draw"):
-            self.state.draw()
-        self.mouse.draw()
-        # present the rendered frame
-        pg.display.flip()
-# region checkEvents
-    def checkEvents(self):
-        for event in pg.event.get():
-            # pass to mouse control (keeps existing debug prints)
-
-            #el estado aqui sustituye al mouse para manejar los clicks, dependeidneo de si modo construccion o no
-            
-            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
-                self.running = False
-                self.save_and_exit()
-
-            #gestion de teclas
-            if event.type == pg.KEYDOWN:
-                    #se activa modo construccion
-                    if event.key == pg.K_b: #b ded bulldozer para destruir por ahora
-                            
-                            self.setState(self.destroyState)  
-                    if event.key == pg.K_m:
-                            self.setState(self.buildState)
-                            self.state.setFactory(MulModuleCreator())
-                    if event.key == pg.K_BACKSPACE:
-                            self.setState(self.normalState)
-                    if event.key == pg.K_v:
-                            self.setState(self.buildState)
-                            self.state.setFactory(SumModuleCreator()) 
-                    if event.key == pg.K_n:
-                            self.setState(self.buildState)
-                            self.state.setFactory(DivModuleCreator())       
-
-            # Use MOUSEBUTTONUP for reliable button clicks (handle release)
-            if event.type == pg.MOUSEBUTTONUP and event.button == 1:
-                # check if Save & Exit clicked
-                if self.save_button_rect.collidepoint(event.pos):
-                    self.save_and_exit()
-                # enqueue upgrade actions (global)
-                elif self.speed_button_rect.collidepoint(event.pos):
-                    # avoid enqueueing more than remaining capacity (max 10 uses total)
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
-                    if queued + self.speed_uses_used >= 10:
-                        print("No speed upgrades available to queue")
-                    elif queued >= 1:
-                        # already have a pending speed action; ignore extra clicks
-                        print("Ya hay una Mejora Velocidad pendiente")
-                    elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Velocidad")
+                msg = f"Pozo desbloqueado: {int(min_num)} (Objetivo {required} pts)"
+                # Mostrar popup si el HUD ya está inicializado
+                try:
+                    if hasattr(self, 'hud') and self.hud:
+                        self.hud.show_popup(msg)
                     else:
-                        # append action (will be processed in update())
-                        self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
+                        print(msg)
+                except Exception:
+                    print(msg)
+        except Exception:
+            pass
 
-                elif self.eff_button_rect.collidepoint(event.pos):
-                    queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
-                    if queued + self.eff_uses_used >= 10:
-                        print("No efficiency upgrades available to queue")
-                    elif queued >= 1:
-                        print("Ya hay una Mejora Eficiencia pendiente")
-                    elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
-                        print("No tienes puntos suficientes para Mejora Eficiencia")
-                    else:
-                        self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
-                        print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
-            self.state.handleClickEvent(event)
-# region run
-    def run(self):
-        while self.running:
-            self.checkEvents()
-            self.update()
-            self.draw()
-
-
-
-
-#region setState
-
-    def setState(self,state):
-        self.state= state
-
-
-    def canAffordBuilding(self, creator) -> bool:
-        #comprueba que hay puntos suficientes para construir la estructura, el coste se guarda en creator
-        cost = creator.getCost()
-        return getattr(self, 'points', 0) >= cost
-    def spendPoints(self, amount: int):
-        # resta los puntos gastados impidendo que sea negativoS
-        self.points = max(0, getattr(self, 'points', 0) - amount)
     def save_map(self):
         """Save map to App/saves/map.json"""
         try:
             base = self.map.to_dict()
-            # Ensure we persist base/original numeric values for structures when available.
-            # If upgrades have modified in-memory attributes (e.g. consumingNumber or number),
-            # prefer to save the original base values so re-loading + applying saved
-            # upgrades does not double-apply them.
             try:
                 grid = base.get('grid', [])
                 eff_used = int(getattr(self, 'eff_uses_used', 0))
@@ -512,8 +395,6 @@ class GameManager(Singleton):
                             cell = self.map.getCell(x, y)
                             if cell and not cell.isEmpty():
                                 s = cell.structure
-                                # For mines: if _base_number exists it currently includes applied
-                                # efficiency upgrades; recover original by subtracting eff_used.
                                 if 'number' in entry:
                                     if hasattr(s, '_base_number'):
                                         try:
@@ -521,7 +402,6 @@ class GameManager(Singleton):
                                             entry['number'] = max(1, original)
                                         except Exception:
                                             entry['number'] = int(entry.get('number', 1))
-                                # For wells: same logic for consumingNumber
                                 if 'consumingNumber' in entry:
                                     if hasattr(s, '_base_consumingNumber'):
                                         try:
@@ -533,18 +413,15 @@ class GameManager(Singleton):
                             pass
             except Exception:
                 pass
-            # include conveyors as grid-based connections
+            
             convs = []
             for conv in getattr(self, 'conveyors', []):
-                # try to infer grid coords for start and end
                 sx = sy = ex = ey = None
-                # try to match to cell structures first
                 found = False
                 for y, row in enumerate(self.map.cells):
                     for x, cell in enumerate(row):
                         if not cell.isEmpty() and hasattr(cell.structure, 'position'):
                             pos = cell.structure.position
-                            # compare pixel positions (Vector2 or tuple)
                             try:
                                 px, py = float(pos.x), float(pos.y)
                             except Exception:
@@ -578,8 +455,6 @@ class GameManager(Singleton):
                     ex = int(conv.end_pos.x) // CELL_SIZE_PX
                     ey = int(conv.end_pos.y) // CELL_SIZE_PX
 
-                # Prefer to persist the base travel time if available so reload
-                # doesn't re-apply speed multipliers.
                 travel = getattr(conv, 'travel_time', None)
                 if hasattr(conv, '_base_travel_time'):
                     try:
@@ -590,17 +465,16 @@ class GameManager(Singleton):
                 convs.append(entry)
 
             base['conveyors'] = convs
-            # include applied upgrades so they persist
             base['upgrades'] = {
                 'speed_uses_used': getattr(self, 'speed_uses_used', 0),
-                'eff_uses_used': getattr(self, 'eff_uses_used', 0)
+                'eff_uses_used': getattr(self, 'eff_uses_used', 0),
+                'mine_uses_used': getattr(self, 'mine_uses_used', 0)
             }
-            # persist current score with the map
             try:
                 base['score'] = int(getattr(self, 'points', 0))
             except Exception:
                 base['score'] = getattr(self, 'points', 0)
-            # write combined file
+            
             os.makedirs(self.save_dir, exist_ok=True)
             with open(self.save_file, 'w', encoding='utf-8') as fh:
                 json.dump(base, fh, indent=2)
@@ -609,12 +483,265 @@ class GameManager(Singleton):
             print("Failed to save map:", e)
 
     def save_and_exit(self):
-        self.save_map()
-        print("Exiting game after save.")
-        pg.quit()
-        sys.exit()
+        # Guardar y volver al menú principal en vez de cerrar la app
+        try:
+            self.save_map()
+        except Exception:
+            pass
+        print("Guardado completado. Regresando al menú principal.")
+        # parar el loop del juego para que la llamada a game.run() regrese
+        self.running = False
+#region update
+    def update(self):
+        """Delegamos el loop de update a gm_update.py"""
+        try:
+            gm_update(self)
+        except Exception:
+            pass
+#region draw
+    def draw(self):
+        """Delegamos el loop de draw a gm_draw.py"""
+        try:
+            gm_draw(self)
+        except Exception:
+            pass
+#region checkEvents
+    def checkEvents(self):
+        for event in pg.event.get():
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                pos = event.pos
+                over_ui = False
+                try:
+                    if self.hud and self.hud.is_over_button(pos):
+                        over_ui = True
+                except Exception:
+                    over_ui = False
 
+                if not over_ui:
+                    self.mouse.checkClickEvent(event)
+
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                self.running = False
+                self.save_and_exit()
+
+            #gestion de teclas
+            if event.type == pg.KEYDOWN:
+                    #se activa modo construccion
+                    if event.key == pg.K_b: #b ded bulldozer para destruir por ahora
+                            
+                            self.setState(self.destroyState)  
+                    if event.key == pg.K_m:
+                            self.setState(self.buildState)
+                            self.state.setFactory(MulModuleCreator())
+                    if event.key == pg.K_BACKSPACE:
+                            self.setState(self.normalState)
+                    if event.key == pg.K_v:
+                            self.setState(self.buildState)
+                            self.state.setFactory(SumModuleCreator()) 
+                    if event.key == pg.K_n:
+                            self.setState(self.buildState)
+                            self.state.setFactory(DivModuleCreator())       
+
+            #pulsacion de raton
+            if event.type == pg.MOUSEBUTTONUP and event.button == 1:
+                if self.save_button_rect.collidepoint(event.pos):
+                    self.save_and_exit()
+                if self.hud and self.hud.save_button.collidepoint(event.pos):
+                    self.save_and_exit()
+
+                if self.hud and self.hud.shop_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "SHOP":
+                        self.hud.shop_mode = None
+                    else:
+                        self.hud.shop_mode = "SHOP"
+                    self.hud._setup_buttons()
+                if self.hud and self.hud.build_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "BUILD":
+                        self.hud.shop_mode = None
+                    else:
+                        self.hud.shop_mode = "BUILD"
+                    self.hud._setup_buttons()
+                #si la tienda esta abierta
+                if self.hud and self.hud.destroy_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "DESTROY":
+                        self.hud.shop_mode = None
+                    else:
+                        self.hud.shop_mode = "DESTROY"
+                    self.hud._setup_buttons()
+
+                elif self.hud and self.hud.shop_mode == "BUILD":
+                    if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
+                        pass
+                    elif self.hud and self.hud.mul_module_button.collidepoint(event.pos):
+                        pass
+                    elif self.hud and self.hud.div_module_button.collidepoint(event.pos):
+                        pass
+                
+
+                elif self.hud and self.hud.shop_mode == "SHOP":
+                    # enqueue upgrade actions (global)
+                    if self.hud and self.hud.speed_button.collidepoint(event.pos):
+                        # avoid enqueueing more than remaining capacity (max 10 uses total)
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'speed')
+                        if queued + self.speed_uses_used >= 10:
+                            print("No speed upgrades available to queue")
+                        elif queued >= 1:
+                            # already have a pending speed action; ignore extra clicks
+                            print("Ya hay una Mejora Velocidad pendiente")
+                        elif getattr(self, 'points', 0) < (self.speed_costs[self.speed_uses_used] if 0 <= self.speed_uses_used < len(self.speed_costs) else float('inf')):
+                            print("No tienes puntos suficientes para Mejora Velocidad")
+                        else:
+                            # append action (will be processed in update())
+                            self.action_buffer.append({'type': 'speed', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Speed upgrade action (queue size={len(self.action_buffer)})")
+
+                    elif self.hud and self.hud.efficiency_button.collidepoint(event.pos):
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'eff')
+                        if queued + self.eff_uses_used >= 10:
+                            print("No efficiency upgrades available to queue")
+                        elif queued >= 1:
+                            print("Ya hay una Mejora Eficiencia pendiente")
+                        elif getattr(self, 'points', 0) < (self.eff_costs[self.eff_uses_used] if 0 <= self.eff_uses_used < len(self.eff_costs) else float('inf')):
+                            print("No tienes puntos suficientes para Mejora Eficiencia")
+                        
+                        else:
+                            self.action_buffer.append({'type': 'eff', 'tries': 0, 'max_tries': 30})
+                            print(f"Queued Efficiency upgrade action (queue size={len(self.action_buffer)})")
+
+                    elif self.hud and self.hud.new_mine_button.collidepoint(event.pos):
+                        # enqueue a 'mine' purchase action (similar to speed/eff)
+                        queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
+                        if queued + self.mine_uses_used >= 10:
+                            print("No hay compras de Mina disponibles para poner en cola")
+                        elif queued >= 1:
+                            print("Ya hay una compra de Mina pendiente")
+                        else:
+                            # determine next cost
+                            next_cost = None
+                            try:
+                                if 0 <= self.mine_uses_used < len(self.mine_costs):
+                                    next_cost = int(self.mine_costs[self.mine_uses_used])
+                            except Exception:
+                                next_cost = None
+
+                            if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+                                print("No tienes puntos suficientes para comprar una Mina")
+                            else:
+                                self.action_buffer.append({'type': 'mine', 'tries': 0, 'max_tries': 30})
+                                print(f"Queued Mine purchase action (queue size={len(self.action_buffer)})")
+                    elif self.hud and self.hud.shop_button.collidepoint(event.pos):
+                        print("Has pulsado el botón nuevo")
+                        self.hud.show_popup("¡Botón activado!") 
+            self.state.handleClickEvent(event)
+    def run(self):
+        while self.running:
+            self.checkEvents()
+            self.update()
+            self.draw()
+#region setState
+
+    def setState(self,state):
+        self.state= state
+        
+    def canAffordBuilding(self, creator) -> bool:
+        #comprueba que hay puntos suficientes para construir la estructura, el coste se guarda en creator
+        cost = creator.getCost()
+        return getattr(self, 'points', 0) >= cost
+    def spendPoints(self, amount: int):
+        # resta los puntos gastados impidendo que sea negativoS
+        self.points = max(0, getattr(self, 'points', 0) - amount)
     
+    def create_new_mine(self) -> bool:
+        """Locate a random empty cell and create/place a Mine that produces 1.
+        Used by external gm_upgrades logic.
+        """
+        if not hasattr(self, 'map') or self.map is None:
+            return False
+
+        width = int(getattr(self.map, 'width', 0))
+        height = int(getattr(self.map, 'height', 0))
+        if width <= 0 or height <= 0:
+            return False
+
+        max_tries = width * height * 2
+        tries = 0
+        while tries < max_tries:
+            x = random.randrange(0, width)
+            y = random.randrange(0, height)
+            cell = self.map.getCell(x, y)
+            if cell and cell.isEmpty():
+                try:
+                    mine = MineCreator().createStructure((x, y), 1, self)
+                    ok = self.map.placeStructure(x, y, mine)
+                    if ok:
+                        try:
+                            if not hasattr(self, 'structures'):
+                                self.structures = []
+                            self.structures.append(mine)
+                        except Exception:
+                            pass
+                        if not hasattr(self, 'mine') or self.mine is None:
+                            self.mine = mine
+                        try:
+                            self._popup_message = f"Mina creada en ({x},{y})"
+                            self._popup_timer = 2000
+                        except Exception:
+                            pass
+                        print(f"Nueva mina creada en {x},{y}")
+                        return True
+                except Exception as e:
+                    print("Fallo al crear mina:", e)
+            tries += 1
+
+        return False
+
+    def _apply_mine_action(self) -> bool:
+        """Attempt to purchase and create a new mine in a random empty cell.
+
+        Returns True on success, False to retry later (e.g., no empty cells or insufficient points).
+        """
+        # determine next cost
+        try:
+            next_cost = int(self.mine_costs[self.mine_uses_used]) if 0 <= self.mine_uses_used < len(self.mine_costs) else None
+        except Exception:
+            next_cost = None
+
+        if next_cost is None or getattr(self, 'points', 0) < (next_cost or 0):
+            print("[Action] Not enough points to purchase Mine; will retry")
+            return False
+
+        # attempt to create a new mine; create_new_mine will set a popup message on success
+        created = False
+        try:
+            created = self.create_new_mine()
+        except Exception:
+            created = False
+
+        if not created:
+            # no empty cell or creation failed; retry a few times
+            print("[Action] Failed to place Mine; will retry")
+            return False
+
+        # commit the purchase: deduct points and decrement available uses
+        try:
+            self.mine_uses_used += 1
+            self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+            if next_cost is not None:
+                try:
+                    self.points = max(0, int(self.points) - int(next_cost))
+                except Exception:
+                    try:
+                        self.points -= next_cost
+                    except Exception:
+                        pass
+            # ensure there's a popup if create_new_mine didn't set one
+            if self.hud:
+                self.hud.show_popup(f"Mina creada ({self.mine_uses_left} restantes)")
+            print(f"[Action] Mine purchase applied (uses left={self.mine_uses_left}) | -{next_cost} pts (total={self.points})")
+            return True
+        except Exception:
+            return True
+
     # ---- Action buffer processing ----
     def process_action_buffer(self, max_per_frame: int = 5):
         """Process up to `max_per_frame` queued upgrade actions.
@@ -636,6 +763,11 @@ class GameManager(Singleton):
             elif action.get('type') == 'eff':
                 try:
                     ok = self._apply_eff_action()
+                except Exception:
+                    ok = False
+            elif action.get('type') == 'mine':
+                try:
+                    ok = self._apply_mine_action()
                 except Exception:
                     ok = False
 
@@ -692,6 +824,15 @@ class GameManager(Singleton):
                 pass
 
         if applied > 0:
+            # also update global production interval for mines so speed upgrades
+            # affect production frequency (use same multiplier as conveyors)
+            try:
+                if not hasattr(self, '_base_production_interval'):
+                    self._base_production_interval = 2000
+                # compute new production interval using the same multiplier
+                self.production_interval = max(100, int(self._base_production_interval * multiplier))
+            except Exception:
+                pass
             # commit the use and subtract points
             self.speed_uses_used += 1
             self.speed_uses_left = max(0, 10 - self.speed_uses_used)
@@ -703,6 +844,12 @@ class GameManager(Singleton):
                         self.points -= next_cost
                     except Exception:
                         pass
+            # show popup for user feedback
+            try:
+                self._popup_message = f"Mejora Velocidad aplicada ({self.speed_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
             print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={self.points})")
             return True
 
@@ -793,6 +940,22 @@ class GameManager(Singleton):
                             pass
 
         if applied > 0:
+            # update in-flight items on conveyors so they reflect the new efficiency
+            # The efficiency upgrade increments mine output by +1 per use in this implementation,
+            # so add the same delta to all queued numeric items so wells see the increased values
+            try:
+                delta = 1
+                for conv in getattr(self, 'conveyors', []):
+                    try:
+                        for item in conv.queue:
+                            try:
+                                item['value'] = int(item.get('value', 0)) + delta
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+            except Exception:
+                pass
             # commit the use and subtract points
             self.eff_uses_used += 1
             self.eff_uses_left = max(0, 10 - self.eff_uses_used)
@@ -804,98 +967,13 @@ class GameManager(Singleton):
                         self.points -= next_cost
                     except Exception:
                         pass
+            # popup for efficiency
+            try:
+                self._popup_message = f"Mejora Eficiencia aplicada ({self.eff_uses_left})"
+                self._popup_timer = 2000
+            except Exception:
+                pass
             print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={self.points})")
             return True
 
         return False
-    def _reconnect_structures(self):
-        """Re-establish connections between structures and conveyors after loading from save."""
-        # Find structures by their grid position
-        def find_structure_at(grid_x, grid_y):
-            if 0 <= grid_y < len(self.map.cells) and 0 <= grid_x < len(self.map.cells[grid_y]):
-                cell = self.map.cells[grid_y][grid_x]
-                if not cell.isEmpty():
-                    return cell.structure
-            return None
-
-        # Connect conveyors to structures based on their start/end positions
-        for conv in self.conveyors:
-            start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
-            start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
-            end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-            end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-
-            start_struct = find_structure_at(start_grid_x, start_grid_y)
-            end_struct = find_structure_at(end_grid_x, end_grid_y)
-
-            # Connect source structure to conveyor
-            if start_struct:
-                if hasattr(start_struct, 'connectOutput'):
-                    start_struct.connectOutput(conv)
-                elif hasattr(start_struct, 'connectOutput1'):
-                    # For splitters, use Y position to determine which output
-                    # If conveyor goes upward (end_y < start_y), use output1
-                    # If conveyor goes downward (end_y > start_y), use output2
-                    if conv.end_pos.y < start_struct.position.y:
-                        start_struct.connectOutput1(conv)
-                        print(f"[Reconnect] Connected splitter output1 (upper path)")
-                    else:
-                        start_struct.connectOutput2(conv)
-                        print(f"[Reconnect] Connected splitter output2 (lower path)")
-
-            # Connect conveyor to destination structure
-            if end_struct:
-                if hasattr(end_struct, 'connectInput'):
-                    end_struct.connectInput(conv)
-                elif hasattr(end_struct, 'connectInput1'):
-                    # For mergers, use Y position to determine which input
-                    # If conveyor comes from above (start_y < end_y), use input1
-                    # If conveyor comes from below (start_y > end_y), use input2
-                    if conv.start_pos.y < end_struct.position.y:
-                        end_struct.connectInput1(conv)
-                        print(f"[Reconnect] Connected merger input1 (from above)")
-                    else:
-                        end_struct.connectInput2(conv)
-                        print(f"[Reconnect] Connected merger input2 (from below)")
-
-        # Connect conveyors to each other (chain)
-        for i, conv in enumerate(self.conveyors):
-            # Check if this conveyor's end connects to another conveyor's start
-            for other_conv in self.conveyors:
-                if conv != other_conv:
-                    if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
-                        int(conv.end_pos.y) == int(other_conv.start_pos.y)):
-                        
-                        # Only connect if there is NO structure at this junction
-                        # If there is a structure, the structure handles the transfer
-                        grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-                        grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-                        struct = find_structure_at(grid_x, grid_y)
-                        
-                        if struct is None:
-                            conv.connectOutput(other_conv)
-                            print(f"[Reconnect] Connected conveyor {i} to conveyor")
-                        else:
-                            print(f"[Reconnect] Skipping direct conveyor connection at {grid_x},{grid_y} due to structure {struct.__class__.__name__}")
-
-        # Re-establish reference to first and last conveyors
-        if len(self.conveyors) > 0:
-            # Find mine and well to set first/last conveyor references
-            for row in self.map.cells:
-                for cell in row:
-                    if not cell.isEmpty():
-                        if cell.structure.__class__.__name__ == 'Mine':
-                            self.mine = cell.structure
-                        elif cell.structure.__class__.__name__ == 'Well':
-                            self.well = cell.structure
-
-            # Set final conveyor (last one that connects to well)
-            if hasattr(self, 'well') and self.well:
-                for conv in self.conveyors:
-                    end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-                    end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-                    well_grid_x = int(self.well.position.x) // CELL_SIZE_PX
-                    well_grid_y = int(self.well.position.y) // CELL_SIZE_PX
-                    if end_grid_x == well_grid_x and end_grid_y == well_grid_y:
-                        self.final_conveyor = conv
-                        break
