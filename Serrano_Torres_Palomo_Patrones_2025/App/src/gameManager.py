@@ -5,6 +5,13 @@ import json
 import random
 from collections import deque
 
+from buildState import BuildState
+from core.divModuleCreator import DivModuleCreator
+from core.mulModuleCreator import MulModuleCreator
+from core.sumModuleCreator import SumModuleCreator
+from destroyState import DestroyState
+from normalState import NormalState
+from placementController import PlacementController
 from settings import *
 # Módulos delegados (modularización)
 from gm_init import init_pygame, init_paths, init_ui, init_counters, init_well_positions
@@ -55,6 +62,12 @@ class GameManager(Singleton):
     def new_game(self):
         """Inicializa los elementos del juego: carga mapa si existe o crea uno por defecto."""
         self.mouse = MouseControl(self)
+        #modo normal o construccion
+        
+        self.normalState= NormalState(self.mouse)
+        self.buildState= BuildState(PlacementController(self,None))
+        self.destroyState= DestroyState(PlacementController(self,None))
+        self.state= self.normalState
 
         # Mapeo de creadores para la carga
         creators = {
@@ -518,6 +531,25 @@ class GameManager(Singleton):
                 self.running = False
                 self.save_and_exit()
 
+            #gestion de teclas
+            if event.type == pg.KEYDOWN:
+                    #se activa modo construccion
+                    if event.key == pg.K_b: #b ded bulldozer para destruir por ahora
+                            
+                            self.setState(self.destroyState)  
+                    if event.key == pg.K_m:
+                            self.setState(self.buildState)
+                            self.state.setFactory(MulModuleCreator())
+                    if event.key == pg.K_BACKSPACE:
+                            self.setState(self.normalState)
+                    if event.key == pg.K_v:
+                            self.setState(self.buildState)
+                            self.state.setFactory(SumModuleCreator()) 
+                    if event.key == pg.K_n:
+                            self.setState(self.buildState)
+                            self.state.setFactory(DivModuleCreator())       
+
+            #pulsacion de raton
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                 if self.save_button_rect.collidepoint(event.pos):
                     self.save_and_exit()
@@ -535,24 +567,31 @@ class GameManager(Singleton):
                         self.hud.shop_mode = None
                     else:
                         self.hud.shop_mode = "BUILD"
+
                     self.hud._setup_buttons()
-                #si la tienda esta abierta
+                #boton destruir
                 if self.hud and self.hud.destroy_button.collidepoint(event.pos):
                     if self.hud.shop_mode == "DESTROY":
                         self.hud.shop_mode = None
+                        self.setState(self.normalState)
                     else:
                         self.hud.shop_mode = "DESTROY"
+                        self.setState(self.destroyState)
                     self.hud._setup_buttons()
 
+                #botones de construccion
                 elif self.hud and self.hud.shop_mode == "BUILD":
                     if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
-                        pass
+                        self.setState(self.buildState)
+                        self.state.setFactory(SumModuleCreator()) 
                     elif self.hud and self.hud.mul_module_button.collidepoint(event.pos):
-                        pass
+                        self.setState(self.buildState)
+                        self.state.setFactory(MulModuleCreator()) 
                     elif self.hud and self.hud.div_module_button.collidepoint(event.pos):
-                        pass
+                        self.setState(self.buildState)
+                        self.state.setFactory(DivModuleCreator()) 
                 
-
+                #Botones de tienda
                 elif self.hud and self.hud.shop_mode == "SHOP":
                     # enqueue upgrade actions (global)
                     if self.hud and self.hud.speed_button.collidepoint(event.pos):
@@ -607,12 +646,27 @@ class GameManager(Singleton):
                     elif self.hud and self.hud.shop_button.collidepoint(event.pos):
                         print("Has pulsado el botón nuevo")
                         self.hud.show_popup("¡Botón activado!") 
-
+            self.state.handleClickEvent(event)
     def run(self):
         while self.running:
             self.checkEvents()
             self.update()
             self.draw()
+#region setState
+
+    def setState(self,state):
+        self.state= state
+        
+    def canAffordBuilding(self, creator) -> bool:
+        #comprueba que hay puntos suficientes para construir la estructura, el coste se guarda en creator
+        cost = creator.getCost()
+        return getattr(self, 'points', 0) >= cost
+    def spendPoints(self, amount: int):
+        # resta los puntos gastados impidendo que sea negativoS
+        self.points = max(0, getattr(self, 'points', 0) - amount)
+    def addPoints(self, amount: int):
+        # suma puntos
+        self.points = getattr(self, 'points', 0) + amount
 
     def create_new_mine(self) -> bool:
         """Locate a random empty cell and create/place a Mine that produces 1.

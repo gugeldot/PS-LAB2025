@@ -30,4 +30,7 @@ class Cell:
 		s = self.structure
 		self.structure = None
 		return s
+	def getStructure(self):
+		"""Return the structure currently in the cell (or None)."""
+		return self.structure
 

@@ -99,8 +99,11 @@ def draw(gm):
         except:
             pass
 
-    # Dibujar cursor
+    # Dibujar cursor y preview de estructura si estamos en modo build
     try:
+        # esto dibuja la preview del build en caso de que estemos en modo build
+        if hasattr(gm.state, "draw"):
+            gm.state.draw()
         gm.mouse.draw()
     except:
         pass
