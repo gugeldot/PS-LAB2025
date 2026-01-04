@@ -19,11 +19,16 @@ class Mine(Structure):
         self.gameManager = gameManager
         self.radius = 15
         self.color = (255, 0, 0)  # rojo
+        self.outputConveyor = None  # Cinta de salida
 
     def update(self):
         '''
         '''
         pass
+    
+    def connectOutput(self, conveyor):
+        '''Conecta una cinta a la salida de la mina'''
+        self.outputConveyor = conveyor
     
     def produce(self, conveyor):
         # Use an effective upgraded number if present, else the base `number`.

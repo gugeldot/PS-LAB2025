@@ -85,7 +85,7 @@ class HUD:
         elif self.shop_mode == "BUILD":
             y_shop = up_pos
             y_build = up_pos + (self.button_height + self.button_margin)
-            y_destroy = y_build + (self.button_height + self.button_margin) * 4
+            y_destroy = y_build + (self.button_height + self.button_margin) * 7  # 6 botones BUILD + 1 espacio
         else:
             y_shop = up_pos
             y_build = up_pos + (self.button_height + self.button_margin)
@@ -146,6 +146,24 @@ class HUD:
         self.div_module_button = pg.Rect(
             self.right_margin,
             y_build + (self.button_height + self.button_margin) * 3,
+            self.button_width,
+            self.button_height
+        )
+        self.splitter_button = pg.Rect(
+            self.right_margin,
+            y_build + (self.button_height + self.button_margin) * 4,
+            self.button_width,
+            self.button_height
+        )
+        self.merger_button = pg.Rect(
+            self.right_margin,
+            y_build + (self.button_height + self.button_margin) * 5,
+            self.button_width,
+            self.button_height
+        )
+        self.conveyor_button = pg.Rect(
+            self.right_margin,
+            y_build + (self.button_height + self.button_margin) * 6,
             self.button_width,
             self.button_height
         )
@@ -382,10 +400,14 @@ class HUD:
             sum_cost = int(costs.get('sum', 15))
             mul_cost = int(costs.get('mul', 25))
             div_cost = int(costs.get('div', 35))
+            splitter_cost = int(costs.get('splitter', 20))
+            merger_cost = int(costs.get('merger', 20))
 
             can_buy_sum = getattr(self.game, 'points', 0) >= sum_cost
             can_buy_mul = getattr(self.game, 'points', 0) >= mul_cost
             can_buy_div = getattr(self.game, 'points', 0) >= div_cost
+            can_buy_splitter = getattr(self.game, 'points', 0) >= splitter_cost
+            can_buy_merger = getattr(self.game, 'points', 0) >= merger_cost
 
             self._draw_button(
                 screen,
@@ -410,6 +432,34 @@ class HUD:
                 mouse_pos,
                 can_use=can_buy_div,
                 sublabel=f"Coste: {div_cost}"
+            )
+            self._draw_button(
+                screen,
+                self.splitter_button,
+                f"Splitter",
+                mouse_pos,
+                can_use=can_buy_splitter,
+                sublabel=f"Coste: {splitter_cost}"
+            )
+            self._draw_button(
+                screen,
+                self.merger_button,
+                f"Merger",
+                mouse_pos,
+                can_use=can_buy_merger,
+                sublabel=f"Coste: {merger_cost}"
+            )
+            
+            # Botón de cintas transportadoras
+            conveyor_cost = 5
+            can_buy_conveyor = getattr(self.game, 'points', 0) >= conveyor_cost
+            self._draw_button(
+                screen,
+                self.conveyor_button,
+                f"Cinta Transportadora",
+                mouse_pos,
+                can_use=can_buy_conveyor,
+                sublabel=f"Coste: {conveyor_cost}"
             )
             
 
@@ -542,6 +592,9 @@ class HUD:
             getattr(self, 'sum_module_button', None),
             getattr(self, 'mul_module_button', None),
             getattr(self, 'div_module_button', None),
+            getattr(self, 'splitter_button', None),
+            getattr(self, 'merger_button', None),
+            getattr(self, 'conveyor_button', None),
             getattr(self, 'destroy_button', None),
         ]
 

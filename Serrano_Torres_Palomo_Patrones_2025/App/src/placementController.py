@@ -128,6 +128,10 @@ class PlacementController:
                                 refund = int(costs_map.get('mul', structure.getCost()))
                             elif 'div' in sname:
                                 refund = int(costs_map.get('div', structure.getCost()))
+                            elif 'splitter' in sname:
+                                refund = int(costs_map.get('splitter', structure.getCost()))
+                            elif 'merger' in sname:
+                                refund = int(costs_map.get('merger', structure.getCost()))
                         if refund is None:
                             refund = int(structure.getCost())
                     except Exception:
@@ -138,12 +142,7 @@ class PlacementController:
 
                     # Give the refund (matches displayed build cost)
                     self.gameManager.addPoints(refund)
-                    print(f"Estructura en {structure.grid_position} destruida.")
-                    # Volver a modo normal tras destruir
-                    try:
-                        self.gameManager.setState(self.gameManager.normalState)
-                    except Exception:
-                        pass
+                    print(f"Estructura en {structure.grid_position} destruida. Reembolso: {refund} pts")
             else:
                     print("Estructura no encontrada en la lista.")
 

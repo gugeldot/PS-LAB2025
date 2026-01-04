@@ -6,9 +6,10 @@ import random
 from collections import deque
 
 from buildState import BuildState
-from core.divModuleCreator import DivModuleCreator
+from conveyorBuildState import ConveyorBuildState
 from core.mulModuleCreator import MulModuleCreator
 from core.sumModuleCreator import SumModuleCreator
+from core.conveyorCreator import ConveyorCreator
 from destroyState import DestroyState
 from normalState import NormalState
 from placementController import PlacementController
@@ -75,8 +76,8 @@ class GameManager(Singleton):
             "Well": WellCreator(),
             "MergerModule": MergerCreator(),
             "SplitterModule": SplitterCreator(),
-            "SumModule": SumCreator(),
-            "MultiplyModule": MultiplyCreator(),
+            "SumModule": SumModuleCreator(),
+            "MulModule": MulModuleCreator(),
         }
 
         # Asegurar que existe el directorio de guardado
@@ -178,22 +179,17 @@ class GameManager(Singleton):
             print(f"No saved map found at {self.save_file}, creating default map.")
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
-            # Estructuras por defecto
-            mine = MineCreator().createStructure((2, 2), 1, self)
-            self.map.placeStructure(2, 2, mine)
+            # Estructuras por defecto: solo 1 mina y 1 pozo
+            mine = MineCreator().createStructure((5, 5), 1, self)
+            self.map.placeStructure(5, 5, mine)
 
-            splitter = SplitterCreator().createStructure((4, 2), self)
-            self.map.placeStructure(4, 2, splitter)
-
-            merger = MergerCreator().createStructure((6, 2), self)
-            self.map.placeStructure(6, 2, merger)
-
+            # Crear todos los pozos (1-10) en sus posiciones
             self.wells = []
             for idx, num in enumerate(range(1, 11)):
                 try:
                     pos = self.well_positions[idx]
                 except Exception:
-                    pos = (8 + idx, 2)
+                    pos = (10 + idx, 5)
                 w = WellCreator().createStructure(pos, num, self)
                 self.map.placeStructure(int(pos[0]), int(pos[1]), w)
                 # por defecto, todos los pozos salvo el primero estarán bloqueados
@@ -204,38 +200,21 @@ class GameManager(Singleton):
                         pass
                 self.wells.append(w)
 
-            conv1 = Conveyor(mine.position, splitter.position, self)
+            # Conectar mina al primer pozo con una sola cinta
+            target_well = self.wells[0]
+            conv1 = Conveyor(mine.position, target_well.position, self)
 
-            waypoint_up = pg.Vector2(merger.position.x - 40, merger.position.y - 40)
-            conv2 = Conveyor(splitter.position, waypoint_up, self)
-            conv2_merge = Conveyor(waypoint_up, merger.position, self)
-
-            waypoint_down = pg.Vector2(merger.position.x - 40, merger.position.y + 40)
-            conv3 = Conveyor(splitter.position, waypoint_down, self)
-            conv3_merge = Conveyor(waypoint_down, merger.position, self)
-
-            target_well = self.wells[0] if getattr(self, 'wells', None) and len(self.wells) > 0 else None
-            if target_well:
-                conv4 = Conveyor(merger.position, target_well.position, self)
-            else:
-                conv4 = Conveyor(merger.position, pg.Vector2(0, 0), self)
-
+            # Conexiones básicas
             try:
-                conv2.connectOutput(conv2_merge)
-                conv3.connectOutput(conv3_merge)
-                splitter.connectInput(conv1)
-                splitter.connectOutput1(conv2)
-                splitter.connectOutput2(conv3)
-                merger.connectInput1(conv2_merge)
-                merger.connectInput2(conv3_merge)
-                merger.connectOutput(conv4)
+                mine.connectOutput(conv1)
+                target_well.connectInput(conv1)
             except Exception:
                 pass
 
-            self.conveyors = [conv1, conv2, conv2_merge, conv3, conv3_merge, conv4]
+            self.conveyors = [conv1]
             self.mine = mine
-            self.well = target_well if target_well else None
-            self.final_conveyor = conv4
+            self.well = target_well
+            self.final_conveyor = conv1
             self.production_timer = 0
             self.consumption_timer = 0
             self.points = 0
@@ -282,6 +261,23 @@ class GameManager(Singleton):
                     return cell.structure
             return None
 
+        # Limpiar conexiones previas en todas las estructuras del mapa
+        for row in self.map.cells:
+            for cell in row:
+                if not cell.isEmpty():
+                    struct = cell.structure
+                    # Limpiar inputs
+                    if hasattr(struct, 'input1'): struct.input1 = None
+                    if hasattr(struct, 'input2'): struct.input2 = None
+                    if hasattr(struct, 'inputConveyor1'): struct.inputConveyor1 = None
+                    if hasattr(struct, 'inputConveyor2'): struct.inputConveyor2 = None
+                    # Limpiar outputs
+                    if hasattr(struct, 'output'): struct.output = None
+                    if hasattr(struct, 'outputConveyor'): struct.outputConveyor = None
+
+        # Primero, recopilar todas las cintas que llegan/salen de cada estructura
+        struct_connections = {}  # {structure: {'inputs': [conveyors], 'outputs': [conveyors]}}
+        
         for conv in self.conveyors:
             start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
             start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
@@ -291,24 +287,68 @@ class GameManager(Singleton):
             start_struct = find_structure_at(start_grid_x, start_grid_y)
             end_struct = find_structure_at(end_grid_x, end_grid_y)
 
+            # La cinta sale de start_struct (output para la estructura)
             if start_struct:
-                if hasattr(start_struct, 'connectOutput'):
-                    start_struct.connectOutput(conv)
-                elif hasattr(start_struct, 'connectOutput1'):
-                    if conv.end_pos.y < start_struct.position.y:
-                        start_struct.connectOutput1(conv)
-                    else:
-                        start_struct.connectOutput2(conv)
+                if start_struct not in struct_connections:
+                    struct_connections[start_struct] = {'inputs': [], 'outputs': []}
+                struct_connections[start_struct]['outputs'].append(conv)
 
+            # La cinta llega a end_struct (input para la estructura)
             if end_struct:
-                if hasattr(end_struct, 'connectInput'):
-                    end_struct.connectInput(conv)
-                elif hasattr(end_struct, 'connectInput1'):
-                    if conv.start_pos.y < end_struct.position.y:
-                        end_struct.connectInput1(conv)
-                    else:
-                        end_struct.connectInput2(conv)
+                if end_struct not in struct_connections:
+                    struct_connections[end_struct] = {'inputs': [], 'outputs': []}
+                struct_connections[end_struct]['inputs'].append(conv)
 
+        # Ahora conectar según el tipo de estructura
+        for struct, connections in struct_connections.items():
+            struct_type = struct.__class__.__name__.lower()
+            inputs = connections['inputs']
+            outputs = connections['outputs']
+
+            # MINAS: solo output
+            if 'mine' in struct_type:
+                if outputs and hasattr(struct, 'connectOutput'):
+                    struct.connectOutput(outputs[0])
+
+            # POZOS (WELLS): solo input
+            elif 'well' in struct_type:
+                if inputs and hasattr(struct, 'connectInput'):
+                    struct.connectInput(inputs[0])
+
+            # OPERADORES (suma, mul, div): 2 inputs, 1 output
+            elif any(x in struct_type for x in ['sum', 'mul', 'div', 'operation']):
+                # Conectar inputs (hasta 2)
+                if len(inputs) >= 1 and hasattr(struct, 'connectInput1'):
+                    struct.connectInput1(inputs[0])
+                if len(inputs) >= 2 and hasattr(struct, 'connectInput2'):
+                    struct.connectInput2(inputs[1])
+                # Conectar output
+                if outputs and hasattr(struct, 'connectOutput'):
+                    struct.connectOutput(outputs[0])
+
+            # MERGER: 2 inputs, 1 output
+            elif 'merger' in struct_type:
+                # Conectar inputs (hasta 2)
+                if len(inputs) >= 1 and hasattr(struct, 'connectInput1'):
+                    struct.connectInput1(inputs[0])
+                if len(inputs) >= 2 and hasattr(struct, 'connectInput2'):
+                    struct.connectInput2(inputs[1])
+                # Conectar output
+                if outputs and hasattr(struct, 'connectOutput'):
+                    struct.connectOutput(outputs[0])
+
+            # SPLITTER: 1 input, 2 outputs
+            elif 'splitter' in struct_type:
+                # Conectar input
+                if inputs and hasattr(struct, 'connectInput'):
+                    struct.connectInput(inputs[0])
+                # Conectar outputs (hasta 2)
+                if len(outputs) >= 1 and hasattr(struct, 'connectOutput1'):
+                    struct.connectOutput1(outputs[0])
+                if len(outputs) >= 2 and hasattr(struct, 'connectOutput2'):
+                    struct.connectOutput2(outputs[1])
+
+        # Conectar cintas entre sí (cuando una termina donde otra empieza)
         for i, conv in enumerate(self.conveyors):
             for other_conv in self.conveyors:
                 if conv != other_conv:
@@ -544,10 +584,7 @@ class GameManager(Singleton):
                             self.setState(self.normalState)
                     if event.key == pg.K_v:
                             self.setState(self.buildState)
-                            self.state.setFactory(SumModuleCreator()) 
-                    if event.key == pg.K_n:
-                            self.setState(self.buildState)
-                            self.state.setFactory(DivModuleCreator())       
+                            self.state.setFactory(SumModuleCreator())       
 
             #pulsacion de raton
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
@@ -557,12 +594,16 @@ class GameManager(Singleton):
                     self.save_and_exit()
 
                 if self.hud and self.hud.shop_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "DESTROY":
+                        self.setState(self.normalState)
                     if self.hud.shop_mode == "SHOP":
                         self.hud.shop_mode = None
                     else:
                         self.hud.shop_mode = "SHOP"
                     self.hud._setup_buttons()
                 if self.hud and self.hud.build_button.collidepoint(event.pos):
+                    if self.hud.shop_mode == "DESTROY":
+                        self.setState(self.normalState)
                     if self.hud.shop_mode == "BUILD":
                         self.hud.shop_mode = None
                     else:
@@ -586,10 +627,18 @@ class GameManager(Singleton):
                         self.state.setFactory(SumModuleCreator()) 
                     elif self.hud and self.hud.mul_module_button.collidepoint(event.pos):
                         self.setState(self.buildState)
-                        self.state.setFactory(MulModuleCreator()) 
-                    elif self.hud and self.hud.div_module_button.collidepoint(event.pos):
+                        self.state.setFactory(MulModuleCreator())
+                    elif self.hud and self.hud.splitter_button.collidepoint(event.pos):
                         self.setState(self.buildState)
-                        self.state.setFactory(DivModuleCreator()) 
+                        self.state.setFactory(SplitterCreator())
+                    elif self.hud and self.hud.merger_button.collidepoint(event.pos):
+                        self.setState(self.buildState)
+                        self.state.setFactory(MergerCreator())
+                    elif self.hud and self.hud.conveyor_button.collidepoint(event.pos):
+                        # Estado especial para cintas (requiere dos clicks)
+                        conveyorCreator = ConveyorCreator()
+                        conveyorBuildState = ConveyorBuildState(self, conveyorCreator)
+                        self.setState(conveyorBuildState) 
                 
                 #Botones de tienda
                 elif self.hud and self.hud.shop_mode == "SHOP":
@@ -699,6 +748,17 @@ class GameManager(Singleton):
                             pass
                         if not hasattr(self, 'mine') or self.mine is None:
                             self.mine = mine
+                        
+                        # Aplicar mejoras de eficiencia existentes a la nueva mina
+                        eff_used = getattr(self, 'eff_uses_used', 0)
+                        if eff_used > 0:
+                            try:
+                                mine._base_number = 1 + eff_used
+                                mine._effective_number = mine._base_number
+                                print(f"Applied {eff_used} efficiency upgrades to new mine -> effective number: {mine._effective_number}")
+                            except Exception as e:
+                                print(f"Failed to apply efficiency to new mine: {e}")
+                        
                         try:
                             self._popup_message = f"Mina creada en ({x},{y})"
                             self._popup_timer = 3000

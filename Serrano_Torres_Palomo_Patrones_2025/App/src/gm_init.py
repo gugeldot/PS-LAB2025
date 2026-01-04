@@ -48,6 +48,8 @@ def init_counters(gm):
         'sum': 15,
         'mul': 25,
         'div': 35,
+        'splitter': 20,
+        'merger': 20,
     }
     # Objetivos para desbloquear pozos (un objetivo por cada pozo)
     # Se comporta como los tuples de costes: 10 valores, uno por cada pozo

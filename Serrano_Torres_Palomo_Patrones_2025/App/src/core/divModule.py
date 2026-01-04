@@ -20,9 +20,13 @@ class DivModule(Module):
         self.outConveyor = None #para el cociente
         self.outConveyor2 = None #para el resto
         BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
-        IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "div-module.png"
-        self.img = pg.image.load(IMG_PATH).convert_alpha()
-        self.img = pg.transform.scale(self.img, (60, 60))
+        IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "div_module_minimal.png"
+        try:
+            self.img = pg.image.load(str(IMG_PATH)).convert_alpha()
+            self.img = pg.transform.scale(self.img, (40, 40))
+        except Exception as e:
+            print(f"Warning: Could not load div_module_minimal.png: {e}")
+            self.img = None
 
     def calcular(self):
         '''
@@ -38,8 +42,14 @@ class DivModule(Module):
     
     def draw(self):
         cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
-        draw_pos = (int(self.position.x - cam.x - 30), int(self.position.y - cam.y - 30))
-        self.gameManager.screen.blit(self.img, draw_pos)
+        draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
+        
+        if self.img:
+            sprite_rect = self.img.get_rect(center=draw_pos)
+            self.gameManager.screen.blit(self.img, sprite_rect)
+        else:
+            # Fallback: dibujar círculo si no hay sprite
+            pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
 
     def setConveyor(self, conveyor, position):
         if position == 1:
