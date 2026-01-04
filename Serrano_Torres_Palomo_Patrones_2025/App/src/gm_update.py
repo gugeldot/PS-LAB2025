@@ -50,22 +50,41 @@ def update(gm):
     gm.production_timer += gm.delta_time
     prod_int = int(getattr(gm, 'production_interval', getattr(gm, '_base_production_interval', 2000)))
     if gm.production_timer > prod_int:
-        if hasattr(gm, 'mine') and gm.mine and gm.conveyors:
-            gm.mine.produce(gm.conveyors[0])
+        # Iterar sobre todas las estructuras para encontrar minas y producir
+        structures = getattr(gm, 'structures', [])
+        for struct in structures:
+            if struct.__class__.__name__ == 'Mine':
+                # Verificar si tiene cinta de salida conectada
+                if hasattr(struct, 'outputConveyor') and struct.outputConveyor:
+                    try:
+                        struct.produce(struct.outputConveyor)
+                    except Exception:
+                        pass
         gm.production_timer = 0
 
-    # immediate consumption at the end of final conveyor
-    try:
-        if hasattr(gm, 'well') and gm.well and hasattr(gm, 'final_conveyor') and gm.final_conveyor is not None:
-            q = getattr(gm.final_conveyor, 'queue', None)
-            if q and len(q) > 0 and q[0].get('position', 0) >= 1.0:
-                try:
-                    gm.well.consume(gm.final_conveyor)
-                except Exception:
-                    pass
-    except Exception:
-        pass
-
+    # Consumo inmediato eliminado: ahora se maneja a través de las conexiones
+    # Conveyor.update() llama a outputConveyor.push(), que en el caso del Well maneja el consumo.
+    
+    # Process operation modules (SumModule, MulModule)
+    structures = getattr(gm, 'structures', [])
+    for struct in structures:
+        struct_type = struct.__class__.__name__
+        if struct_type in ['SumModule', 'MulModule']:
+            # Verificar si ambas cintas de entrada tienen items listos
+            if hasattr(struct, 'inConveyor1') and hasattr(struct, 'inConveyor2'):
+                conv1 = struct.inConveyor1
+                conv2 = struct.inConveyor2
+                
+                # Verificar que ambas cintas existen, tienen items y están listos
+                if (conv1 and conv2 and 
+                    hasattr(conv1, 'isReady') and hasattr(conv2, 'isReady') and
+                    conv1.isReady() and conv2.isReady() and
+                    hasattr(struct, 'outConveyor') and struct.outConveyor):
+                    try:
+                        struct.calcular()
+                    except Exception as e:
+                        print(f"Error in {struct_type}.calcular(): {e}")
+    
     # tick and caption
     gm.delta_time = gm.clock.tick(FPS)
     pg.display.set_caption(f'{gm.clock.get_fps() :.1f}')

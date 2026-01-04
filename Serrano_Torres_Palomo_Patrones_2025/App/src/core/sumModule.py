@@ -21,9 +21,13 @@ class SumModule(Module):
         BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent  # parent de src
 
         #  Construir la ruta de cualquier recurso en Assets
-        IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "sum-module.png"
-        self.img = pg.image.load(IMG_PATH).convert_alpha()
-        self.img = pg.transform.scale(self.img, (60, 60)) 
+        IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "sum_module_minimal.png"
+        try:
+            self.img = pg.image.load(str(IMG_PATH)).convert_alpha()
+            self.img = pg.transform.scale(self.img, (40, 40))
+        except Exception as e:
+            print(f"Warning: Could not load sum_module_minimal.png: {e}")
+            self.img = None 
 
     def calcular(self):
         '''
@@ -37,8 +41,14 @@ class SumModule(Module):
     
     def draw(self):
         cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
-        draw_pos = (int(self.position.x - cam.x - 30), int(self.position.y - cam.y - 30))
-        self.gameManager.screen.blit(self.img, draw_pos)
+        draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
+        
+        if self.img:
+            sprite_rect = self.img.get_rect(center=draw_pos)
+            self.gameManager.screen.blit(self.img, sprite_rect)
+        else:
+            # Fallback: dibujar círculo si no hay sprite
+            pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
     
         '''
         pg.draw.rect(self.gameManager.screen, (173, 216, 230), (self.position.x, self.position.y, 17, 17))
@@ -56,5 +66,14 @@ class SumModule(Module):
             self.inConveyor2 = conveyor
         elif position == 3:
             self.outConveyor = conveyor
+
+    def connectInput1(self, conveyor):
+        self.inConveyor1 = conveyor
+        
+    def connectInput2(self, conveyor):
+        self.inConveyor2 = conveyor
+
+    def connectOutput(self, conveyor):
+        self.outConveyor = conveyor
     def getCost(self):
         return 15

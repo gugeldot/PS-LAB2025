@@ -1,6 +1,7 @@
 import pygame as pg
 from settings import CELL_SIZE_PX
 from .structure import Structure
+import pathlib
 
 class OperationModule(Structure):
     def __init__(self, position, gameManager):
@@ -17,6 +18,10 @@ class OperationModule(Structure):
 
         self.radius = 15
         self.color = (255, 218, 185)  # Melocotón pastel (naranja suave)
+        
+        # Cargar sprite PNG
+        self.sprite = None
+        self._load_sprite()
 
     @property
     def input1(self):
@@ -60,6 +65,10 @@ class OperationModule(Structure):
     def connectOutput(self, conveyor):
         print(f"OperationModule at {self.grid_position}: connected output")
         self.output = conveyor
+    
+    def _load_sprite(self):
+        '''Cargar sprite PNG del módulo. Cada subclase debe sobreescribir para cargar su imagen'''
+        pass
 
     def update(self):
         self.process()
@@ -67,17 +76,28 @@ class OperationModule(Structure):
     def draw(self):
         cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
         draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
-        pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
-        # Draw operation symbol
-        font = pg.font.Font(None, 24)
-        text = font.render(self.get_symbol(), True, (255, 255, 255))
-        text_rect = text.get_rect(center=draw_pos)
-        self.gameManager.screen.blit(text, text_rect)
+        
+        # Si tenemos sprite, dibujarlo
+        if self.sprite:
+            sprite_rect = self.sprite.get_rect(center=draw_pos)
+            self.gameManager.screen.blit(self.sprite, sprite_rect)
+        else:
+            # Fallback: dibujar círculo si no hay sprite
+            pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
+            # Draw operation symbol
+            font = pg.font.Font(None, 24)
+            text = font.render(self.get_symbol(), True, (255, 255, 255))
+            text_rect = text.get_rect(center=draw_pos)
+            self.gameManager.screen.blit(text, text_rect)
 
     def get_symbol(self):
         return "?"
 
     def process(self):
+        # Verificar que tenemos ambos inputs y al menos un output
+        if not self.input1 or not self.input2:
+            return
+        
         if not self.output:
             return
         
@@ -108,6 +128,19 @@ class SumModule(OperationModule):
     
     def operate(self, a, b):
         return a + b
+    
+    def _load_sprite(self):
+        '''Cargar sprite PNG de sum_module_minimal'''
+        try:
+            base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
+            sprite_path = base_dir / "Assets" / "Sprites" / "sum_module_minimal.png"
+            if sprite_path.exists():
+                self.sprite = pg.image.load(str(sprite_path)).convert_alpha()
+                self.sprite = pg.transform.scale(self.sprite, (40, 40))
+            else:
+                print(f"Warning: sum_module_minimal.png not found at {sprite_path}")
+        except Exception as e:
+            print(f"Warning: Could not load sum_module_minimal sprite: {e}")
 
 class MultiplyModule(OperationModule):
     def get_symbol(self):
@@ -115,3 +148,38 @@ class MultiplyModule(OperationModule):
     
     def operate(self, a, b):
         return a * b
+    
+    def _load_sprite(self):
+        '''Cargar sprite PNG de mul_module_minimal'''
+        try:
+            base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
+            sprite_path = base_dir / "Assets" / "Sprites" / "mul_module_minimal.png"
+            if sprite_path.exists():
+                self.sprite = pg.image.load(str(sprite_path)).convert_alpha()
+                self.sprite = pg.transform.scale(self.sprite, (40, 40))
+            else:
+                print(f"Warning: mul_module_minimal.png not found at {sprite_path}")
+        except Exception as e:
+            print(f"Warning: Could not load mul_module_minimal sprite: {e}")
+
+class DivModule(OperationModule):
+    def get_symbol(self):
+        return "÷"
+    
+    def operate(self, a, b):
+        if b != 0:
+            return a // b  # División entera
+        return 0
+    
+    def _load_sprite(self):
+        '''Cargar sprite PNG de div_module_minimal'''
+        try:
+            base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
+            sprite_path = base_dir / "Assets" / "Sprites" / "div_module_minimal.png"
+            if sprite_path.exists():
+                self.sprite = pg.image.load(str(sprite_path)).convert_alpha()
+                self.sprite = pg.transform.scale(self.sprite, (40, 40))
+            else:
+                print(f"Warning: div_module_minimal.png not found at {sprite_path}")
+        except Exception as e:
+            print(f"Warning: Could not load div_module_minimal sprite: {e}")

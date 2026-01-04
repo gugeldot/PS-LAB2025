@@ -112,6 +112,25 @@ class Well(Structure):
         
         return points
     
+    def _get_current_mine_number(self):
+        '''Obtiene el número efectivo actual de la mina que corresponde a este pozo'''
+        try:
+            # Buscar todas las minas en el mapa
+            for row in self.gameManager.map.cells:
+                for cell in row:
+                    if not cell.isEmpty():
+                        struct = cell.getStructure()
+                        if struct.__class__.__name__ == 'Mine':
+                            # Verificar si esta mina corresponde a este pozo (mismo número base)
+                            mine_base_number = getattr(struct, 'number', 0)
+                            if mine_base_number == self.consumingNumber:
+                                # Retornar el número efectivo (mejorado) de la mina
+                                return getattr(struct, '_effective_number', mine_base_number)
+        except Exception:
+            pass
+        # Si no se encuentra la mina, usar el consumingNumber base
+        return self.consumingNumber
+    
     def connectInput(self, conveyor):
         '''Permite que el sistema de reconexión conecte una cinta al pozo'''
         # En el caso del pozo, la cinta debe saber que su salida es el pozo
@@ -125,14 +144,21 @@ class Well(Structure):
             # consume attempt ignored
             return
 
-        if number is not None and number == self.consumingNumber:
-            # Usar los puntos predefinidos basados en dificultad, no el número consumido
-            points = getattr(self, 'points_reward', number)
-            try:
-                self.gameManager.points += points
-            except Exception:
-                pass
-            print(f"Well consumed {number}! +{points} points | Total: {getattr(self.gameManager, 'points', 0)}")
+        # Siempre consume el número (lo hace desaparecer)
+        if number is not None:
+            # Verificar si el número es múltiplo del consumingNumber base
+            # Esto permite que números mejorados (2x, 3x, etc.) sean aceptados
+            if number % self.consumingNumber == 0 and number > 0:
+                # Calcular puntos dinámicamente basándose en el número recibido
+                points = self._calculate_points_by_difficulty(number)
+                try:
+                    self.gameManager.points += points
+                except Exception:
+                    pass
+                print(f"Well consumed {number}! +{points} points | Total: {getattr(self.gameManager, 'points', 0)}")
+            else:
+                # Número incorrecto: se consume pero no suma puntos
+                print(f"Well rejected {number} (expected multiple of {self.consumingNumber}), no points awarded")
             # avisar al gameManager para comprobar si hay que desbloquear pozos
             try:
                 if hasattr(self.gameManager, 'unlock_next_well_if_needed'):
@@ -161,8 +187,10 @@ class Well(Structure):
         text_rect = text.get_rect(center=draw_pos)
         self.gameManager.screen.blit(text, text_rect)
 
-        # Mostrar puntos predefinidos basados en dificultad
-        points_value = getattr(self, 'points_reward', self.consumingNumber)
+        # Calcular puntos dinámicamente basándose en el número actual que la mina produciría
+        # Buscar la mina correspondiente para obtener su número efectivo
+        current_mine_number = self._get_current_mine_number()
+        points_value = self._calculate_points_by_difficulty(current_mine_number)
 
         if self.coin_img:
             coin_x = int(self.position.x - cam.x - 25)

@@ -16,7 +16,19 @@ class Conveyor(Structure):
         self.queue = deque()
         self.width = 12  # Más ancho para mejor visibilidad
         self.color = (189, 195, 199)  # Gris plateado pastel
-        self.travel_time = 2000
+        
+        # Calcular longitud de la cinta en píxeles
+        self.length = (self.end_pos - self.start_pos).length()
+        
+        # Velocidad constante en píxeles por segundo
+        self.pixels_per_second = 100.0  # Ajustable
+        
+        # Calcular travel_time basado en la longitud
+        if self.length > 0:
+            self.travel_time = (self.length / self.pixels_per_second) * 1000  # Convertir a ms
+        else:
+            self.travel_time = 100  # Mínimo para cintas de longitud 0
+        
         self.outputConveyor = None
         
     def push(self, number):
