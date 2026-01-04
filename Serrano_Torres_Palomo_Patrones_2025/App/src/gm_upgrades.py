@@ -71,7 +71,7 @@ def apply_mine_action(gm) -> bool:
         if not getattr(gm, '_popup_message', None):
             try:
                 gm._popup_message = f"Mina creada ({gm.mine_uses_left} restantes)"
-                gm._popup_timer = 2000
+                gm._popup_timer = 3000
             except Exception:
                 pass
         print(f"[Action] Mine purchase applied (uses left={gm.mine_uses_left}) | -{next_cost} pts (total={gm.points})")
@@ -129,7 +129,7 @@ def apply_speed_action(gm) -> bool:
                     pass
         try:
             gm._popup_message = f"Mejora Velocidad aplicada ({gm.speed_uses_left})"
-            gm._popup_timer = 2000
+            gm._popup_timer = 3000
         except Exception:
             pass
         print(f"[Action] Speed upgrade applied (uses left={gm.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={gm.points})")
@@ -236,7 +236,7 @@ def apply_eff_action(gm) -> bool:
                     pass
         try:
             gm._popup_message = f"Mejora Eficiencia aplicada ({gm.eff_uses_left})"
-            gm._popup_timer = 2000
+            gm._popup_timer = 3000
         except Exception:
             pass
         print(f"[Action] Efficiency upgrade applied (uses left={gm.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={gm.points})")

@@ -45,7 +45,8 @@ def init_counters(gm):
     gm.eff_costs = (16, 18, 20, 22, 24, 28, 32, 36, 40, 50)
     # Objetivos para desbloquear pozos (un objetivo por cada pozo)
     # Se comporta como los tuples de costes: 10 valores, uno por cada pozo
-    gm.well_objectives = (30, 50, 100, 200, 500, 800, 1200, 1600, 2000, 5000)
+    #gm.well_objectives = (30, 50, 100, 200, 500, 800, 1200, 1600, 2000, 5000)
+    gm.well_objectives = (0,10,20,30,40,50,60,70,80,90)  # Para pruebas rápidas
     gm.action_buffer = deque()
 
 def init_well_positions(gm):
