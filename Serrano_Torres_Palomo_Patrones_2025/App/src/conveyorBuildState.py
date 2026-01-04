@@ -103,6 +103,16 @@ class ConveyorBuildState(GameState):
                     
                     # Volver al estado normal
                     self.start_pos = None
+                    # Clear HUD build mode so toggles behave correctly
+                    try:
+                        if hasattr(self.gameManager, 'hud') and getattr(self.gameManager, 'hud'):
+                            try:
+                                self.gameManager.hud.shop_mode = None
+                                self.gameManager.hud._setup_buttons()
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
                     if hasattr(self.gameManager, 'normalState'):
                         self.gameManager.setState(self.gameManager.normalState)
                 else:
@@ -112,6 +122,16 @@ class ConveyorBuildState(GameState):
         # ESC para cancelar
         elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             self.start_pos = None
+            # Clear HUD build mode when cancelling
+            try:
+                if hasattr(self.gameManager, 'hud') and getattr(self.gameManager, 'hud'):
+                    try:
+                        self.gameManager.hud.shop_mode = None
+                        self.gameManager.hud._setup_buttons()
+                    except Exception:
+                        pass
+            except Exception:
+                pass
             if hasattr(self.gameManager, 'normalState'):
                 self.gameManager.setState(self.gameManager.normalState)
     
