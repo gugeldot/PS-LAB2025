@@ -87,7 +87,11 @@ def update(gm):
     
     # tick and caption
     gm.delta_time = gm.clock.tick(FPS)
-    pg.display.set_caption(f'{gm.clock.get_fps() :.1f}')
+    # Mantener título fijo y evitar mostrar los FPS en la ventana
+    try:
+        pg.display.set_caption("Number Tycoon")
+    except Exception:
+        pass
 
     # Update HUD (handles popup timer centrally)
     try:

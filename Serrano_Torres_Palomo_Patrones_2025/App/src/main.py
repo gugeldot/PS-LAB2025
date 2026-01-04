@@ -27,22 +27,12 @@ if __name__ == '__main__':
             except Exception:
                 mixer_inited = False
 
-        print(f"[AUDIO DEBUG] mixer initialized: {mixer_inited}")
-        print(f"[AUDIO DEBUG] checking music path: {music_path}")
-        print(f"[AUDIO DEBUG] music file exists: {music_path.exists()}")
 
         if music_path.exists() and mixer_inited:
-            try:
-                pg.mixer.music.load(str(music_path))
-                print(f"[AUDIO DEBUG] music loaded OK")
-                try:
-                    pg.mixer.music.set_volume(0.6)
-                except Exception as ve:
-                    print(f"[AUDIO DEBUG] set_volume failed: {ve}")
-                pg.mixer.music.play(-1)
-                print(f"[AUDIO DEBUG] music play requested; playing? {pg.mixer.music.get_busy()}")
-            except Exception as e:
-                print(f"[AUDIO DEBUG] failed to load/play music: {e}")
+            pg.mixer.music.load(str(music_path))
+            print(f"[AUDIO DEBUG] music loaded OK")
+            pg.mixer.music.set_volume(0.6)
+            pg.mixer.music.play(-1)
         else:
             if not music_path.exists():
                 print("[AUDIO DEBUG] music file not found; will not play background music.")
@@ -52,6 +42,21 @@ if __name__ == '__main__':
         print(f"[AUDIO DEBUG] unexpected error initializing music: {e}")
 
     screen = pg.display.set_mode(RESOLUTION)
+    # Establecer el icono de la ventana si existe
+    try:
+        import pathlib
+        base_dir = pathlib.Path(__file__).resolve().parent
+        app_dir = base_dir.parent
+        icon_path = app_dir / "Assets" / "icon.png"
+        if icon_path.exists():
+            try:
+                icon_surf = pg.image.load(str(icon_path)).convert_alpha()
+                pg.display.set_icon(icon_surf)
+            except Exception as e:
+                print(f"[ICON DEBUG] failed to load/set icon: {e}")
+    except Exception:
+        pass
+
     pg.display.set_caption("Number Tycoon")
     
     # Loop principal: mostrar el menú, y si se inicia un juego y vuelve, mostrar el menú de nuevo

@@ -11,7 +11,11 @@ def init_pygame(gm):
     # para que la pista suene desde el menú principal y permanezca hasta el
     # cierre completo de la aplicación.
     gm.screen = pg.display.set_mode(RESOLUTION)
-    pg.display.set_caption("Jueguito")
+    # Asegurar que el título de la ventana sea el esperado
+    try:
+        pg.display.set_caption("Number Tycoon")
+    except Exception:
+        pass
     gm.clock = pg.time.Clock()
     gm.delta_time = 1
     gm.camera = pg.Vector2(0, 0)

@@ -159,7 +159,11 @@ class MainMenu:
 
     def update(self):
         self.clock.tick(FPS)
-        pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
+        # Mantener el título fijo en lugar de mostrar los FPS
+        try:
+            pg.display.set_caption("Number Tycoon")
+        except Exception:
+            pass
 
     def handle_events(self):
         for event in pg.event.get():
