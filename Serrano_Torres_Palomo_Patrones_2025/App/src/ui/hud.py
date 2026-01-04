@@ -239,9 +239,31 @@ class HUD:
     
     def draw(self, screen, mouse_pos):
         """Dibuja todos los elementos del HUD"""
+        # Dibujar una zona semitransparente que indica "área no clickable del mapa"
+        try:
+            self._draw_blocked_area(screen)
+        except Exception:
+            pass
         self._draw_points_display(screen)
         self._draw_buttons(screen, mouse_pos)
         self._draw_popup(screen)
+
+    def _draw_blocked_area(self, screen):
+        """Dibuja un rectángulo semitransparente sobre la franja del HUD para
+        indicar que por ahí no se puede clickar el mapa (evita clicks 'pasantes').
+        Se dibuja detrás de los botones para no interferir visualmente.
+        """
+        try:
+            # Mantener la posición izquierda (no moverla) pero extender
+            # el rectángulo hasta el borde derecho de la pantalla.
+            strip_x = max(0, self.right_margin - 8)
+            strip_w = WIDTH - strip_x
+            s = pg.Surface((strip_w, HEIGHT), pg.SRCALPHA)
+            # color oscuro con baja opacidad
+            s.fill((0, 0, 0, 80))
+            screen.blit(s, (strip_x, 0))
+        except Exception:
+            pass
     
     def _draw_points_display(self, screen):
         """Dibuja el contador de puntos con estilo minimalista"""
@@ -582,6 +604,17 @@ class HUD:
             x, y = pos
         except Exception:
             return False
+
+        # Antes de comprobar botones individuales, si la posición está dentro
+        # de la franja del HUD (la columna derecha) consideramos que está sobre
+        # la UI para evitar clicks que "pasen" entre botones.
+        try:
+            strip_x = max(0, self.right_margin - 8)
+            hud_strip = pg.Rect(strip_x, 0, WIDTH - strip_x, HEIGHT)
+            if hud_strip.collidepoint(pos):
+                return True
+        except Exception:
+            pass
 
         # Lista de rects potenciales; algunos pueden no existir dependiendo del modo, por eso usamos getattr con default None
         rects = [
