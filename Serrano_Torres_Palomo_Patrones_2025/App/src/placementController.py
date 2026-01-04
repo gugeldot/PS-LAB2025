@@ -54,8 +54,38 @@ class PlacementController:
             structure=self.factory.createStructure((self.cellPosX, self.cellPosY), self.gameManager)
             self.gameManager.structures.append(structure)
             self.gameManager.map.placeStructure(self.cellPosX, self.cellPosY, structure)
-            self.gameManager.spendPoints(self.factory.getCost())
+            # Prefer using gm.build_costs mapping if present so displayed
+            # button costs are authoritative. Fall back to creator.getCost().
+            cost = None
+            try:
+                costs_map = getattr(self.gameManager, 'build_costs', None) or {}
+                cname = self.factory.__class__.__name__.lower() if self.factory is not None else ''
+                if costs_map:
+                    if 'sum' in cname:
+                        cost = int(costs_map.get('sum', self.factory.getCost()))
+                    elif 'mul' in cname or 'multiply' in cname:
+                        cost = int(costs_map.get('mul', self.factory.getCost()))
+                    elif 'div' in cname:
+                        cost = int(costs_map.get('div', self.factory.getCost()))
+                if cost is None:
+                    # fallback to creator-defined cost
+                    cost = int(self.factory.getCost())
+            except Exception:
+                try:
+                    cost = int(self.factory.getCost())
+                except Exception:
+                    cost = 0
+
+            try:
+                self.gameManager.spendPoints(cost)
+            except Exception:
+                pass
             print(f"------------------------Mina creada en ({self.cellPosX}, {self.cellPosY})")
+            # Volver a modo normal tras construir
+            try:
+                self.gameManager.setState(self.gameManager.normalState)
+            except Exception:
+                pass
     
     def destroyStructure(self):
         #eliminar estructura del mapa y de la lista de estructuras
@@ -76,8 +106,34 @@ class PlacementController:
             structure= self.gameManager.map.removeStructure(self.cellPosX, self.cellPosY)
             if structure in self.gameManager.structures:
                     self.gameManager.structures.remove(structure)
-                    self.gameManager.addPoints(structure.getCost())  # Reembolsar la mitad del coste
+                    # Determine refund using gm.build_costs mapping when available
+                    refund = None
+                    try:
+                        costs_map = getattr(self.gameManager, 'build_costs', None) or {}
+                        sname = structure.__class__.__name__.lower()
+                        if costs_map:
+                            if 'sum' in sname:
+                                refund = int(costs_map.get('sum', structure.getCost()))
+                            elif 'mul' in sname or 'multiply' in sname:
+                                refund = int(costs_map.get('mul', structure.getCost()))
+                            elif 'div' in sname:
+                                refund = int(costs_map.get('div', structure.getCost()))
+                        if refund is None:
+                            refund = int(structure.getCost())
+                    except Exception:
+                        try:
+                            refund = int(structure.getCost())
+                        except Exception:
+                            refund = 0
+
+                    # Give the refund (matches displayed build cost)
+                    self.gameManager.addPoints(refund)
                     print(f"Estructura en {structure.grid_position} destruida.")
+                    # Volver a modo normal tras destruir
+                    try:
+                        self.gameManager.setState(self.gameManager.normalState)
+                    except Exception:
+                        pass
             else:
                     print("Estructura no encontrada en la lista.")
 

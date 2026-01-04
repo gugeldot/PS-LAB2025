@@ -373,23 +373,43 @@ class HUD:
             )
         elif self.shop_mode=="BUILD":
             #si esta en modo construccion se dibujan las opciones de modulos
+            # obtener costes desde gm.build_costs (fallback a 15)
+            try:
+                costs = getattr(self.game, 'build_costs', {}) or {}
+            except Exception:
+                costs = {}
+
+            sum_cost = int(costs.get('sum', 15))
+            mul_cost = int(costs.get('mul', 25))
+            div_cost = int(costs.get('div', 35))
+
+            can_buy_sum = getattr(self.game, 'points', 0) >= sum_cost
+            can_buy_mul = getattr(self.game, 'points', 0) >= mul_cost
+            can_buy_div = getattr(self.game, 'points', 0) >= div_cost
+
             self._draw_button(
                 screen,
                 self.sum_module_button,
-                "Módulo Suma",
-                mouse_pos
+                f"Módulo Suma",
+                mouse_pos,
+                can_use=can_buy_sum,
+                sublabel=f"Coste: {sum_cost}"
             )
             self._draw_button(
                 screen,
                 self.mul_module_button,
-                "Módulo Multiplicación",
-                mouse_pos
+                f"Módulo Multiplicación",
+                mouse_pos,
+                can_use=can_buy_mul,
+                sublabel=f"Coste: {mul_cost}"
             )
             self._draw_button(
                 screen,
                 self.div_module_button,
-                "Módulo División",
-                mouse_pos
+                f"Módulo División",
+                mouse_pos,
+                can_use=can_buy_div,
+                sublabel=f"Coste: {div_cost}"
             )
             
 
