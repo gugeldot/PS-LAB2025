@@ -21,13 +21,30 @@ def update(gm):
         if keys[pg.K_w] or keys[pg.K_UP]:
             gm.camera.y = max(0, gm.camera.y - gm.camera_speed * (gm.delta_time / 1000.0))
         if keys[pg.K_s] or keys[pg.K_DOWN]:
-            max_y = max(0, gm.map.height * CELL_SIZE_PX - HEIGHT)
+            # Allow a small margin beyond the map edges so the player can
+            # pan a few pixels past the map boundaries. This helps access
+            # edge cells that might otherwise be difficult to reach.
+            CAMERA_MARGIN = 350  # pixels of extra scrolling allowed beyond map
+            base_max_y = max(0, gm.map.height * CELL_SIZE_PX - HEIGHT)
+            max_y = base_max_y + CAMERA_MARGIN
+            min_y = -CAMERA_MARGIN
             gm.camera.y = min(max_y, gm.camera.y + gm.camera_speed * (gm.delta_time / 1000.0))
+            gm.camera.y = max(min_y, gm.camera.y)
         if keys[pg.K_a] or keys[pg.K_LEFT]:
-            gm.camera.x = max(0, gm.camera.x - gm.camera_speed * (gm.delta_time / 1000.0))
+            # allow negative pan slightly beyond left
+            CAMERA_MARGIN = 350
+            min_x = -CAMERA_MARGIN
+            gm.camera.x = max(min_x, gm.camera.x - gm.camera_speed * (gm.delta_time / 1000.0))
         if keys[pg.K_d] or keys[pg.K_RIGHT]:
-            max_x = max(0, gm.map.width * CELL_SIZE_PX - WIDTH)
+            CAMERA_MARGIN = 350
+            base_max_x = max(0, gm.map.width * CELL_SIZE_PX - WIDTH)
+            max_x = base_max_x + CAMERA_MARGIN
             gm.camera.x = min(max_x, gm.camera.x + gm.camera_speed * (gm.delta_time / 1000.0))
+            # ensure not less than min_x (which may have been set above)
+            try:
+                gm.camera.x = max(-CAMERA_MARGIN, gm.camera.x)
+            except Exception:
+                pass
     except Exception:
         pass
 

@@ -59,6 +59,23 @@ class PlacementController:
 
     def buildStructure(self):
         self.mouseCellConversion()
+        # If the mouse isn't over a valid map cell, don't allow placement
+        try:
+            map_obj = getattr(self.gameManager, 'map', None)
+            if map_obj is None:
+                print("No map available for placement")
+                return False
+            if self.cellPosX is None or self.cellPosY is None:
+                print("Cursor not over a valid cell - placement aborted")
+                return False
+            if not (0 <= self.cellPosX < map_obj.width and 0 <= self.cellPosY < map_obj.height):
+                print(f"Cursor outside map bounds ({self.cellPosX},{self.cellPosY}) - placement aborted")
+                return False
+        except Exception:
+            # If any error occurs when checking map bounds, abort placement for safety
+            print("Error validating map cell for placement - aborting")
+            return False
+
         if self.factory is not None and not self.checkStructureInCell() and self.checkCost():
             #construir mina
             structure=self.factory.createStructure((self.cellPosX, self.cellPosY), self.gameManager)
