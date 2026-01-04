@@ -35,6 +35,10 @@ class Colors:
     SUCCESS = (129, 236, 236)  # Cyan pastel
     WARNING = (253, 203, 110)  # Amarillo pastel
     ERROR = (255, 159, 163)  # Rojo coral pastel
+    # Submenu/buttons accent (más llamativo que gris)
+    SUBMENU_BUTTON = (52, 152, 219)      # azul vivo
+    SUBMENU_HOVER = (41, 128, 185)       # azul oscuro al pasar el ratón
+    SUBMENU_TEXT = (255, 255, 255)       # texto claro sobre boton
 
 
 class HUD:
@@ -352,6 +356,7 @@ class HUD:
                 label,
                 mouse_pos,
                 can_use=can_buy_speed,
+                accent=True,
                 sublabel=sublabel
             )
             
@@ -367,6 +372,7 @@ class HUD:
                 label,
                 mouse_pos,
                 can_use=can_buy_eff,
+                accent=True,
                 sublabel=sublabel
             )
             
@@ -382,6 +388,7 @@ class HUD:
                 label,
                 mouse_pos,
                 can_use=can_buy_mine,
+                accent=True,
                 sublabel=sublabel
             )
         elif self.shop_mode=="BUILD":
@@ -407,6 +414,7 @@ class HUD:
                 f"Módulo Suma",
                 mouse_pos,
                 can_use=can_buy_sum,
+                accent=True,
                 sublabel=f"Coste: {sum_cost}"
             )
             self._draw_button(
@@ -415,6 +423,7 @@ class HUD:
                 f"Módulo Multiplicación",
                 mouse_pos,
                 can_use=can_buy_mul,
+                accent=True,
                 sublabel=f"Coste: {mul_cost}"
             )
             self._draw_button(
@@ -423,6 +432,7 @@ class HUD:
                 f"Splitter",
                 mouse_pos,
                 can_use=can_buy_splitter,
+                accent=True,
                 sublabel=f"Coste: {splitter_cost}"
             )
             self._draw_button(
@@ -431,6 +441,7 @@ class HUD:
                 f"Merger",
                 mouse_pos,
                 can_use=can_buy_merger,
+                accent=True,
                 sublabel=f"Coste: {merger_cost}"
             )
             
@@ -443,13 +454,14 @@ class HUD:
                 f"Cinta Transportadora",
                 mouse_pos,
                 can_use=can_buy_conveyor,
+                accent=True,
                 sublabel=f"Coste: {conveyor_cost}"
             )
             
 
             
     
-    def _draw_button(self, screen, rect, label, mouse_pos, can_use=True, sublabel=None, special_style=False):
+    def _draw_button(self, screen, rect, label, mouse_pos, can_use=True, sublabel=None, accent=False, special_style=False):
         """Dibuja un botón individual con estilo minimalista"""
         is_hover = rect.collidepoint(mouse_pos)
         
@@ -457,14 +469,19 @@ class HUD:
         if not can_use:
             color = Colors.BUTTON_DISABLED
             text_color = Colors.TEXT_SECONDARY
+        elif accent:
+            # Estilo destacado para opciones de submenú (shop/build)
+            color = Colors.SUBMENU_HOVER if is_hover else Colors.SUBMENU_BUTTON
+            text_color = Colors.SUBMENU_TEXT
         elif is_hover:
             color = Colors.BUTTON_HOVER
             text_color = Colors.TEXT_PRIMARY
         else:
             color = Colors.BUTTON_DEFAULT
             text_color = Colors.TEXT_PRIMARY
-        
+
         if special_style:
+            # special_style tiene prioridad (botones principales)
             color = Colors.WARNING if is_hover else Colors.BUTTON_ACTIVE
             text_color = Colors.TEXT_PRIMARY
         
@@ -484,7 +501,8 @@ class HUD:
         
         # Sublabel (información adicional)
         if sublabel:
-            sublabel_surf = pg.font.Font(None, 18).render(sublabel, True, Colors.TEXT_SECONDARY)
+            sublabel_color = Colors.SUBMENU_TEXT if accent else Colors.TEXT_SECONDARY
+            sublabel_surf = pg.font.Font(None, 18).render(sublabel, True, sublabel_color)
             sublabel_rect = sublabel_surf.get_rect(center=(rect.centerx, rect.centery + 12))
             screen.blit(sublabel_surf, sublabel_rect)
     

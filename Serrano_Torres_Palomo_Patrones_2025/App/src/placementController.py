@@ -115,37 +115,41 @@ class PlacementController:
             
             structure= self.gameManager.map.removeStructure(self.cellPosX, self.cellPosY)
             if structure in self.gameManager.structures:
-                    self.gameManager.structures.remove(structure)
-                    # Determine refund using gm.build_costs mapping when available
-                    refund = None
+                self.gameManager.structures.remove(structure)
+                # Determine refund using gm.build_costs mapping when available
+                refund = None
+                try:
+                    costs_map = getattr(self.gameManager, 'build_costs', None) or {}
+                    sname = structure.__class__.__name__.lower()
+                    if costs_map:
+                        if 'sum' in sname:
+                            refund = int(costs_map.get('sum', structure.getCost()))
+                        elif 'mul' in sname or 'multiply' in sname:
+                            refund = int(costs_map.get('mul', structure.getCost()))
+                        elif 'div' in sname:
+                            refund = int(costs_map.get('div', structure.getCost()))
+                        elif 'splitter' in sname:
+                            refund = int(costs_map.get('splitter', structure.getCost()))
+                        elif 'merger' in sname:
+                            refund = int(costs_map.get('merger', structure.getCost()))
+                    if refund is None:
+                        refund = int(structure.getCost())
+                except Exception:
                     try:
-                        costs_map = getattr(self.gameManager, 'build_costs', None) or {}
-                        sname = structure.__class__.__name__.lower()
-                        if costs_map:
-                            if 'sum' in sname:
-                                refund = int(costs_map.get('sum', structure.getCost()))
-                            elif 'mul' in sname or 'multiply' in sname:
-                                refund = int(costs_map.get('mul', structure.getCost()))
-                            elif 'div' in sname:
-                                refund = int(costs_map.get('div', structure.getCost()))
-                            elif 'splitter' in sname:
-                                refund = int(costs_map.get('splitter', structure.getCost()))
-                            elif 'merger' in sname:
-                                refund = int(costs_map.get('merger', structure.getCost()))
-                        if refund is None:
-                            refund = int(structure.getCost())
+                        refund = int(structure.getCost())
                     except Exception:
-                        try:
-                            refund = int(structure.getCost())
-                        except Exception:
-                            refund = 0
+                        refund = 0
 
-                    # Give the refund (matches displayed build cost)
-                    self.gameManager.addPoints(refund)
-                    print(f"Estructura en {structure.grid_position} destruida. Reembolso: {refund} pts")
+                # Give the refund (matches displayed build cost)
+                self.gameManager.addPoints(refund)
+                print(f"Estructura en {structure.grid_position} destruida. Reembolso: {refund} pts")
+                return True
             else:
-                    print("Estructura no encontrada en la lista.")
-
+                print("Estructura no encontrada en la lista.")
+                return False
+        else:
+            print("No hay estructura en la celda seleccionada")
+            return False
     def checkCost(self):
         #comprobar si tiene recursos suficientes
         return self.gameManager.canAffordBuilding(self.factory)
