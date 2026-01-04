@@ -209,18 +209,20 @@ class MainMenu:
         elif self.selected_option == 2:  # salir
             self.running = False
     def start_game(self, new=False):
-        # Aquí toma el control el GameManager y el main menu muere
+        # Forzar recreación de la instancia singleton del GameManager cuando se
+        # solicita una nueva partida, para asegurarnos de limpiar todo el estado
+        # en memoria (estructuras, conveyors, timers, HUD, etc.). Si no pedimos
+        # nueva partida, usar la instancia existente (continuar).
+        if new:
+            try:
+                # Limpiar referencias al singleton para forzar re-creación
+                GameManager._instance = None
+                GameManager._initialized = False
+            except Exception:
+                pass
+
+        # Crear (o recrear) el GameManager y arrancar el loop del juego
         game = GameManager()
-        # Si ya existía una instancia y pedimos nueva partida, reiniciamos el juego
-        try:
-            if new and getattr(game, '_initialized', False):
-                try:
-                    game.new_game()
-                except Exception:
-                    pass
-        except Exception:
-            pass
-        # Asegurarnos de que el loop esté activo (por si venimos de save_and_exit que puso running=False)
         try:
             game.running = True
         except Exception:
