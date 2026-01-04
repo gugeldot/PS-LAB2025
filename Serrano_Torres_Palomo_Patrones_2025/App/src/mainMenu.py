@@ -218,6 +218,15 @@ class MainMenu:
                 # Limpiar referencias al singleton para forzar re-creación
                 GameManager._instance = None
                 GameManager._initialized = False
+                # También resetear singleton del Map para evitar reutilizar el
+                # mapa en memoria (Map es un singleton separado que mantiene
+                # las celdas/estructuras entre instancias del GameManager).
+                try:
+                    from map.map import Map
+                    Map._instance = None
+                    Map._initialized = False
+                except Exception:
+                    pass
             except Exception:
                 pass
 
