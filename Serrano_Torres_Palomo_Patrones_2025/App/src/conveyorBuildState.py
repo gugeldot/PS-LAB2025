@@ -1,6 +1,6 @@
 from gameState import GameState
 import pygame as pg
-from settings import CELL_SIZE_PX
+from settings import CELL_SIZE_PX, WIDTH, HEIGHT
 
 
 class ConveyorBuildState(GameState):
@@ -121,6 +121,15 @@ class ConveyorBuildState(GameState):
     
     def draw(self):
         """Dibuja un preview de la cinta mientras se está construyendo"""
+        # Dibujar un filtro azul semitransparente por encima del HUD (similar al modo Destroy)
+        try:
+            overlay = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+            # RGBA: azul suave con alpha
+            overlay.fill((60, 140, 220, 70))
+            self.gameManager.screen.blit(overlay, (0, 0))
+        except Exception:
+            pass
+
         if self.start_pos and self.current_mouse_pos:
             cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
             
