@@ -143,27 +143,22 @@ class HUD:
             self.button_width,
             self.button_height
         )
-        self.div_module_button = pg.Rect(
+        # Nota: el módulo División ha sido eliminado de la UI (no exponerlo en HUD)
+        self.splitter_button = pg.Rect(
             self.right_margin,
             y_build + (self.button_height + self.button_margin) * 3,
             self.button_width,
             self.button_height
         )
-        self.splitter_button = pg.Rect(
+        self.merger_button = pg.Rect(
             self.right_margin,
             y_build + (self.button_height + self.button_margin) * 4,
             self.button_width,
             self.button_height
         )
-        self.merger_button = pg.Rect(
-            self.right_margin,
-            y_build + (self.button_height + self.button_margin) * 5,
-            self.button_width,
-            self.button_height
-        )
         self.conveyor_button = pg.Rect(
             self.right_margin,
-            y_build + (self.button_height + self.button_margin) * 6,
+            y_build + (self.button_height + self.button_margin) * 5,
             self.button_width,
             self.button_height
         )
@@ -399,16 +394,13 @@ class HUD:
 
             sum_cost = int(costs.get('sum', 15))
             mul_cost = int(costs.get('mul', 25))
-            div_cost = int(costs.get('div', 35))
             splitter_cost = int(costs.get('splitter', 20))
             merger_cost = int(costs.get('merger', 20))
 
             can_buy_sum = getattr(self.game, 'points', 0) >= sum_cost
             can_buy_mul = getattr(self.game, 'points', 0) >= mul_cost
-            can_buy_div = getattr(self.game, 'points', 0) >= div_cost
             can_buy_splitter = getattr(self.game, 'points', 0) >= splitter_cost
             can_buy_merger = getattr(self.game, 'points', 0) >= merger_cost
-
             self._draw_button(
                 screen,
                 self.sum_module_button,
@@ -424,14 +416,6 @@ class HUD:
                 mouse_pos,
                 can_use=can_buy_mul,
                 sublabel=f"Coste: {mul_cost}"
-            )
-            self._draw_button(
-                screen,
-                self.div_module_button,
-                f"Módulo División",
-                mouse_pos,
-                can_use=can_buy_div,
-                sublabel=f"Coste: {div_cost}"
             )
             self._draw_button(
                 screen,
@@ -591,7 +575,6 @@ class HUD:
             getattr(self, 'new_mine_button', None),
             getattr(self, 'sum_module_button', None),
             getattr(self, 'mul_module_button', None),
-            getattr(self, 'div_module_button', None),
             getattr(self, 'splitter_button', None),
             getattr(self, 'merger_button', None),
             getattr(self, 'conveyor_button', None),
