@@ -36,7 +36,9 @@ class SumModule(Module):
         return None
     
     def draw(self):
-        self.gameManager.screen.blit(self.img, (self.position.x -30, self.position.y -30 ))
+        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+        draw_pos = (int(self.position.x - cam.x - 30), int(self.position.y - cam.y - 30))
+        self.gameManager.screen.blit(self.img, draw_pos)
     
         '''
         pg.draw.rect(self.gameManager.screen, (173, 216, 230), (self.position.x, self.position.y, 17, 17))
