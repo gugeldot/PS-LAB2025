@@ -7,21 +7,7 @@ def update(gm):
     # update inputs
     gm.mouse.update()
     gm.state.update()
-    # popup timer
-    try:
-        if hasattr(gm, '_popup_timer') and getattr(gm, '_popup_timer', 0) is not None:
-            try:
-                gm._popup_timer -= int(gm.delta_time)
-            except Exception:
-                gm._popup_timer -= 0
-            if gm._popup_timer <= 0:
-                try:
-                    gm._popup_timer = None
-                    gm._popup_message = None
-                except Exception:
-                    pass
-    except Exception:
-        pass
+    # (Popup timer handled by HUD.update called after delta_time is computed)
 
     # process action buffer
     try:
@@ -83,3 +69,13 @@ def update(gm):
     # tick and caption
     gm.delta_time = gm.clock.tick(FPS)
     pg.display.set_caption(f'{gm.clock.get_fps() :.1f}')
+
+    # Update HUD (handles popup timer centrally)
+    try:
+        if hasattr(gm, 'hud') and gm.hud:
+            try:
+                gm.hud.update(gm.delta_time)
+            except Exception:
+                pass
+    except Exception:
+        pass

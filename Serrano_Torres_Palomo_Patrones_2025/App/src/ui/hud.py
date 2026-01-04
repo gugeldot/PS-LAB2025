@@ -61,11 +61,15 @@ class HUD:
 
         # Definir rectángulos de botones
         self._setup_buttons()
-        
-        # Estado del popup
+
+        # Nota: el popup global se gestiona en el GameManager a través de
+        # `_popup_message` y `_popup_timer`. Este HUD delega el temporizado
+        # allí para evitar duplicidad y asegurar que un único contador rige.
+        self.popup_duration = 3000  # ms (valor por defecto usado si se llama show_popup)
+        # Mantener atributos locales para compatibilidad con código antiguo
+        # que esperaba `hud.popup_message`/`hud.popup_timer`.
         self.popup_message = None
         self.popup_timer = 0
-        self.popup_duration = 2000  # ms
         
 
     def _setup_buttons(self):
@@ -153,18 +157,68 @@ class HUD:
         )
         
     
-    def show_popup(self, message, duration=2000):
-        """Muestra un mensaje temporal en pantalla"""
-        self.popup_message = message
-        self.popup_timer = duration
+    def show_popup(self, message, duration=None):
+        """Request a popup message. Prefer to write into the GameManager
+        so a single timer is used for all popups. If no GameManager is
+        attached, the HUD will set the internal values (fallback).
+
+        Also suppress the specific annoying message "Botón activado".
+        """
+        # Suprimir el popup molesto de "Botón activado"
+        try:
+            if isinstance(message, str) and "botón activ" in message.lower():
+                return
+        except Exception:
+            pass
+
+        dur = int(duration if duration is not None else self.popup_duration)
+        try:
+            # Preferir escribir el popup en el GameManager para que el
+            # temporizador sea gestionado desde gm.update
+            if hasattr(self, 'game') and self.game is not None:
+                try:
+                    self.game._popup_message = str(message)
+                    self.game._popup_timer = dur
+                    return
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # Fallback: mantener atributos locales (no debería ocurrir en práctica)
+        self.popup_message = str(message)
+        self.popup_timer = dur
     
     def update(self, delta_time):
         """Actualiza el estado del HUD"""
-        if self.popup_timer > 0:
-            self.popup_timer -= delta_time
-            if self.popup_timer < 0:
-                self.popup_timer = 0
-                self.popup_message = None
+        # Delegar el temporizado de popups al GameManager: decrementar
+        # `_popup_timer` si existe. Esto asegura una única fuente de verdad
+        # para el mensaje temporal.
+        try:
+            if hasattr(self.game, '_popup_timer') and getattr(self.game, '_popup_timer', None) is not None:
+                try:
+                    self.game._popup_timer -= int(delta_time)
+                except Exception:
+                    try:
+                        self.game._popup_timer -= 0
+                    except Exception:
+                        pass
+                if self.game._popup_timer <= 0:
+                    try:
+                        self.game._popup_timer = None
+                        self.game._popup_message = None
+                    except Exception:
+                        pass
+        except Exception:
+            # Fallback local decrement (very rare)
+            try:
+                if getattr(self, 'popup_timer', 0) > 0:
+                    self.popup_timer -= int(delta_time)
+                    if self.popup_timer <= 0:
+                        self.popup_timer = 0
+                        self.popup_message = None
+            except Exception:
+                pass
     
     def draw(self, screen, mouse_pos):
         """Dibuja todos los elementos del HUD"""
@@ -319,23 +373,43 @@ class HUD:
             )
         elif self.shop_mode=="BUILD":
             #si esta en modo construccion se dibujan las opciones de modulos
+            # obtener costes desde gm.build_costs (fallback a 15)
+            try:
+                costs = getattr(self.game, 'build_costs', {}) or {}
+            except Exception:
+                costs = {}
+
+            sum_cost = int(costs.get('sum', 15))
+            mul_cost = int(costs.get('mul', 25))
+            div_cost = int(costs.get('div', 35))
+
+            can_buy_sum = getattr(self.game, 'points', 0) >= sum_cost
+            can_buy_mul = getattr(self.game, 'points', 0) >= mul_cost
+            can_buy_div = getattr(self.game, 'points', 0) >= div_cost
+
             self._draw_button(
                 screen,
                 self.sum_module_button,
-                "Módulo Suma",
-                mouse_pos
+                f"Módulo Suma",
+                mouse_pos,
+                can_use=can_buy_sum,
+                sublabel=f"Coste: {sum_cost}"
             )
             self._draw_button(
                 screen,
                 self.mul_module_button,
-                "Módulo Multiplicación",
-                mouse_pos
+                f"Módulo Multiplicación",
+                mouse_pos,
+                can_use=can_buy_mul,
+                sublabel=f"Coste: {mul_cost}"
             )
             self._draw_button(
                 screen,
                 self.div_module_button,
-                "Módulo División",
-                mouse_pos
+                f"Módulo División",
+                mouse_pos,
+                can_use=can_buy_div,
+                sublabel=f"Coste: {div_cost}"
             )
             
 
@@ -382,18 +456,35 @@ class HUD:
     
     def _draw_popup(self, screen):
         """Dibuja el mensaje popup temporal"""
-        if not self.popup_message or self.popup_timer <= 0:
+        # Preferir el popup del HUD; si no existe, comprobar si el GameManager
+        # tiene un popup temporal (`_popup_message` / `_popup_timer`) y usarlo.
+        msg = None
+        timer = 0
+        if self.popup_message and self.popup_timer > 0:
+            msg = self.popup_message
+            timer = self.popup_timer
+        else:
+            try:
+                gm_msg = getattr(self.game, '_popup_message', None)
+                gm_timer = int(getattr(self.game, '_popup_timer', 0) or 0)
+                if gm_msg and gm_timer > 0:
+                    msg = gm_msg
+                    timer = gm_timer
+            except Exception:
+                msg = None
+
+        if not msg or timer <= 0:
             return
-        
-        # Calcular alpha para fade out
-        alpha = min(255, int((self.popup_timer / 500) * 255))
-        
-        text_surf = self.font_medium.render(self.popup_message, True, Colors.TEXT_PRIMARY)
+
+        # Calcular alpha para fade out (últimos 500ms hacen fade)
+        alpha = min(255, int((timer / 500) * 255))
+
+        text_surf = self.font_medium.render(str(msg), True, Colors.TEXT_PRIMARY)
         padding = 20
-        
+
         width = text_surf.get_width() + padding * 2
         height = text_surf.get_height() + padding * 2
-        
+
         x = (WIDTH - width) // 2
         y = 60
         
@@ -405,9 +496,9 @@ class HUD:
         bg_surface.fill(Colors.SUCCESS)
         screen.blit(bg_surface, (x, y))
         
-        # Borde
-        pg.draw.rect(screen, Colors.BUTTON_HOVER, popup_rect, 2, border_radius=10)
-        
+        # Borde (sin esquinas redondeadas)
+        pg.draw.rect(screen, Colors.BUTTON_HOVER, popup_rect, 2)
+
         # Texto
         text_x = x + (width - text_surf.get_width()) // 2
         text_y = y + (height - text_surf.get_height()) // 2

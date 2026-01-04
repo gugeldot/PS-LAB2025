@@ -5,7 +5,7 @@ from settings import CELL_SIZE_PX
 
 
 class Well(Structure):
-    def __init__(self, position,  consumingNumber, gameManager):
+    def __init__(self, position,  consumingNumber, gameManager, locked: bool = False):
         ''' 
         Inicializa el pozo usando coordenadas de grilla (x,y). La posición
         pixel se calcula a partir de CELL_SIZE_PX y el centro de la celda.
@@ -20,7 +20,10 @@ class Well(Structure):
         self.radius = 15
         self.color = (0, 150, 0)
         
-        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
+        # __file__ is App/src/core/well.py. We need to reach the project root
+        # (App) so Assets is at BASE_DIR / "Assets". Use parents[2] which
+        # resolves to App (three levels up: file -> core -> src -> App).
+        BASE_DIR = pathlib.Path(__file__).resolve().parents[2]
         COIN_PATH = BASE_DIR / "Assets" / "Sprites" / "coin.svg"
         try:
             self.coin_img = pg.image.load(str(COIN_PATH)).convert_alpha()
@@ -30,6 +33,14 @@ class Well(Structure):
 
         # preparar color/icono para pozo bloqueado (se dibuja un candado simple)
         self._lock_color = (120, 125, 130)
+
+        # Estado bloqueado: si True el pozo ignora los empujes (push/consume)
+        # Por compatibilidad con versiones anteriores, permitimos asignarlo
+        # dinámicamente, pero también aceptamos el parámetro `locked`.
+        try:
+            self.locked = bool(locked)
+        except Exception:
+            self.locked = False
         
         # Calcular dificultad y puntos predefinidos basados en la complejidad matemática
         # Números primos son más difíciles de crear con operaciones
@@ -140,8 +151,11 @@ class Well(Structure):
     def draw(self):
         cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
         draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
+
+        # Draw base well using its normal color. When locked, overlay the
+        # lock sprite if available (preferred) or a simple padlock as fallback.
         pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
-        
+
         font = pg.font.Font(None, 24)
         text = font.render(str(self.consumingNumber), True, (255, 255, 255))
         text_rect = text.get_rect(center=draw_pos)
@@ -159,3 +173,16 @@ class Well(Structure):
         points_text = points_font.render(f"+{points_value}", True, (255, 215, 0))
         points_rect = points_text.get_rect(center=(int(self.position.x - cam.x + 5), int(self.position.y - cam.y - 35)))
         self.gameManager.screen.blit(points_text, points_rect)
+
+        # Si el pozo está bloqueado, superponer únicamente la imagen de candado
+        # ya cargada (lock.png / lock.svg). No dibujamos un fallback gráfico.
+        if getattr(self, 'locked', False) and self.lock_img:
+            lw, lh = self.lock_img.get_size()
+            lock_pos = (int(self.position.x - cam.x - lw // 2), int(self.position.y - cam.y - lh // 2))
+            try:
+                self.gameManager.screen.blit(self.lock_img, lock_pos)
+            except Exception:
+                # Si el blit falla, no hacemos nada adicional — preferimos no
+                # dibujar un fallback programático y mantener consistencia con
+                # el asset proporcionado.
+                pass

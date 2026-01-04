@@ -701,7 +701,7 @@ class GameManager(Singleton):
                             self.mine = mine
                         try:
                             self._popup_message = f"Mina creada en ({x},{y})"
-                            self._popup_timer = 2000
+                            self._popup_timer = 3000
                         except Exception:
                             pass
                         print(f"Nueva mina creada en {x},{y}")
@@ -864,7 +864,7 @@ class GameManager(Singleton):
             # show popup for user feedback
             try:
                 self._popup_message = f"Mejora Velocidad aplicada ({self.speed_uses_left})"
-                self._popup_timer = 2000
+                self._popup_timer = 3000
             except Exception:
                 pass
             print(f"[Action] Speed upgrade applied (uses left={self.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={self.points})")
@@ -987,7 +987,7 @@ class GameManager(Singleton):
             # popup for efficiency
             try:
                 self._popup_message = f"Mejora Eficiencia aplicada ({self.eff_uses_left})"
-                self._popup_timer = 2000
+                self._popup_timer = 3000
             except Exception:
                 pass
             print(f"[Action] Efficiency upgrade applied (uses left={self.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={self.points})")
