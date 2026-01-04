@@ -22,7 +22,17 @@ class PlacementController:
     def mouseCellConversion(self):
         if self.mousePosition is None:
             self.mousePosition = self.mouse.position 
-        mx, my = int(self.mousePosition.x), int(self.mousePosition.y)
+        # Convert screen mouse position to world coordinates by adding camera offset,
+        # then compute the grid cell indices. This ensures placing/destroying respects
+        # the current camera scroll.
+        try:
+            cam = getattr(self.gameManager, 'camera', None) or pg.Vector2(0, 0)
+        except Exception:
+            cam = pg.Vector2(0, 0)
+
+        mx = int(self.mousePosition.x + cam.x)
+        my = int(self.mousePosition.y + cam.y)
+
         self.cellPosX = mx // CELL_SIZE_PX
         self.cellPosY = my // CELL_SIZE_PX
 
