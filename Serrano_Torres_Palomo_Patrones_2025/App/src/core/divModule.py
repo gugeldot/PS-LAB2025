@@ -37,7 +37,9 @@ class DivModule(Module):
         return None
     
     def draw(self):
-        self.gameManager.screen.blit(self.img, (self.position.x - 30, self.position.y - 30))
+        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+        draw_pos = (int(self.position.x - cam.x - 30), int(self.position.y - cam.y - 30))
+        self.gameManager.screen.blit(self.img, draw_pos)
 
     def setConveyor(self, conveyor, position):
         if position == 1:

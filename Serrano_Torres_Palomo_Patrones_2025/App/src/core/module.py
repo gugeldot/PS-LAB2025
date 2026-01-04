@@ -22,7 +22,9 @@ class Module(Structure):
         pass
 
     def draw(self):
-        pg.draw.circle(self.gameManager.screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
+        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+        draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
+        pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
     
     def calcular(self):
         '''

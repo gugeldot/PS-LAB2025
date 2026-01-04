@@ -65,11 +65,13 @@ class OperationModule(Structure):
         self.process()
 
     def draw(self):
-        pg.draw.circle(self.gameManager.screen, self.color, (int(self.position.x), int(self.position.y)), self.radius)
+        cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
+        draw_pos = (int(self.position.x - cam.x), int(self.position.y - cam.y))
+        pg.draw.circle(self.gameManager.screen, self.color, draw_pos, self.radius)
         # Draw operation symbol
         font = pg.font.Font(None, 24)
         text = font.render(self.get_symbol(), True, (255, 255, 255))
-        text_rect = text.get_rect(center=(self.position.x, self.position.y))
+        text_rect = text.get_rect(center=draw_pos)
         self.gameManager.screen.blit(text, text_rect)
 
     def get_symbol(self):
