@@ -191,8 +191,9 @@ class GameManager(Singleton):
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
             # Estructuras por defecto: solo 1 mina y 1 pozo
-            mine = MineCreator().createStructure((5, 5), 1, self)
-            self.map.placeStructure(5, 5, mine)
+            # Colocar la mina inicial en (3,3) según petición
+            mine = MineCreator().createStructure((3, 3), 1, self)
+            self.map.placeStructure(3, 3, mine)
 
             # Crear todos los pozos (1-10) en sus posiciones
             self.wells = []
