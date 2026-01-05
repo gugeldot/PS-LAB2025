@@ -285,7 +285,16 @@ class HUD:
                 locked_wells = [w for w in wells if getattr(w, 'locked', False)]
                 if locked_wells:
                     try:
-                        min_num = min(int(getattr(w, 'consumingNumber', float('inf'))) for w in locked_wells)
+                        # Use original/base consumingNumber if available so the
+                        # HUD shows the intended next objective even after
+                        # efficiency upgrades have increased runtime values.
+                        def _base_consuming(w):
+                            try:
+                                return int(getattr(w, '_base_consumingNumber', getattr(w, 'consumingNumber', float('inf'))))
+                            except Exception:
+                                return float('inf')
+
+                        min_num = min(_base_consuming(w) for w in locked_wells)
                         idx = int(min_num) - 1
                         if 0 <= idx < len(objectives):
                             next_obj = int(objectives[idx])

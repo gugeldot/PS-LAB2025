@@ -49,7 +49,7 @@ def init_counters(gm):
     gm.mine_uses_used = 0
     gm.mine_costs = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
     gm.speed_costs = (10, 12, 14, 16, 18, 20, 24, 28, 32, 40)
-    gm.eff_costs = (16, 18, 20, 22, 24, 28, 32, 36, 40, 50)
+    gm.eff_costs = (1, 18, 20, 22, 24, 28, 32, 36, 40, 50)
     # Costes por tipo de construcción (se muestran en botones de BUILD)
     gm.build_costs = {
         'sum': 15,

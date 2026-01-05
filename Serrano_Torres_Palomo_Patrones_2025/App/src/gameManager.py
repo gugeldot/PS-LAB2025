@@ -145,22 +145,33 @@ class GameManager(Singleton):
                                                 base_s = base_s.target
                                         except Exception:
                                             pass
+                                        # Preserve `_base_*` as the canonical/original
+                                        # values. Restore the runtime/effective values by
+                                        # applying `eff_used` as an increase counter so
+                                        # upgrades don't overwrite the base identifiers.
                                         if hasattr(base_s, 'number'):
                                             if not hasattr(base_s, '_base_number'):
                                                 try:
                                                     base_s._base_number = int(base_s.number)
                                                 except Exception:
                                                     base_s._base_number = getattr(base_s, 'number', 1)
-                                            base_s._base_number = int(base_s._base_number) + eff_used
-                                            base_s._effective_number = max(1, int(base_s._base_number))
+                                            # set effective increase from saved eff_used
+                                            try:
+                                                base_s._eff_number_increase = int(eff_used)
+                                            except Exception:
+                                                base_s._eff_number_increase = getattr(base_s, '_eff_number_increase', 0)
+                                            base_s._effective_number = max(1, int(base_s._base_number + getattr(base_s, '_eff_number_increase', 0)))
                                         if hasattr(base_s, 'consumingNumber'):
                                             if not hasattr(base_s, '_base_consumingNumber'):
                                                 try:
                                                     base_s._base_consumingNumber = int(base_s.consumingNumber)
                                                 except Exception:
                                                     base_s._base_consumingNumber = getattr(base_s, 'consumingNumber', 1)
-                                            base_s._base_consumingNumber = int(base_s._base_consumingNumber) + eff_used
-                                            base_val = max(1, int(base_s._base_consumingNumber))
+                                            try:
+                                                base_s._eff_consuming_increase = int(eff_used)
+                                            except Exception:
+                                                base_s._eff_consuming_increase = getattr(base_s, '_eff_consuming_increase', 0)
+                                            base_val = max(1, int(base_s._base_consumingNumber + getattr(base_s, '_eff_consuming_increase', 0)))
                                             base_s.consumingNumber = base_val
                                             try:
                                                 if s is not base_s and hasattr(s, 'consumingNumber'):
@@ -397,7 +408,17 @@ class GameManager(Singleton):
                 return
             try:
                 # find the lowest-numbered locked well
-                min_num = min(int(getattr(w, 'consumingNumber', float('inf'))) for w in locked_wells)
+                # Use the original/base consumingNumber when available (stored in
+                # `_base_consumingNumber`) so that applying efficiency upgrades
+                # (which mutate `consumingNumber`) does NOT change the unlock
+                # ordering or the configured objectives.
+                def _base_consuming(w):
+                    try:
+                        return int(getattr(w, '_base_consumingNumber', getattr(w, 'consumingNumber', float('inf'))))
+                    except Exception:
+                        return float('inf')
+
+                min_num = min(_base_consuming(w) for w in locked_wells)
                 idx = int(min_num) - 1
                 if idx < 0 or idx >= len(self.well_objectives):
                     return
@@ -409,7 +430,11 @@ class GameManager(Singleton):
                 unlocked = False
                 for w in self.wells:
                     try:
-                        if int(getattr(w, 'consumingNumber', -1)) == int(min_num) and getattr(w, 'locked', False):
+                        # Compare using the base consumingNumber if present so
+                        # unlock targets the intended well independent of
+                        # runtime efficiency upgrades.
+                        w_base_num = int(getattr(w, '_base_consumingNumber', getattr(w, 'consumingNumber', -1)))
+                        if w_base_num == int(min_num) and getattr(w, 'locked', False):
                             w.locked = False
                             unlocked = True
                             break
@@ -445,15 +470,18 @@ class GameManager(Singleton):
                                 if 'number' in entry:
                                     if hasattr(s, '_base_number'):
                                         try:
-                                            original = int(getattr(s, '_base_number')) - eff_used
-                                            entry['number'] = max(1, original)
+                                            # `_base_number` stores the canonical/original
+                                            # mine number; save that directly.
+                                            entry['number'] = int(getattr(s, '_base_number'))
                                         except Exception:
                                             entry['number'] = int(entry.get('number', 1))
                                 if 'consumingNumber' in entry:
                                     if hasattr(s, '_base_consumingNumber'):
                                         try:
-                                            original = int(getattr(s, '_base_consumingNumber')) - eff_used
-                                            entry['consumingNumber'] = max(1, original)
+                                            # `_base_consumingNumber` is kept as the
+                                            # original canonical value; save that
+                                            # original directly (don't subtract eff_used)
+                                            entry['consumingNumber'] = int(getattr(s, '_base_consumingNumber'))
                                         except Exception:
                                             entry['consumingNumber'] = int(entry.get('consumingNumber', 1))
                         except Exception:

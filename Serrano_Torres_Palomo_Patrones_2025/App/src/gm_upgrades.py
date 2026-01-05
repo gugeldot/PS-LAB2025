@@ -180,26 +180,38 @@ def apply_eff_action(gm) -> bool:
                 except Exception:
                     pass
                 if hasattr(base_s, 'number'):
+                    # Keep `_base_number` as the original/base value and
+                    # track efficiency increases separately so upgrades do
+                    # not overwrite the canonical base identifier.
                     if not hasattr(base_s, '_base_number'):
                         try:
                             base_s._base_number = int(base_s.number)
                         except Exception:
                             base_s._base_number = getattr(base_s, 'number', 1)
+                    if not hasattr(base_s, '_eff_number_increase'):
+                        base_s._eff_number_increase = 0
                     try:
-                        base_s._base_number = int(base_s._base_number) + 1
-                        base_s._effective_number = max(1, int(base_s._base_number))
+                        base_s._eff_number_increase = int(base_s._eff_number_increase) + 1
+                        base_s._effective_number = max(1, int(base_s._base_number + base_s._eff_number_increase))
                         applied += 1
                     except Exception:
                         pass
                 if hasattr(base_s, 'consumingNumber'):
+                    # Do NOT mutate `_base_consumingNumber`. Instead track
+                    # efficiency increases separately in `_eff_consuming_increase`
+                    # and compute the runtime `consumingNumber` from the base
+                    # plus the increase. This ensures the configured base
+                    # identifiers (used for unlocking objectives) remain stable.
                     if not hasattr(base_s, '_base_consumingNumber'):
                         try:
                             base_s._base_consumingNumber = int(base_s.consumingNumber)
                         except Exception:
                             base_s._base_consumingNumber = getattr(base_s, 'consumingNumber', 1)
+                    if not hasattr(base_s, '_eff_consuming_increase'):
+                        base_s._eff_consuming_increase = 0
                     try:
-                        base_s._base_consumingNumber = int(base_s._base_consumingNumber) + 1
-                        base_val = max(1, int(base_s._base_consumingNumber))
+                        base_s._eff_consuming_increase = int(base_s._eff_consuming_increase) + 1
+                        base_val = max(1, int(base_s._base_consumingNumber + base_s._eff_consuming_increase))
                         base_s.consumingNumber = base_val
                         try:
                             if s is not base_s and hasattr(s, 'consumingNumber'):
