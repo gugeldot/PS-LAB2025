@@ -476,8 +476,12 @@ class HUD:
                 sublabel=f"Coste: {merger_cost}"
             )
             
-            # Botón de cintas transportadoras
-            conveyor_cost = 5
+            # Botón de cintas transportadoras: leer coste desde `gm.build_costs`
+            try:
+                costs = getattr(self.game, 'build_costs', {}) or {}
+            except Exception:
+                costs = {}
+            conveyor_cost = int(costs.get('conveyor', 5))
             can_buy_conveyor = getattr(self.game, 'points', 0) >= conveyor_cost
             self._draw_button(
                 screen,

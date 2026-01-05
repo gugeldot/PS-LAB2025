@@ -47,21 +47,23 @@ def init_counters(gm):
     gm.eff_uses_used = 0
     gm.mine_uses_left = 10
     gm.mine_uses_used = 0
+
     gm.mine_costs = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
-    gm.speed_costs = (10, 12, 14, 16, 18, 20, 24, 28, 32, 40)
-    gm.eff_costs = (1, 18, 20, 22, 24, 28, 32, 36, 40, 50)
-    # Costes por tipo de construcción (se muestran en botones de BUILD)
+    gm.speed_costs = (10, 12, 24, 48, 96, 192, 384, 768, 1500, 3000)
+    gm.eff_costs = (70, 100, 500, 800, 1000, 1600, 3200, 6400, 12000, 15000)
+
+    gm.well_objectives = (30, 50, 100, 200, 500, 800, 1200, 1600, 2000, 5000)
+
     gm.build_costs = {
         'sum': 15,
-        'mul': 25,
-        'div': 35,
-        'splitter': 20,
-        'merger': 20,
+        'mul': 45,
+        'div': 35, #Not implemented
+        'splitter': 10,
+        'merger': 10,
+        'conveyor': 2,
     }
-    # Objetivos para desbloquear pozos (un objetivo por cada pozo)
-    # Se comporta como los tuples de costes: 10 valores, uno por cada pozo
-    #gm.well_objectives = (30, 50, 100, 200, 500, 800, 1200, 1600, 2000, 5000)
-    gm.well_objectives = (0,10,20,30,40,50,60,70,80,90)  # Para pruebas rápidas
+
+    
     gm.action_buffer = deque()
 
 def init_well_positions(gm):

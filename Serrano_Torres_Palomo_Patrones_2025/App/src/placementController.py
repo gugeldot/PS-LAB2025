@@ -94,6 +94,8 @@ class PlacementController:
                         cost = int(costs_map.get('mul', self.factory.getCost()))
                     elif 'div' in cname:
                         cost = int(costs_map.get('div', self.factory.getCost()))
+                    elif 'conveyor' in cname or 'convey' in cname:
+                        cost = int(costs_map.get('conveyor', self.factory.getCost()))
                 if cost is None:
                     # fallback to creator-defined cost
                     cost = int(self.factory.getCost())
@@ -149,6 +151,8 @@ class PlacementController:
                             refund = int(costs_map.get('splitter', structure.getCost()))
                         elif 'merger' in sname:
                             refund = int(costs_map.get('merger', structure.getCost()))
+                        elif 'conveyor' in sname or 'convey' in sname:
+                            refund = int(costs_map.get('conveyor', structure.getCost()))
                     if refund is None:
                         refund = int(structure.getCost())
                 except Exception:
