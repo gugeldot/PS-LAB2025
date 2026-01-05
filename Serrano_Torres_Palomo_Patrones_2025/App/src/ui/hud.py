@@ -35,6 +35,10 @@ class Colors:
     SUCCESS = (129, 236, 236)  # Cyan pastel
     WARNING = (253, 203, 110)  # Amarillo pastel
     ERROR = (255, 159, 163)  # Rojo coral pastel
+    # Submenu/buttons accent (más llamativo que gris)
+    SUBMENU_BUTTON = (52, 152, 219)      # azul vivo
+    SUBMENU_HOVER = (41, 128, 185)       # azul oscuro al pasar el ratón
+    SUBMENU_TEXT = (255, 255, 255)       # texto claro sobre boton
 
 
 class HUD:
@@ -143,27 +147,22 @@ class HUD:
             self.button_width,
             self.button_height
         )
-        self.div_module_button = pg.Rect(
+        # Nota: el módulo División ha sido eliminado de la UI (no exponerlo en HUD)
+        self.splitter_button = pg.Rect(
             self.right_margin,
             y_build + (self.button_height + self.button_margin) * 3,
             self.button_width,
             self.button_height
         )
-        self.splitter_button = pg.Rect(
+        self.merger_button = pg.Rect(
             self.right_margin,
             y_build + (self.button_height + self.button_margin) * 4,
             self.button_width,
             self.button_height
         )
-        self.merger_button = pg.Rect(
-            self.right_margin,
-            y_build + (self.button_height + self.button_margin) * 5,
-            self.button_width,
-            self.button_height
-        )
         self.conveyor_button = pg.Rect(
             self.right_margin,
-            y_build + (self.button_height + self.button_margin) * 6,
+            y_build + (self.button_height + self.button_margin) * 5,
             self.button_width,
             self.button_height
         )
@@ -240,9 +239,31 @@ class HUD:
     
     def draw(self, screen, mouse_pos):
         """Dibuja todos los elementos del HUD"""
+        # Dibujar una zona semitransparente que indica "área no clickable del mapa"
+        try:
+            self._draw_blocked_area(screen)
+        except Exception:
+            pass
         self._draw_points_display(screen)
         self._draw_buttons(screen, mouse_pos)
         self._draw_popup(screen)
+
+    def _draw_blocked_area(self, screen):
+        """Dibuja un rectángulo semitransparente sobre la franja del HUD para
+        indicar que por ahí no se puede clickar el mapa (evita clicks 'pasantes').
+        Se dibuja detrás de los botones para no interferir visualmente.
+        """
+        try:
+            # Mantener la posición izquierda (no moverla) pero extender
+            # el rectángulo hasta el borde derecho de la pantalla.
+            strip_x = max(0, self.right_margin - 8)
+            strip_w = WIDTH - strip_x
+            s = pg.Surface((strip_w, HEIGHT), pg.SRCALPHA)
+            # color oscuro con baja opacidad
+            s.fill((0, 0, 0, 80))
+            screen.blit(s, (strip_x, 0))
+        except Exception:
+            pass
     
     def _draw_points_display(self, screen):
         """Dibuja el contador de puntos con estilo minimalista"""
@@ -357,6 +378,7 @@ class HUD:
                 label,
                 mouse_pos,
                 can_use=can_buy_speed,
+                accent=True,
                 sublabel=sublabel
             )
             
@@ -372,6 +394,7 @@ class HUD:
                 label,
                 mouse_pos,
                 can_use=can_buy_eff,
+                accent=True,
                 sublabel=sublabel
             )
             
@@ -387,6 +410,7 @@ class HUD:
                 label,
                 mouse_pos,
                 can_use=can_buy_mine,
+                accent=True,
                 sublabel=sublabel
             )
         elif self.shop_mode=="BUILD":
@@ -399,22 +423,20 @@ class HUD:
 
             sum_cost = int(costs.get('sum', 15))
             mul_cost = int(costs.get('mul', 25))
-            div_cost = int(costs.get('div', 35))
             splitter_cost = int(costs.get('splitter', 20))
             merger_cost = int(costs.get('merger', 20))
 
             can_buy_sum = getattr(self.game, 'points', 0) >= sum_cost
             can_buy_mul = getattr(self.game, 'points', 0) >= mul_cost
-            can_buy_div = getattr(self.game, 'points', 0) >= div_cost
             can_buy_splitter = getattr(self.game, 'points', 0) >= splitter_cost
             can_buy_merger = getattr(self.game, 'points', 0) >= merger_cost
-
             self._draw_button(
                 screen,
                 self.sum_module_button,
                 f"Módulo Suma",
                 mouse_pos,
                 can_use=can_buy_sum,
+                accent=True,
                 sublabel=f"Coste: {sum_cost}"
             )
             self._draw_button(
@@ -423,15 +445,8 @@ class HUD:
                 f"Módulo Multiplicación",
                 mouse_pos,
                 can_use=can_buy_mul,
+                accent=True,
                 sublabel=f"Coste: {mul_cost}"
-            )
-            self._draw_button(
-                screen,
-                self.div_module_button,
-                f"Módulo División",
-                mouse_pos,
-                can_use=can_buy_div,
-                sublabel=f"Coste: {div_cost}"
             )
             self._draw_button(
                 screen,
@@ -439,6 +454,7 @@ class HUD:
                 f"Splitter",
                 mouse_pos,
                 can_use=can_buy_splitter,
+                accent=True,
                 sublabel=f"Coste: {splitter_cost}"
             )
             self._draw_button(
@@ -447,6 +463,7 @@ class HUD:
                 f"Merger",
                 mouse_pos,
                 can_use=can_buy_merger,
+                accent=True,
                 sublabel=f"Coste: {merger_cost}"
             )
             
@@ -459,13 +476,14 @@ class HUD:
                 f"Cinta Transportadora",
                 mouse_pos,
                 can_use=can_buy_conveyor,
+                accent=True,
                 sublabel=f"Coste: {conveyor_cost}"
             )
             
 
             
     
-    def _draw_button(self, screen, rect, label, mouse_pos, can_use=True, sublabel=None, special_style=False):
+    def _draw_button(self, screen, rect, label, mouse_pos, can_use=True, sublabel=None, accent=False, special_style=False):
         """Dibuja un botón individual con estilo minimalista"""
         is_hover = rect.collidepoint(mouse_pos)
         
@@ -473,14 +491,19 @@ class HUD:
         if not can_use:
             color = Colors.BUTTON_DISABLED
             text_color = Colors.TEXT_SECONDARY
+        elif accent:
+            # Estilo destacado para opciones de submenú (shop/build)
+            color = Colors.SUBMENU_HOVER if is_hover else Colors.SUBMENU_BUTTON
+            text_color = Colors.SUBMENU_TEXT
         elif is_hover:
             color = Colors.BUTTON_HOVER
             text_color = Colors.TEXT_PRIMARY
         else:
             color = Colors.BUTTON_DEFAULT
             text_color = Colors.TEXT_PRIMARY
-        
+
         if special_style:
+            # special_style tiene prioridad (botones principales)
             color = Colors.WARNING if is_hover else Colors.BUTTON_ACTIVE
             text_color = Colors.TEXT_PRIMARY
         
@@ -500,7 +523,8 @@ class HUD:
         
         # Sublabel (información adicional)
         if sublabel:
-            sublabel_surf = pg.font.Font(None, 18).render(sublabel, True, Colors.TEXT_SECONDARY)
+            sublabel_color = Colors.SUBMENU_TEXT if accent else Colors.TEXT_SECONDARY
+            sublabel_surf = pg.font.Font(None, 18).render(sublabel, True, sublabel_color)
             sublabel_rect = sublabel_surf.get_rect(center=(rect.centerx, rect.centery + 12))
             screen.blit(sublabel_surf, sublabel_rect)
     
@@ -581,6 +605,17 @@ class HUD:
         except Exception:
             return False
 
+        # Antes de comprobar botones individuales, si la posición está dentro
+        # de la franja del HUD (la columna derecha) consideramos que está sobre
+        # la UI para evitar clicks que "pasen" entre botones.
+        try:
+            strip_x = max(0, self.right_margin - 8)
+            hud_strip = pg.Rect(strip_x, 0, WIDTH - strip_x, HEIGHT)
+            if hud_strip.collidepoint(pos):
+                return True
+        except Exception:
+            pass
+
         # Lista de rects potenciales; algunos pueden no existir dependiendo del modo, por eso usamos getattr con default None
         rects = [
             getattr(self, 'save_button', None),
@@ -591,7 +626,6 @@ class HUD:
             getattr(self, 'new_mine_button', None),
             getattr(self, 'sum_module_button', None),
             getattr(self, 'mul_module_button', None),
-            getattr(self, 'div_module_button', None),
             getattr(self, 'splitter_button', None),
             getattr(self, 'merger_button', None),
             getattr(self, 'conveyor_button', None),

@@ -1,6 +1,6 @@
 from gameState import GameState
 import pygame as pg
-from settings import CELL_SIZE_PX
+from settings import CELL_SIZE_PX, WIDTH, HEIGHT
 
 
 class ConveyorBuildState(GameState):
@@ -29,7 +29,15 @@ class ConveyorBuildState(GameState):
             pixel_x = grid_x * CELL_SIZE_PX + CELL_SIZE_PX // 2
             pixel_y = grid_y * CELL_SIZE_PX + CELL_SIZE_PX // 2
             click_pos = pg.Vector2(pixel_x, pixel_y)
-            
+            # If the click is not over a valid map cell, ignore it and do not allow placement
+            map_obj = getattr(self.gameManager, 'map', None)
+            if map_obj is None or not (0 <= grid_x < getattr(map_obj, 'width', 0) and 0 <= grid_y < getattr(map_obj, 'height', 0)):
+                print(f"Click at ({grid_x},{grid_y}) is outside map bounds - ignoring placement click")
+                # If we were mid-placement, cancel it to avoid inconsistent state
+                if self.start_pos is not None:
+                    self.start_pos = None
+                return
+
             if self.start_pos is None:
                 # Primer click: validar que no sea un pozo
                 structure_at_start = self._get_structure_at_grid(grid_x, grid_y)
@@ -95,6 +103,16 @@ class ConveyorBuildState(GameState):
                     
                     # Volver al estado normal
                     self.start_pos = None
+                    # Clear HUD build mode so toggles behave correctly
+                    try:
+                        if hasattr(self.gameManager, 'hud') and getattr(self.gameManager, 'hud'):
+                            try:
+                                self.gameManager.hud.shop_mode = None
+                                self.gameManager.hud._setup_buttons()
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
                     if hasattr(self.gameManager, 'normalState'):
                         self.gameManager.setState(self.gameManager.normalState)
                 else:
@@ -104,6 +122,16 @@ class ConveyorBuildState(GameState):
         # ESC para cancelar
         elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             self.start_pos = None
+            # Clear HUD build mode when cancelling
+            try:
+                if hasattr(self.gameManager, 'hud') and getattr(self.gameManager, 'hud'):
+                    try:
+                        self.gameManager.hud.shop_mode = None
+                        self.gameManager.hud._setup_buttons()
+                    except Exception:
+                        pass
+            except Exception:
+                pass
             if hasattr(self.gameManager, 'normalState'):
                 self.gameManager.setState(self.gameManager.normalState)
     
@@ -121,6 +149,15 @@ class ConveyorBuildState(GameState):
     
     def draw(self):
         """Dibuja un preview de la cinta mientras se está construyendo"""
+        # Dibujar un filtro azul semitransparente por encima del HUD (similar al modo Destroy)
+        try:
+            overlay = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+            # RGBA: azul suave con alpha
+            overlay.fill((60, 140, 220, 70))
+            self.gameManager.screen.blit(overlay, (0, 0))
+        except Exception:
+            pass
+
         if self.start_pos and self.current_mouse_pos:
             cam = getattr(self.gameManager, 'camera', pg.Vector2(0, 0))
             

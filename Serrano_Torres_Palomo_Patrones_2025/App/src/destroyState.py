@@ -13,11 +13,44 @@ class DestroyState(GameState):
             # Primero intentar destruir una cinta si el click está sobre una
             conveyor = self._get_conveyor_at_click(event.pos)
             if conveyor:
-                self._destroy_conveyor(conveyor)
+                # Si se destruye algo, volver al estado normal
+                try:
+                    self._destroy_conveyor(conveyor)
+                    if hasattr(self, 'gameManager'):
+                        # Ensure HUD mode is cleared so subsequent clicks toggle correctly
+                        try:
+                            if hasattr(self.gameManager, 'hud') and getattr(self.gameManager, 'hud'):
+                                try:
+                                    self.gameManager.hud.shop_mode = None
+                                    self.gameManager.hud._setup_buttons()
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+                        if hasattr(self.gameManager, 'normalState'):
+                            self.gameManager.setState(self.gameManager.normalState)
+                except Exception:
+                    pass
             else:
                 # Si no hay cinta, usar el comportamiento normal para estructuras
                 self.placementController.update()
-                self.placementController.destroyStructure()
+                try:
+                    destroyed = self.placementController.destroyStructure()
+                    if destroyed and hasattr(self, 'gameManager'):
+                        # Clear HUD destroy mode so toggling works on next clicks
+                        try:
+                            if hasattr(self.gameManager, 'hud') and getattr(self.gameManager, 'hud'):
+                                try:
+                                    self.gameManager.hud.shop_mode = None
+                                    self.gameManager.hud._setup_buttons()
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+                        if hasattr(self.gameManager, 'normalState'):
+                            self.gameManager.setState(self.gameManager.normalState)
+                except Exception:
+                    pass
     
     def update(self):
         self.placementController.update()

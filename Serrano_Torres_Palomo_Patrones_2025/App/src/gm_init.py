@@ -7,8 +7,15 @@ from settings import * # Ahora está al nivel del módulo, donde debe estar
 def init_pygame(gm):
     """Initialize pygame-related surfaces, clock and camera on the given GameManager instance."""
     pg.init()
+    # Nota: la inicialización y reproducción de la música se realiza en `main.py`
+    # para que la pista suene desde el menú principal y permanezca hasta el
+    # cierre completo de la aplicación.
     gm.screen = pg.display.set_mode(RESOLUTION)
-    pg.display.set_caption("Jueguito")
+    # Asegurar que el título de la ventana sea el esperado
+    try:
+        pg.display.set_caption("Number Tycoon")
+    except Exception:
+        pass
     gm.clock = pg.time.Clock()
     gm.delta_time = 1
     gm.camera = pg.Vector2(0, 0)

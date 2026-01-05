@@ -695,7 +695,24 @@ class GameManager(Singleton):
                     elif self.hud and self.hud.shop_button.collidepoint(event.pos):
                         print("Has pulsado el botón nuevo")
                         self.hud.show_popup("¡Botón activado!") 
-            self.state.handleClickEvent(event)
+            # Evitar que los eventos de ratón sobre la UI se reenvíen al state
+            try:
+                skip_state = False
+                if event.type in (pg.MOUSEBUTTONDOWN, pg.MOUSEBUTTONUP):
+                    pos = getattr(event, 'pos', None)
+                    if pos is not None and hasattr(self, 'hud') and self.hud:
+                        try:
+                            if self.hud.is_over_button(pos):
+                                skip_state = True
+                        except Exception:
+                            skip_state = False
+                if not skip_state:
+                    self.state.handleClickEvent(event)
+            except Exception:
+                try:
+                    self.state.handleClickEvent(event)
+                except Exception:
+                    pass
     def run(self):
         while self.running:
             self.checkEvents()
