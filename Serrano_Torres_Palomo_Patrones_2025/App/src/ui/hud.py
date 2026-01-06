@@ -1,10 +1,15 @@
 import pygame as pg
+import pathlib
 from settings import WIDTH, HEIGHT
+try:
+    from PIL import Image, ImageSequence
+except Exception:
+    Image = None
 
 # Paleta de colores pastel minimalista
 class Colors:
     # Backgrounds
-    BG_DARK = (45, 52, 64)  # Azul oscuro suave
+    BG_DARK = (45, 52, 64)  # Azul oscuro profundo (ventana)
     BG_LIGHT = (236, 240, 241)  # Gris muy claro
     
     # UI Elements
@@ -74,7 +79,19 @@ class HUD:
         # que esperaba `hud.popup_message`/`hud.popup_timer`.
         self.popup_message = None
         self.popup_timer = 0
-        
+        # GIF modal (se muestra al iniciar nueva partida)
+        self.gif_modal_active = False
+        self.gif_files = []
+        self.gif_index = 0
+        self.gif_frames = []  # list of Surfaces for current gif
+        self.gif_frame_durations = []  # ms per frame
+        self.gif_frame_index = 0
+        self.gif_frame_timer = 0
+        self.gif_titles = []  # parallel list of titles for gif_files
+        # modal button rects (created when modal is drawn/initialized)
+        self.modal_prev_button = None
+        self.modal_next_button = None
+        self.modal_exit_button = None
 
     def _setup_buttons(self):
         """Configura las posiciones de todos los botones del HUD"""
@@ -236,6 +253,24 @@ class HUD:
                         self.popup_message = None
             except Exception:
                 pass
+        # GIF modal animation timing
+        try:
+            if getattr(self, 'gif_modal_active', False):
+                if not self.gif_frames:
+                    return
+                # Ensure integers and consistent units (delta_time is ms from pygame.Clock.tick)
+                dt = int(delta_time)
+                self.gif_frame_timer += dt
+                # guard against malformed durations; fallback to 100ms
+                try:
+                    cur_dur = int(self.gif_frame_durations[self.gif_frame_index]) if self.gif_frame_durations else 100
+                except Exception:
+                    cur_dur = 100
+                if self.gif_frame_timer >= max(1, cur_dur):
+                    self.gif_frame_timer = 0
+                    self.gif_frame_index = (self.gif_frame_index + 1) % len(self.gif_frames)
+        except Exception:
+            pass
     
     def draw(self, screen, mouse_pos):
         """Dibuja todos los elementos del HUD"""
@@ -247,6 +282,12 @@ class HUD:
         self._draw_points_display(screen)
         self._draw_buttons(screen, mouse_pos)
         self._draw_popup(screen)
+        # If GIF modal active, draw it last so it appears on top
+        try:
+            if getattr(self, 'gif_modal_active', False):
+                self._draw_gif_modal(screen)
+        except Exception:
+            pass
 
     def _draw_blocked_area(self, screen):
         """Dibuja un rectángulo semitransparente sobre la franja del HUD para
@@ -590,6 +631,259 @@ class HUD:
         text_x = x + (width - text_surf.get_width()) // 2
         text_y = y + (height - text_surf.get_height()) // 2
         screen.blit(text_surf, (text_x, text_y))
+
+    # ---------------- GIF modal support ----------------
+    def open_gif_modal(self, start_index: int = 0):
+        """Abre el modal de GIFs leyendo Assets/gifs. start_index permite
+        iniciar en un GIF concreto."""
+        try:
+            base = pathlib.Path(__file__).resolve().parents[2]
+            gif_dir = base / "Assets" / "gifs"
+            if not gif_dir.exists() or not gif_dir.is_dir():
+                self.gif_files = []
+                return
+            # If GameManager provides an explicit order tuple, use it to
+            # build the file list in that order. Otherwise enumerate files.
+            order = None
+            try:
+                order = getattr(self.game, 'gifs_order', None)
+            except Exception:
+                order = None
+
+            files = []
+            titles = []
+            if order and isinstance(order, (list, tuple)) and len(order) > 0:
+                for entry in order:
+                    try:
+                        # entry can be a string (filename) or a (filename, title) pair
+                        if isinstance(entry, (list, tuple)) and len(entry) >= 1:
+                            fname = str(entry[0])
+                            title = str(entry[1]) if len(entry) >= 2 else None
+                        else:
+                            fname = str(entry)
+                            title = None
+                        p = gif_dir / fname
+                        if p.exists() and p.is_file():
+                            files.append(p)
+                            titles.append(title if title is not None else p.stem)
+                    except Exception:
+                        pass
+            # fallback: scan directory alphabetically
+            if not files:
+                scanned = sorted([p for p in gif_dir.iterdir() if p.suffix.lower() in ('.gif',)])
+                files = scanned
+                titles = [p.stem for p in scanned]
+            if not files:
+                self.gif_files = []
+                self.gif_titles = []
+                return
+            self.gif_files = files
+            self.gif_titles = titles
+            self.gif_index = max(0, min(start_index, len(self.gif_files) - 1))
+            self._load_current_gif_frames()
+            self.gif_modal_active = True
+            self.gif_frame_index = 0
+            self.gif_frame_timer = 0
+            # Pause game simulation while tutorial modal is open so nothing
+            # progresses in the background (production, conveyors, etc.).
+            try:
+                if hasattr(self, 'game') and self.game is not None:
+                    setattr(self.game, '_tutorial_paused', True)
+            except Exception:
+                pass
+        except Exception:
+            self.gif_files = []
+            self.gif_modal_active = False
+
+    def close_gif_modal(self):
+        try:
+            self.gif_modal_active = False
+            self.gif_files = []
+            self.gif_frames = []
+            self.gif_frame_durations = []
+            self.modal_prev_button = None
+            self.modal_next_button = None
+            self.modal_exit_button = None
+            # Resume game simulation when closing the tutorial modal
+            try:
+                if hasattr(self, 'game') and self.game is not None:
+                    setattr(self.game, '_tutorial_paused', False)
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+    def next_gif(self):
+        try:
+            if not self.gif_files:
+                return
+            self.gif_index = (self.gif_index + 1) % len(self.gif_files)
+            self._load_current_gif_frames()
+            self.gif_frame_index = 0
+            self.gif_frame_timer = 0
+        except Exception:
+            pass
+
+    def prev_gif(self):
+        try:
+            if not self.gif_files:
+                return
+            self.gif_index = (self.gif_index - 1) % len(self.gif_files)
+            self._load_current_gif_frames()
+            self.gif_frame_index = 0
+            self.gif_frame_timer = 0
+        except Exception:
+            pass
+
+    def _load_current_gif_frames(self):
+        """Carga los frames del GIF actual en self.gif_frames y durations.
+        Usa Pillow si está disponible, si no, carga una sola imagen con pygame."""
+        self.gif_frames = []
+        self.gif_frame_durations = []
+        try:
+            path = self.gif_files[self.gif_index]
+        except Exception:
+            return
+        # Try PIL for animated GIFs (use ImageSequence for robustness)
+        if Image is None:
+            # Pillow not installed: fall back to pygame single-frame loading
+            pass
+        else:
+            try:
+                from PIL import ImageSequence
+                img = Image.open(str(path))
+                frames = []
+                durations = []
+                for frame in ImageSequence.Iterator(img):
+                    try:
+                        f = frame.convert('RGBA')
+                        data = f.tobytes()
+                        size = f.size
+                        try:
+                            surf = pg.image.fromstring(data, size, 'RGBA')
+                        except Exception:
+                            surf = pg.Surface(size, pg.SRCALPHA)
+                        dur = frame.info.get('duration', img.info.get('duration', 100))
+                        try:
+                            dur = int(dur)
+                        except Exception:
+                            dur = 100
+                        frames.append(surf)
+                        durations.append(dur)
+                    except Exception:
+                        # skip problematic frames
+                        continue
+
+                if frames:
+                    self.gif_frames = frames
+                    self.gif_frame_durations = durations
+                    return
+            except Exception as e:
+                # Pillow attempted to load but failed; fallback to pygame below.
+                pass
+
+        # Fallback: single-frame via pygame
+        try:
+            s = pg.image.load(str(path)).convert_alpha()
+            self.gif_frames = [s]
+            self.gif_frame_durations = [2000]
+        except Exception:
+            self.gif_frames = []
+            self.gif_frame_durations = []
+
+    def _draw_gif_modal(self, screen):
+        """Dibuja el modal central con el frame actual y los botones."""
+        if not getattr(self, 'gif_modal_active', False) or not self.gif_frames:
+            return
+        try:
+            # semi-transparent backdrop
+            overlay = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+            overlay.fill((0, 0, 0, 160))
+            screen.blit(overlay, (0, 0))
+
+            # current frame
+            frame = self.gif_frames[self.gif_frame_index]
+            # scale to fit 70% of screen
+            max_w = int(WIDTH * 0.7)
+            max_h = int(HEIGHT * 0.7)
+            fw, fh = frame.get_size()
+            scale = min(1.0, max_w / fw if fw else 1.0, max_h / fh if fh else 1.0)
+            if scale != 1.0:
+                frame_to_draw = pg.transform.smoothscale(frame, (int(fw * scale), int(fh * scale)))
+            else:
+                frame_to_draw = frame
+
+            modal_w, modal_h = frame_to_draw.get_size()
+            padding = 18
+            # determine title (if provided) and its height
+            title_text = None
+            try:
+                if getattr(self, 'gif_titles', None):
+                    title_text = self.gif_titles[self.gif_index]
+            except Exception:
+                title_text = None
+            title_height = 0
+            title_surf = None
+            if title_text:
+                try:
+                    title_surf = self.font_medium.render(str(title_text), True, Colors.TEXT_PRIMARY)
+                    title_height = title_surf.get_height() + 6
+                except Exception:
+                    title_surf = None
+                    title_height = 0
+
+            total_w = modal_w + padding * 2
+            total_h = modal_h + padding * 3 + 40 + title_height  # extra for title and buttons area
+            x = (WIDTH - total_w) // 2
+            y = (HEIGHT - total_h) // 2
+
+            # background
+            bg_rect = pg.Rect(x, y, total_w, total_h)
+            self._draw_rounded_rect(screen, bg_rect, Colors.BG_LIGHT, 12)
+            self._draw_rounded_rect(screen, bg_rect, Colors.BUTTON_HOVER, 12, 2)
+
+            # draw title (if any) and then blit frame below it
+            img_x = x + padding
+            img_y = y + padding
+            if title_surf:
+                try:
+                    title_x = x + (total_w - title_surf.get_width()) // 2
+                    title_y = y + 8
+                    screen.blit(title_surf, (title_x, title_y))
+                    img_y = title_y + title_surf.get_height() + 6
+                except Exception:
+                    img_y = y + padding
+
+            screen.blit(frame_to_draw, (img_x, img_y))
+
+            # buttons: <  Exit  >  (wider spacing, smaller side buttons)
+            side_w = 60
+            exit_w = 120
+            btn_h = 40
+            spacing = 36
+            btn_y = y + padding + modal_h + 12 + title_height
+            center_x = x + total_w // 2
+
+            self.modal_prev_button = pg.Rect(center_x - side_w - spacing - exit_w // 2, btn_y, side_w, btn_h)
+            self.modal_exit_button = pg.Rect(center_x - exit_w // 2, btn_y, exit_w, btn_h)
+            self.modal_next_button = pg.Rect(center_x + spacing + exit_w // 2, btn_y, side_w, btn_h)
+
+            self._draw_button(screen, self.modal_prev_button, "<", pg.mouse.get_pos(), can_use=True)
+            self._draw_button(screen, self.modal_exit_button, "Salir", pg.mouse.get_pos(), can_use=True)
+            self._draw_button(screen, self.modal_next_button, ">", pg.mouse.get_pos(), can_use=True)
+
+            # caption showing (index/total)
+            try:
+                total = len(self.gif_files)
+                caption = f"({self.gif_index + 1}/{total})"
+                cap = self.font_small.render(caption, True, Colors.TEXT_PRIMARY)
+                cap_x = x + (total_w - cap.get_width()) // 2
+                cap_y = y + total_h - cap.get_height() - 6
+                screen.blit(cap, (cap_x, cap_y))
+            except Exception:
+                pass
+        except Exception:
+            pass
     
     def _draw_rounded_rect(self, surface, rect, color, radius, border=0):
         """Dibuja un rectángulo con bordes redondeados"""
@@ -618,6 +912,15 @@ class HUD:
         except Exception:
             return False
 
+        # If the GIF modal is active, block all interactions behind it.
+        # This prevents any clicks on buttons, cells or map elements while
+        # the tutorial/modal is displayed.
+        try:
+            if getattr(self, 'gif_modal_active', False):
+                return True
+        except Exception:
+            pass
+
         # Antes de comprobar botones individuales, si la posición está dentro
         # de la franja del HUD (la columna derecha) consideramos que está sobre
         # la UI para evitar clicks que "pasen" entre botones.
@@ -644,6 +947,15 @@ class HUD:
             getattr(self, 'conveyor_button', None),
             getattr(self, 'destroy_button', None),
         ]
+
+        # include modal buttons to block clicks to map when modal open
+        try:
+            if getattr(self, 'gif_modal_active', False):
+                rects.append(getattr(self, 'modal_prev_button', None))
+                rects.append(getattr(self, 'modal_next_button', None))
+                rects.append(getattr(self, 'modal_exit_button', None))
+        except Exception:
+            pass
 
         for r in rects:
             if r and r.collidepoint(pos):
