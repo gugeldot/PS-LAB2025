@@ -65,6 +65,24 @@ def init_counters(gm):
 
     
     gm.action_buffer = deque()
+    # Optional explicit ordering of GIFs to show on new game. Provide file
+    # names (strings) relative to Assets/gifs in the desired order. If left
+    # empty, HUD will alphabetically enumerate files found in the folder.
+    # Example:
+    # gm.gifs_order = ("intro.gif", "tip1.gif", "tip2.gif")
+    # If empty, HUD will enumerate files in Assets/gifs alphabetically.
+    # I populate a sensible default order based on Assets/gifs contents.
+    gm.gifs_order = (
+        "tutorial1.gif",
+        "tutorial2.gif",
+        "tutorialSuma.gif",
+        "tutorialMulti.gif",
+        "tutorialDivider.gif",
+        "tutorialMerger.gif",
+        "tutorialVelocidad.gif",
+        "tutorialEficiencia.gif",
+        "tutorialControlesObjetivos.gif",
+    )
 
 def init_well_positions(gm):
     """Define default well grid coordinates and the iterable tuple."""

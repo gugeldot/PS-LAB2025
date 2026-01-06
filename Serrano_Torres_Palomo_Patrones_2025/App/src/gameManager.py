@@ -56,6 +56,22 @@ class GameManager(Singleton):
         
         # Inicializar HUD después de que el juego esté configurado
         self.hud = HUD(self)
+        # If new_game requested a GIF modal on start, open it now
+        try:
+            if getattr(self, '_show_gif_modal_on_start', False):
+                try:
+                    self.hud.open_gif_modal()
+                except Exception:
+                    pass
+                try:
+                    delattr(self, '_show_gif_modal_on_start')
+                except Exception:
+                    try:
+                        del self._show_gif_modal_on_start
+                    except Exception:
+                        pass
+        except Exception:
+            pass
 
         # Marcar como inicializado
         self._initialized = True
@@ -189,6 +205,12 @@ class GameManager(Singleton):
         else:
             print(f"No saved map found at {self.save_file}, creating default map.")
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
+
+            # Signal HUD to open GIF modal on first start/new game
+            try:
+                self._show_gif_modal_on_start = True
+            except Exception:
+                pass
 
             # Estructuras por defecto: solo 1 mina y 1 pozo
             # Colocar la mina inicial en (3,3) según petición
@@ -617,6 +639,39 @@ class GameManager(Singleton):
 
             #pulsacion de raton
             if event.type == pg.MOUSEBUTTONUP and event.button == 1:
+                # If GIF modal active, handle its buttons first (Prev/Next/Exit)
+                try:
+                    if self.hud and getattr(self.hud, 'gif_modal_active', False):
+                        pos = event.pos
+                        try:
+                            if getattr(self.hud, 'modal_prev_button', None) and self.hud.modal_prev_button.collidepoint(pos):
+                                try:
+                                    self.hud.prev_gif()
+                                except Exception:
+                                    pass
+                                continue
+                        except Exception:
+                            pass
+                        try:
+                            if getattr(self.hud, 'modal_next_button', None) and self.hud.modal_next_button.collidepoint(pos):
+                                try:
+                                    self.hud.next_gif()
+                                except Exception:
+                                    pass
+                                continue
+                        except Exception:
+                            pass
+                        try:
+                            if getattr(self.hud, 'modal_exit_button', None) and self.hud.modal_exit_button.collidepoint(pos):
+                                try:
+                                    self.hud.close_gif_modal()
+                                except Exception:
+                                    pass
+                                continue
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
                 if self.save_button_rect.collidepoint(event.pos):
                     self.save_and_exit()
                 if self.hud and self.hud.save_button.collidepoint(event.pos):
