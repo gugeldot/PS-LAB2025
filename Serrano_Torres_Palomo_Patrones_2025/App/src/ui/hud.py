@@ -670,7 +670,7 @@ class HUD:
                         pass
             # fallback: scan directory alphabetically
             if not files:
-                scanned = sorted([p for p in gif_dir.iterdir() if p.suffix.lower() in ('.gif', '.png', '.jpg', '.jpeg', '.webp')])
+                scanned = sorted([p for p in gif_dir.iterdir() if p.suffix.lower() in ('.gif',)])
                 files = scanned
                 titles = [p.stem for p in scanned]
             if not files:
@@ -684,6 +684,13 @@ class HUD:
             self.gif_modal_active = True
             self.gif_frame_index = 0
             self.gif_frame_timer = 0
+            # Pause game simulation while tutorial modal is open so nothing
+            # progresses in the background (production, conveyors, etc.).
+            try:
+                if hasattr(self, 'game') and self.game is not None:
+                    setattr(self.game, '_tutorial_paused', True)
+            except Exception:
+                pass
         except Exception:
             self.gif_files = []
             self.gif_modal_active = False
@@ -697,6 +704,12 @@ class HUD:
             self.modal_prev_button = None
             self.modal_next_button = None
             self.modal_exit_button = None
+            # Resume game simulation when closing the tutorial modal
+            try:
+                if hasattr(self, 'game') and self.game is not None:
+                    setattr(self.game, '_tutorial_paused', False)
+            except Exception:
+                pass
         except Exception:
             pass
 
