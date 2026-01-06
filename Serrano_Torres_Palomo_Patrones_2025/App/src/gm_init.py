@@ -72,16 +72,17 @@ def init_counters(gm):
     # gm.gifs_order = ("intro.gif", "tip1.gif", "tip2.gif")
     # If empty, HUD will enumerate files in Assets/gifs alphabetically.
     # I populate a sensible default order based on Assets/gifs contents.
+    # Each entry is (filename, title) to display in the GIF modal header.
     gm.gifs_order = (
-        "tutorial1.gif",
-        "tutorial2.gif",
-        "tutorialSuma.gif",
-        "tutorialMulti.gif",
-        "tutorialDivider.gif",
-        "tutorialMerger.gif",
-        "tutorialVelocidad.gif",
-        "tutorialEficiencia.gif",
-        "tutorialControlesObjetivos.gif",
+        ("tutorial1.gif", "Básico"),
+        ("tutorial2.gif", "Básico 2"),
+        ("tutorialSuma.gif", "Módulo de Suma"),
+        ("tutorialMulti.gif", "Módulo de Multiplicación"),
+        ("tutorialDivider.gif", "Splitter"),
+        ("tutorialMerger.gif", "Merger"),
+        ("tutorialVelocidad.gif", "Mejora de Velocidad"),
+        ("tutorialEficiencia.gif", "Mejora de Eficiencia"),
+        ("tutorialControlesObjetivos.gif", "Controles y Objetivos"),
     )
 
 def init_well_positions(gm):

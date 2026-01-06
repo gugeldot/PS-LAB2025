@@ -87,6 +87,7 @@ class HUD:
         self.gif_frame_durations = []  # ms per frame
         self.gif_frame_index = 0
         self.gif_frame_timer = 0
+        self.gif_titles = []  # parallel list of titles for gif_files
         # modal button rects (created when modal is drawn/initialized)
         self.modal_prev_button = None
         self.modal_next_button = None
@@ -257,8 +258,6 @@ class HUD:
             if getattr(self, 'gif_modal_active', False):
                 if not self.gif_frames:
                     return
-                # Debug: track previous index to log when frame changes
-                prev_idx = int(self.gif_frame_index)
                 # Ensure integers and consistent units (delta_time is ms from pygame.Clock.tick)
                 dt = int(delta_time)
                 self.gif_frame_timer += dt
@@ -270,11 +269,6 @@ class HUD:
                 if self.gif_frame_timer >= max(1, cur_dur):
                     self.gif_frame_timer = 0
                     self.gif_frame_index = (self.gif_frame_index + 1) % len(self.gif_frames)
-                    # Lightweight debug output so the developer can see frames advancing
-                    try:
-                        print(f"HUD GIF: advanced frame {prev_idx} -> {self.gif_frame_index} (dt={dt}ms dur={cur_dur}ms)")
-                    except Exception:
-                        pass
         except Exception:
             pass
     
@@ -657,21 +651,34 @@ class HUD:
                 order = None
 
             files = []
+            titles = []
             if order and isinstance(order, (list, tuple)) and len(order) > 0:
-                for name in order:
+                for entry in order:
                     try:
-                        p = gif_dir / str(name)
+                        # entry can be a string (filename) or a (filename, title) pair
+                        if isinstance(entry, (list, tuple)) and len(entry) >= 1:
+                            fname = str(entry[0])
+                            title = str(entry[1]) if len(entry) >= 2 else None
+                        else:
+                            fname = str(entry)
+                            title = None
+                        p = gif_dir / fname
                         if p.exists() and p.is_file():
                             files.append(p)
+                            titles.append(title if title is not None else p.stem)
                     except Exception:
                         pass
             # fallback: scan directory alphabetically
             if not files:
-                files = sorted([p for p in gif_dir.iterdir() if p.suffix.lower() in ('.gif', '.png', '.jpg', '.jpeg', '.webp')])
+                scanned = sorted([p for p in gif_dir.iterdir() if p.suffix.lower() in ('.gif', '.png', '.jpg', '.jpeg', '.webp')])
+                files = scanned
+                titles = [p.stem for p in scanned]
             if not files:
                 self.gif_files = []
+                self.gif_titles = []
                 return
             self.gif_files = files
+            self.gif_titles = titles
             self.gif_index = max(0, min(start_index, len(self.gif_files) - 1))
             self._load_current_gif_frames()
             self.gif_modal_active = True
@@ -726,11 +733,8 @@ class HUD:
             return
         # Try PIL for animated GIFs (use ImageSequence for robustness)
         if Image is None:
-            # Pillow not installed: inform developer and fall through to pygame fallback
-            try:
-                print("HUD GIF: Pillow (PIL) not available — animated GIFs require Pillow. Install with 'pip install Pillow'.")
-            except Exception:
-                pass
+            # Pillow not installed: fall back to pygame single-frame loading
+            pass
         else:
             try:
                 from PIL import ImageSequence
@@ -760,16 +764,10 @@ class HUD:
                 if frames:
                     self.gif_frames = frames
                     self.gif_frame_durations = durations
-                    try:
-                        print(f"HUD GIF: loaded {len(self.gif_frames)} frames for '{path.name}', durations(sample)={self.gif_frame_durations[:10]}")
-                    except Exception:
-                        pass
                     return
             except Exception as e:
-                try:
-                    print(f"HUD GIF: Pillow failed to load '{path.name}': {e}")
-                except Exception:
-                    pass
+                # Pillow attempted to load but failed; fallback to pygame below.
+                pass
 
         # Fallback: single-frame via pygame
         try:
@@ -804,8 +802,25 @@ class HUD:
 
             modal_w, modal_h = frame_to_draw.get_size()
             padding = 18
+            # determine title (if provided) and its height
+            title_text = None
+            try:
+                if getattr(self, 'gif_titles', None):
+                    title_text = self.gif_titles[self.gif_index]
+            except Exception:
+                title_text = None
+            title_height = 0
+            title_surf = None
+            if title_text:
+                try:
+                    title_surf = self.font_medium.render(str(title_text), True, Colors.TEXT_PRIMARY)
+                    title_height = title_surf.get_height() + 6
+                except Exception:
+                    title_surf = None
+                    title_height = 0
+
             total_w = modal_w + padding * 2
-            total_h = modal_h + padding * 3 + 40  # extra for buttons area
+            total_h = modal_h + padding * 3 + 40 + title_height  # extra for title and buttons area
             x = (WIDTH - total_w) // 2
             y = (HEIGHT - total_h) // 2
 
@@ -814,9 +829,18 @@ class HUD:
             self._draw_rounded_rect(screen, bg_rect, Colors.BG_LIGHT, 12)
             self._draw_rounded_rect(screen, bg_rect, Colors.BUTTON_HOVER, 12, 2)
 
-            # blit frame
+            # draw title (if any) and then blit frame below it
             img_x = x + padding
             img_y = y + padding
+            if title_surf:
+                try:
+                    title_x = x + (total_w - title_surf.get_width()) // 2
+                    title_y = y + 8
+                    screen.blit(title_surf, (title_x, title_y))
+                    img_y = title_y + title_surf.get_height() + 6
+                except Exception:
+                    img_y = y + padding
+
             screen.blit(frame_to_draw, (img_x, img_y))
 
             # buttons: <  Exit  >  (wider spacing, smaller side buttons)
@@ -824,7 +848,7 @@ class HUD:
             exit_w = 120
             btn_h = 40
             spacing = 36
-            btn_y = y + padding + modal_h + 12
+            btn_y = y + padding + modal_h + 12 + title_height
             center_x = x + total_w // 2
 
             self.modal_prev_button = pg.Rect(center_x - side_w - spacing - exit_w // 2, btn_y, side_w, btn_h)
@@ -874,6 +898,15 @@ class HUD:
             x, y = pos
         except Exception:
             return False
+
+        # If the GIF modal is active, block all interactions behind it.
+        # This prevents any clicks on buttons, cells or map elements while
+        # the tutorial/modal is displayed.
+        try:
+            if getattr(self, 'gif_modal_active', False):
+                return True
+        except Exception:
+            pass
 
         # Antes de comprobar botones individuales, si la posición está dentro
         # de la franja del HUD (la columna derecha) consideramos que está sobre
