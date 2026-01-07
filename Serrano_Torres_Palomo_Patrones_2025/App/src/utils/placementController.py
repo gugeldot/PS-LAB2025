@@ -2,6 +2,11 @@ import pygame as pg
 from core.mineCreator import MineCreator
 from settings import *
 from utils.cursor_inspector import inspect_cell
+from utils.placement_mouse import mouse_cell_conversion
+from utils.placement_draw import draw_preview, draw_destroy
+from utils.placement_finance import compute_cost, compute_refund
+from utils.placement_popup import notify_destroy_not_allowed
+from utils.placement_inspect import get_structure_in_cell, check_structure_in_cell
 
 class PlacementController:
     def __init__(self, gameManager,factory):
@@ -20,39 +25,20 @@ class PlacementController:
         
 
     def mouseCellConversion(self):
-        if self.mousePosition is None:
-            self.mousePosition = self.mouse.position 
-        # Convert screen mouse position to world coordinates by adding camera offset,
-        # then compute the grid cell indices. This ensures placing/destroying respects
-        # the current camera scroll.
-        try:
-            cam = getattr(self.gameManager, 'camera', None) or pg.Vector2(0, 0)
-        except Exception:
-            cam = pg.Vector2(0, 0)
-
-        mx = int(self.mousePosition.x + cam.x)
-        my = int(self.mousePosition.y + cam.y)
-
-        self.cellPosX = mx // CELL_SIZE_PX
-        self.cellPosY = my // CELL_SIZE_PX
+        # delegate to helper that keeps conversion behaviour isolated
+        mouse_cell_conversion(self)
 
     def draw(self): 
         '''
         Esto dibuja la estructura en el cursor, como un preview
         '''
-        #metodo basico de dibujar ciruclo
-        offset= -15
-        #cicrulo de color rosa (rojo desaturado)
-        pg.draw.circle(self.gameManager.screen, self.factory.getSpritePreview(), (int(self.mousePosition.x+offset), int(self.mousePosition.y+offset)), 15)
-        font = pg.font.Font(None, 24)
+        draw_preview(self)
 
     def drawDestroy(self):
         '''
         Los bordes de la pantalla se vuelven rojos con distinta opacidad segun la distancia al centro de la pantalla
         '''
-        s = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-        s.fill((255, 0, 0, 50))  # semitransparente
-        self.gameManager.screen.blit(s, (0, 0))
+        draw_destroy(self)
 
 
             
@@ -81,34 +67,8 @@ class PlacementController:
             structure=self.factory.createStructure((self.cellPosX, self.cellPosY), self.gameManager)
             self.gameManager.structures.append(structure)
             self.gameManager.map.placeStructure(self.cellPosX, self.cellPosY, structure)
-            # Prefer using gm.build_costs mapping if present so displayed
-            # button costs are authoritative. Fall back to creator.getCost().
-            cost = None
-            try:
-                costs_map = getattr(self.gameManager, 'build_costs', None) or {}
-                cname = self.factory.__class__.__name__.lower() if self.factory is not None else ''
-                if costs_map:
-                    if 'sum' in cname:
-                        cost = int(costs_map.get('sum', self.factory.getCost()))
-                    elif 'mul' in cname or 'multiply' in cname:
-                        cost = int(costs_map.get('mul', self.factory.getCost()))
-                    elif 'div' in cname:
-                        cost = int(costs_map.get('div', self.factory.getCost()))
-                    elif 'splitter' in cname:
-                        cost = int(costs_map.get('splitter', self.factory.getCost()))
-                    elif 'merger' in cname:
-                        cost = int(costs_map.get('merger', self.factory.getCost()))
-                    elif 'conveyor' in cname or 'convey' in cname:
-                        cost = int(costs_map.get('conveyor', self.factory.getCost()))
-                if cost is None:
-                    # fallback to creator-defined cost
-                    cost = int(self.factory.getCost())
-            except Exception:
-                try:
-                    cost = int(self.factory.getCost())
-                except Exception:
-                    cost = 0
-
+            # compute and spend cost using helper (keeps behaviour intact)
+            cost = compute_cost(self)
             try:
                 self.gameManager.spendPoints(cost)
             except Exception:
@@ -133,76 +93,8 @@ class PlacementController:
             if structure and hasattr(structure, '__class__'):
                 structure_type = structure.__class__.__name__.lower()
                 if 'mine' in structure_type or 'well' in structure_type:
-                    # Mostrar popup informativo en vez de solo imprimir
-                    try:
-                        gm = self.gameManager
-                        msg = f"No se pueden destruir {structure.__class__.__name__}"
-                        # Prefer HUD popup helper if available
-                        if hasattr(gm, 'hud') and getattr(gm, 'hud'):
-                            try:
-                                gm.hud.show_popup(msg)
-                                # After showing the popup, return to normal state so
-                                # the game doesn't remain in destroy mode. Also clear
-                                # the HUD destroy mode so the destroy button toggles
-                                # correctly the next time the player clicks it.
-                                try:
-                                    if hasattr(gm, 'hud') and getattr(gm, 'hud'):
-                                        try:
-                                            gm.hud.shop_mode = None
-                                            gm.hud._setup_buttons()
-                                        except Exception:
-                                            pass
-                                except Exception:
-                                    pass
-                                try:
-                                    if hasattr(gm, 'setState') and hasattr(gm, 'normalState'):
-                                        gm.setState(gm.normalState)
-                                except Exception:
-                                    pass
-                            except Exception:
-                                # fallback to writing directly to gm popup fields
-                                try:
-                                    gm._popup_message = msg
-                                    gm._popup_timer = 3000
-                                    # Clear HUD destroy mode (fallback) and return to normal
-                                    try:
-                                        if hasattr(gm, 'hud') and getattr(gm, 'hud'):
-                                            try:
-                                                gm.hud.shop_mode = None
-                                                gm.hud._setup_buttons()
-                                            except Exception:
-                                                pass
-                                    except Exception:
-                                        pass
-                                    try:
-                                        if hasattr(gm, 'setState') and hasattr(gm, 'normalState'):
-                                            gm.setState(gm.normalState)
-                                    except Exception:
-                                        pass
-                                except Exception:
-                                    pass
-                        else:
-                            try:
-                                gm._popup_message = msg
-                                gm._popup_timer = 3000
-                                try:
-                                    if hasattr(gm, 'hud') and getattr(gm, 'hud'):
-                                        try:
-                                            gm.hud.shop_mode = None
-                                            gm.hud._setup_buttons()
-                                        except Exception:
-                                            pass
-                                except Exception:
-                                    pass
-                                try:
-                                    if hasattr(gm, 'setState') and hasattr(gm, 'normalState'):
-                                        gm.setState(gm.normalState)
-                                except Exception:
-                                    pass
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
+                    # delegate popup/restore behaviour to helper
+                    notify_destroy_not_allowed(self, structure)
                     return False
             
             structure= self.gameManager.map.removeStructure(self.cellPosX, self.cellPosY)
@@ -249,31 +141,10 @@ class PlacementController:
         return self.gameManager.canAffordBuilding(self.factory)
     def getStructureInCell(self):
         #obtener estructura en la celda
-        try:
-                    map = self.gameManager.map
-                    has_struct= inspect_cell(map,self.cellPosX, self.cellPosY)
-                    if has_struct:
-                        structure = map.getCell(self.cellPosX, self.cellPosY).getStructure()
-                        return structure
-                    else:
-                        return None
-        except Exception as e:
-                    print("Error al consultar el mapa en el click:", e)
-                    return None
-        return None
+        return get_structure_in_cell(self)
     
     def checkStructureInCell(self):
         #comprobar si es valido
-       try:
-                    map = self.gameManager.map
-                    has_struct, info = inspect_cell(map,self.cellPosX, self.cellPosY)
-                    self.has_structure = bool(has_struct)
-                    print(f"Casilla esta {info}")
-                    return self.has_structure
-       except Exception as e:
-                    self.has_structure = False
-                    print("Error al consultar el mapa en el click:", e)
-                    return self.has_structure
-       return None
+        return check_structure_in_cell(self)
 
          
