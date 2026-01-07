@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>patterns.mediator &#8212; PS-LAB2025 0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=837179f8"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="patterns.memento" href="patterns_memento.html" />
+    <link rel="prev" title="patterns.command" href="patterns_command.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-patterns.mediator">
+<span id="patterns-mediator"></span><h1>patterns.mediator<a class="headerlink" href="#module-patterns.mediator" title="Link to this heading">¶</a></h1>
+<p>Mediator Pattern - Centralizar comunicación entre componentes</p>
+<p>Reduce el acoplamiento entre objetos al evitar que se comuniquen directamente.
+El mediador gestiona todas las interacciones.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.mediator.GameMediator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.mediator.</span></span><span class="sig-name descname"><span class="pre">GameMediator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.mediator.GameMediator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#patterns.mediator.Mediator" title="patterns.mediator.Mediator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mediator</span></code></a></p>
+<p>Mediador central del juego que coordina interacciones entre:
+- UI (HUD, menús)
+- Estados del juego
+- Estructuras
+- Sistema de puntos</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.mediator.GameMediator.notify">
+<span class="sig-name descname"><span class="pre">notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.mediator.GameMediator.notify" title="Link to this definition">¶</a></dt>
+<dd><p>Procesa eventos y coordina respuestas entre componentes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<em>object</em>)</p></li>
+<li><p><strong>event</strong> (<em>str</em>)</p></li>
+<li><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.mediator.GameMediator.register_component">
+<span class="sig-name descname"><span class="pre">register_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.mediator.GameMediator.register_component" title="Link to this definition">¶</a></dt>
+<dd><p>Registra un componente para que pueda comunicarse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>component</strong> (<em>object</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.mediator.Mediator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.mediator.</span></span><span class="sig-name descname"><span class="pre">Mediator</span></span><a class="headerlink" href="#patterns.mediator.Mediator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Interfaz base para mediadores</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.mediator.Mediator.notify">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.mediator.Mediator.notify" title="Link to this definition">¶</a></dt>
+<dd><p>Recibe notificación de un componente y coordina respuestas</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<em>object</em>) – Objeto que envía la notificación</p></li>
+<li><p><strong>event</strong> (<em>str</em>) – Tipo de evento</p></li>
+<li><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Datos adicionales del evento</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.mediator.StructureMediator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.mediator.</span></span><span class="sig-name descname"><span class="pre">StructureMediator</span></span><a class="headerlink" href="#patterns.mediator.StructureMediator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#patterns.mediator.Mediator" title="patterns.mediator.Mediator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mediator</span></code></a></p>
+<p>Mediador específico para comunicación entre estructuras
+Gestiona flujo de items entre estructuras conectadas</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.mediator.StructureMediator.notify">
+<span class="sig-name descname"><span class="pre">notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.mediator.StructureMediator.notify" title="Link to this definition">¶</a></dt>
+<dd><p>Procesa eventos entre estructuras</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<em>object</em>)</p></li>
+<li><p><strong>event</strong> (<em>str</em>)</p></li>
+<li><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.mediator.StructureMediator.register_structure">
+<span class="sig-name descname"><span class="pre">register_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.mediator.StructureMediator.register_structure" title="Link to this definition">¶</a></dt>
+<dd><p>Registra una estructura</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_id</strong> (<em>int</em>)</p></li>
+<li><p><strong>structure</strong> (<em>object</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.mediator.StructureMediator.unregister_structure">
+<span class="sig-name descname"><span class="pre">unregister_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.mediator.StructureMediator.unregister_structure" title="Link to this definition">¶</a></dt>
+<dd><p>Desregistra una estructura</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>structure_id</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PS-LAB2025</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="patterns.html">Patterns package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="patterns_command.html">patterns.command</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">patterns.mediator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_memento.html">patterns.memento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_observer.html">patterns.observer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_prototype.html">patterns.prototype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_singleton.html">patterns.singleton</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="patterns.html">Patterns package</a><ul>
+      <li>Previous: <a href="patterns_command.html" title="previous chapter">patterns.command</a></li>
+      <li>Next: <a href="patterns_memento.html" title="next chapter">patterns.memento</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/patterns_mediator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

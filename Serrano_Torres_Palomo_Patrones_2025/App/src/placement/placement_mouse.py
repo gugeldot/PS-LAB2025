@@ -1,3 +1,10 @@
+"""Mouse-to-grid conversion utilities for placement.
+
+Small helper that computes the grid cell coordinates from the current
+mouse/screen position and stores them on a controller object. Designed to
+be used by `PlacementController` and separated to allow unit testing.
+"""
+
 import pygame as pg
 from settings import CELL_SIZE_PX
 

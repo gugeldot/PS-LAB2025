@@ -1,8 +1,8 @@
-"""
-Prototype Pattern - Clonar objetos complejos
+"""Prototype pattern utilities.
 
-Permite crear nuevas estructuras copiando prototipos existentes
-en lugar de crearlas desde cero. Útil para configuraciones predefinidas.
+Helpers for cloning complex objects and registering reusable prototypes.
+Provides `StructurePrototype`, `PrototypeRegistry` and layout helpers to
+define common building configurations.
 """
 
 from abc import ABC, abstractmethod
@@ -11,7 +11,11 @@ from typing import Dict, Any, Optional
 
 
 class Prototype(ABC):
-    """Interfaz para objetos que pueden clonarse"""
+    """Interface for objects that can be cloned.
+
+    Implementations should provide a `clone()` method returning a copy of
+    the object.
+    """
     
     @abstractmethod
     def clone(self):
@@ -20,7 +24,11 @@ class Prototype(ABC):
 
 
 class StructurePrototype:
-    """Prototipo de una estructura con configuración predefinida"""
+    """Prototype for a structure with predefined configuration.
+
+    Stores a creator and a configuration dictionary used when creating
+    a concrete structure instance.
+    """
     
     def __init__(self, creator, config: Dict[str, Any]):
         """
@@ -50,7 +58,11 @@ class StructurePrototype:
 
 
 class PrototypeRegistry:
-    """Registro central de prototipos disponibles"""
+    """Central registry for available prototypes.
+
+    Prototypes are stored by name and returned as clones to avoid
+    accidental shared mutable state.
+    """
     
     def __init__(self):
         self._prototypes: Dict[str, StructurePrototype] = {}

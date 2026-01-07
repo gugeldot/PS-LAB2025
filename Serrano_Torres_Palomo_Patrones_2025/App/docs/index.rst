@@ -8,6 +8,9 @@ Welcome to PS-LAB2025's documentation
    map
    gm
    core
+   patterns
+   placement
+   states
 
 Indices and tables
 ==================

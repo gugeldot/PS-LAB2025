@@ -5,6 +5,10 @@ present) for a cost keyed by a type name (sum, mul, div, splitter, merger,
 conveyor). If a matching substring is found in the class name, use the
 mapping's value (falling back to the object's .getCost()). If no mapping or
 no match, fall back to object's .getCost(). Any exceptions result in 0.
+
+This module is intentionally small and defensive — it mirrors the project's
+behaviour when computing costs so callers don't need to duplicate mapping
+logic and error handling.
 """
 
 

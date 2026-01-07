@@ -1,8 +1,8 @@
-"""
-Observer Pattern - Event notification system
+"""Observer pattern utilities.
 
-Permite que objetos se suscriban a eventos y reciban notificaciones
-cuando ocurren cambios importantes en el juego.
+Simple publish/subscribe helpers used for event notification in the
+game. Provides `Subject` to manage observers and several concrete
+observer implementations useful for HUD updates and debugging.
 """
 
 from abc import ABC, abstractmethod
@@ -10,7 +10,10 @@ from typing import Dict, List, Any
 
 
 class Observer(ABC):
-    """Interfaz para observadores que reciben notificaciones"""
+    """Interface for observers that receive event notifications.
+
+    Implementations should provide an `update(event_type, data)` method.
+    """
     
     @abstractmethod
     def update(self, event_type: str, data: Dict[str, Any]) -> None:
@@ -25,7 +28,11 @@ class Observer(ABC):
 
 
 class Subject:
-    """Sujeto observable que mantiene lista de observadores y los notifica"""
+    """Observable subject that keeps a registry of observers.
+
+    Observers can be attached per event type and will be notified when
+    events are emitted via `notify`.
+    """
     
     def __init__(self):
         self._observers: Dict[str, List[Observer]] = {}
@@ -61,7 +68,10 @@ class Subject:
 # Observadores concretos útiles para el juego
 
 class PointsObserver(Observer):
-    """Observador que registra cambios en puntos"""
+    """Observer that reacts to changes in player points.
+
+    Optionally shows HUD popups for significant gains.
+    """
     
     def __init__(self, hud=None):
         self.hud = hud
@@ -82,7 +92,7 @@ class PointsObserver(Observer):
 
 
 class StructureObserver(Observer):
-    """Observador que registra construcción/destrucción de estructuras"""
+    """Observer that logs structure construction and destruction events."""
     
     def __init__(self):
         self.structures_built = 0
@@ -101,7 +111,10 @@ class StructureObserver(Observer):
 
 
 class GameEventLogger(Observer):
-    """Observador que registra todos los eventos del juego para debugging"""
+    """Event logger useful for debugging; records recent events.
+
+    When `verbose` is True the logger will also print events to stdout.
+    """
     
     def __init__(self, verbose=False):
         self.verbose = verbose

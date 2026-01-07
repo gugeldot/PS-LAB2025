@@ -1,19 +1,18 @@
-"""
-Singleton Pattern - Garantizar una única instancia
+"""Singleton pattern utilities.
 
-Proporciona dos formas de implementar Singleton:
-1. SingletonMeta - Metaclase para usar con metaclass=SingletonMeta
-2. Singleton - Clase base para heredar
+Provides two simple singleton implementations used across the project:
+`SingletonMeta` (a metaclass) and `Singleton` (a base class). Both ensure
+that only one instance of a class exists.
 """
 
 
 class SingletonMeta(type):
-    """
-    Metaclase Singleton - Garantiza una única instancia de la clase
-    
-    Uso:
-        class MiClase(metaclass=SingletonMeta):
-            pass
+    """Metaclass implementing the singleton pattern.
+
+    Usage:
+
+    class MyClass(metaclass=SingletonMeta):
+        pass
     """
     _instances = {}
     
@@ -23,14 +22,10 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-# Clase base singleton
 class Singleton:
-    """
-    Clase base Singleton - Garantiza una única instancia
-    
-    Uso:
-        class MiClase(Singleton):
-            pass
+    """Base-class implementing a simple singleton.
+
+    Subclass to get a class with at most one instance.
     """
     _instance = None
     

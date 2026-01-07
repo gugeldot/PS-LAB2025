@@ -1,3 +1,10 @@
+"""Placement inspection helpers.
+
+Utilities to check whether a structure exists at the current mouse/grid
+position maintained by a `PlacementController`-like object. These helpers
+wrap `utils.cursor_inspector.inspect_cell` and preserve existing fallbacks.
+"""
+
 from utils.cursor_inspector import inspect_cell
 
 
