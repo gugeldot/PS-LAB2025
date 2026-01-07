@@ -1,9 +1,19 @@
+"""Action buffer processing extracted from GameManager.
+
+This module exposes a single entry: process_action_buffer(gm, max_per_frame=5)
+which mirrors the previous GameManager.process_action_buffer behavior but keeps
+the logic isolated for easier testing and maintenance.
+"""
 from collections import deque
-import pygame as pg
 
 
 def process_action_buffer(gm, max_per_frame: int = 5):
-    """Process up to `max_per_frame` queued upgrade actions for the given GameManager instance."""
+    """Process up to `max_per_frame` queued upgrade actions on the given
+    GameManager-like object `gm`.
+
+    The function mutates gm.action_buffer (assumed to be a deque) and calls
+    helper apply functions. Returns None.
+    """
     to_process = min(max_per_frame, len(gm.action_buffer))
     applied_this_frame = set()
     for _ in range(to_process):
@@ -11,88 +21,41 @@ def process_action_buffer(gm, max_per_frame: int = 5):
         ok = False
         if action.get('type') == 'speed':
             try:
-                ok = apply_speed_action(gm)
+                ok = _apply_speed_action(gm)
             except Exception:
                 ok = False
         elif action.get('type') == 'eff':
             try:
-                ok = apply_eff_action(gm)
+                ok = _apply_eff_action(gm)
             except Exception:
                 ok = False
         elif action.get('type') == 'mine':
             try:
-                ok = apply_mine_action(gm)
+                ok = _apply_mine_action(gm)
             except Exception:
                 ok = False
 
         if ok:
             applied_this_frame.add(action.get('type'))
+            # avoid applying more than one successful upgrade of any type per frame
             break
 
+        # failed to apply: retry later unless too many tries
         action['tries'] = action.get('tries', 0) + 1
         if action['tries'] < action.get('max_tries', 30):
             gm.action_buffer.append(action)
         else:
-            print(f"Dropping action {action.get('type')} after {action['tries']} failed tries")
-
-
-def apply_mine_action(gm) -> bool:
-    # determine next cost (if we run out of defined costs, use the last one)
-    try:
-        next_idx = int(getattr(gm, 'mine_uses_used', 0))
-        if getattr(gm, 'mine_costs', None):
-            if 0 <= next_idx < len(gm.mine_costs):
-                next_cost = int(gm.mine_costs[next_idx])
-            else:
-                # use last defined cost for any further mines
-                try:
-                    next_cost = int(gm.mine_costs[-1])
-                except Exception:
-                    next_cost = None
-        else:
-            next_cost = None
-    except Exception:
-        next_cost = None
-
-    if next_cost is None or getattr(gm, 'points', 0) < (next_cost or 0):
-        print("[Action] Not enough points to purchase Mine; will retry")
-        return False
-
-    created = False
-    try:
-        created = gm.create_new_mine()
-    except Exception:
-        created = False
-
-    if not created:
-        print("[Action] Failed to place Mine; will retry")
-        return False
-
-    try:
-        # increment the counter so future purchases pick the correct cost index
-        gm.mine_uses_used = int(getattr(gm, 'mine_uses_used', 0)) + 1
-        # mine_uses_left is unlimited (None) so we don't update it here
-        if next_cost is not None:
             try:
-                gm.points = max(0, int(gm.points) - int(next_cost))
-            except Exception:
-                try:
-                    gm.points -= next_cost
-                except Exception:
-                    pass
-        if not getattr(gm, '_popup_message', None):
-            try:
-                gm._popup_message = f"Mina creada"
-                gm._popup_timer = 3000
+                print(f"Dropping action {action.get('type')} after {action['tries']} failed tries")
             except Exception:
                 pass
-        print(f"[Action] Mine purchase applied | -{next_cost} pts (total={gm.points})")
-        return True
-    except Exception:
-        return True
 
 
-def apply_speed_action(gm) -> bool:
+def _apply_speed_action(gm) -> bool:
+    """Attempt to apply a single global speed upgrade.
+
+    Returns True on success, False to retry later.
+    """
     convs = list(getattr(gm, 'conveyors', []))
     if not convs:
         return False
@@ -144,13 +107,17 @@ def apply_speed_action(gm) -> bool:
             gm._popup_timer = 3000
         except Exception:
             pass
-        print(f"[Action] Speed upgrade applied (uses left={gm.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={gm.points})")
+        try:
+            print(f"[Action] Speed upgrade applied (uses left={gm.speed_uses_left}) -> updated {applied} conveyors | -{next_cost} pts (total={gm.points})")
+        except Exception:
+            pass
         return True
 
     return False
 
 
-def apply_eff_action(gm) -> bool:
+def _apply_eff_action(gm) -> bool:
+    """Attempt to apply a single global efficiency upgrade."""
     mines_found = False
     for y, row in enumerate(gm.map.cells):
         for x, cell in enumerate(row):
@@ -192,38 +159,26 @@ def apply_eff_action(gm) -> bool:
                 except Exception:
                     pass
                 if hasattr(base_s, 'number'):
-                    # Keep `_base_number` as the original/base value and
-                    # track efficiency increases separately so upgrades do
-                    # not overwrite the canonical base identifier.
                     if not hasattr(base_s, '_base_number'):
                         try:
                             base_s._base_number = int(base_s.number)
                         except Exception:
                             base_s._base_number = getattr(base_s, 'number', 1)
-                    if not hasattr(base_s, '_eff_number_increase'):
-                        base_s._eff_number_increase = 0
                     try:
-                        base_s._eff_number_increase = int(base_s._eff_number_increase) + 1
-                        base_s._effective_number = max(1, int(base_s._base_number + base_s._eff_number_increase))
+                        base_s._base_number = int(base_s._base_number) + 1
+                        base_s._effective_number = max(1, int(base_s._base_number))
                         applied += 1
                     except Exception:
                         pass
                 if hasattr(base_s, 'consumingNumber'):
-                    # Do NOT mutate `_base_consumingNumber`. Instead track
-                    # efficiency increases separately in `_eff_consuming_increase`
-                    # and compute the runtime `consumingNumber` from the base
-                    # plus the increase. This ensures the configured base
-                    # identifiers (used for unlocking objectives) remain stable.
                     if not hasattr(base_s, '_base_consumingNumber'):
                         try:
                             base_s._base_consumingNumber = int(base_s.consumingNumber)
                         except Exception:
                             base_s._base_consumingNumber = getattr(base_s, 'consumingNumber', 1)
-                    if not hasattr(base_s, '_eff_consuming_increase'):
-                        base_s._eff_consuming_increase = 0
                     try:
-                        base_s._eff_consuming_increase = int(base_s._eff_consuming_increase) + 1
-                        base_val = max(1, int(base_s._base_consumingNumber + base_s._eff_consuming_increase))
+                        base_s._base_consumingNumber = int(base_s._base_consumingNumber) + 1
+                        base_val = max(1, int(base_s._base_consumingNumber))
                         base_s.consumingNumber = base_val
                         try:
                             if s is not base_s and hasattr(s, 'consumingNumber'):
@@ -263,7 +218,59 @@ def apply_eff_action(gm) -> bool:
             gm._popup_timer = 3000
         except Exception:
             pass
-        print(f"[Action] Efficiency upgrade applied (uses left={gm.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={gm.points})")
+        try:
+            print(f"[Action] Efficiency upgrade applied (uses left={gm.eff_uses_left}) -> updated {applied} mines | -{next_cost} pts (total={gm.points})")
+        except Exception:
+            pass
         return True
 
     return False
+
+
+def _apply_mine_action(gm) -> bool:
+    """Attempt to purchase and create a new mine in a random empty cell.
+
+    The original create_new_mine() remains on GameManager; this helper calls
+    gm.create_new_mine() and commits purchase on success.
+    """
+    try:
+        next_cost = int(gm.mine_costs[gm.mine_uses_used]) if 0 <= gm.mine_uses_used < len(gm.mine_costs) else None
+    except Exception:
+        next_cost = None
+
+    if next_cost is None or getattr(gm, 'points', 0) < (next_cost or 0):
+        print("[Action] Not enough points to purchase Mine; will retry")
+        return False
+
+    created = False
+    try:
+        created = gm.create_new_mine()
+    except Exception:
+        created = False
+
+    if not created:
+        print("[Action] Failed to place Mine; will retry")
+        return False
+
+    try:
+        gm.mine_uses_used = int(getattr(gm, 'mine_uses_used', 0)) + 1
+        if next_cost is not None:
+            try:
+                gm.points = max(0, int(gm.points) - int(next_cost))
+            except Exception:
+                try:
+                    gm.points -= next_cost
+                except Exception:
+                    pass
+        if getattr(gm, 'hud', None):
+            try:
+                gm.hud.show_popup("Mina creada")
+            except Exception:
+                pass
+        try:
+            print(f"[Action] Mine purchase applied | -{next_cost} pts (total={gm.points})")
+        except Exception:
+            pass
+        return True
+    except Exception:
+        return True

@@ -4,6 +4,15 @@ from mainMenu import MainMenu
 from settings import *
 from gameManager import GameManager
 
+# Redirect all stdout to App/game.log early so any prints go to the log file.
+try:
+    # local import from same folder
+    from utils.logger import redirect_stdout_to_game_log
+    redirect_stdout_to_game_log()
+except Exception:
+    # If anything goes wrong with redirection, continue running using normal stdout
+    pass
+
 if __name__ == '__main__':
     pg.init()
 

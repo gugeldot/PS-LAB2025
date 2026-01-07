@@ -23,8 +23,12 @@ def init_pygame(gm):
 
 def init_paths(gm):
     """Set save directory and save file attributes on gm."""
+    # __file__ => App/src/gm/gm_init.py
+    # parent => App/src/gm
+    # parent.parent => App/src
+    # parent.parent.parent => App
     base_dir = pathlib.Path(__file__).resolve().parent
-    app_dir = base_dir.parent
+    app_dir = base_dir.parent.parent
     gm.save_dir = app_dir / "saves"
     gm.save_file = gm.save_dir / "map.json"
 

@@ -204,3 +204,130 @@ class Map(Singleton):
 			print(f"[Map.load_from_file] Stored {len(conveyors_list)} conveyors in gameManager")
 
 		return m
+
+	def reconnect_structures(self, conveyors, game_manager=None):
+		"""Re-establish connections between structures and conveyors.
+
+		This is a port of the previous GameManager._reconnect_structures() logic,
+		adapted to operate on the Map instance and a list of conveyors. If a
+		`game_manager` is provided, the function will also set `game_manager.mine`,
+		`game_manager.final_conveyor` and `game_manager.well` when they can be
+		determined from the map/conveyors.
+		"""
+
+		def find_structure_at(grid_x, grid_y):
+			if 0 <= grid_y < len(self.cells) and 0 <= grid_x < len(self.cells[grid_y]):
+				cell = self.cells[grid_y][grid_x]
+				if not cell.isEmpty():
+					return cell.structure
+			return None
+
+		# Limpiar conexiones previas en todas las estructuras del mapa
+		for row in self.cells:
+			for cell in row:
+				if not cell.isEmpty():
+					struct = cell.structure
+					# Limpiar inputs
+					if hasattr(struct, 'input1'): struct.input1 = None
+					if hasattr(struct, 'input2'): struct.input2 = None
+					if hasattr(struct, 'inputConveyor1'): struct.inputConveyor1 = None
+					if hasattr(struct, 'inputConveyor2'): struct.inputConveyor2 = None
+					# Limpiar outputs
+					if hasattr(struct, 'output'): struct.output = None
+					if hasattr(struct, 'outputConveyor'): struct.outputConveyor = None
+
+		# Recopilar conexiones de cintas
+		struct_connections = {}
+		for conv in conveyors:
+			start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
+			start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
+			end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+			end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+
+			start_struct = find_structure_at(start_grid_x, start_grid_y)
+			end_struct = find_structure_at(end_grid_x, end_grid_y)
+
+			if start_struct:
+				if start_struct not in struct_connections:
+					struct_connections[start_struct] = {'inputs': [], 'outputs': []}
+				struct_connections[start_struct]['outputs'].append(conv)
+
+			if end_struct:
+				if end_struct not in struct_connections:
+					struct_connections[end_struct] = {'inputs': [], 'outputs': []}
+				struct_connections[end_struct]['inputs'].append(conv)
+
+		# Ahora conectar según el tipo de estructura
+		for struct, connections in struct_connections.items():
+			struct_type = struct.__class__.__name__.lower()
+			inputs = connections['inputs']
+			outputs = connections['outputs']
+
+			if 'mine' in struct_type:
+				if outputs and hasattr(struct, 'connectOutput'):
+					struct.connectOutput(outputs[0])
+
+			elif 'well' in struct_type:
+				if inputs and hasattr(struct, 'connectInput'):
+					struct.connectInput(inputs[0])
+
+			elif any(x in struct_type for x in ['sum', 'mul', 'div', 'operation']):
+				if len(inputs) >= 1 and hasattr(struct, 'connectInput1'):
+					struct.connectInput1(inputs[0])
+				if len(inputs) >= 2 and hasattr(struct, 'connectInput2'):
+					struct.connectInput2(inputs[1])
+				if outputs and hasattr(struct, 'connectOutput'):
+					struct.connectOutput(outputs[0])
+
+			elif 'merger' in struct_type:
+				if len(inputs) >= 1 and hasattr(struct, 'connectInput1'):
+					struct.connectInput1(inputs[0])
+				if len(inputs) >= 2 and hasattr(struct, 'connectInput2'):
+					struct.connectInput2(inputs[1])
+				if outputs and hasattr(struct, 'connectOutput'):
+					struct.connectOutput(outputs[0])
+
+			elif 'splitter' in struct_type:
+				if inputs and hasattr(struct, 'connectInput'):
+					struct.connectInput(inputs[0])
+				if len(outputs) >= 1 and hasattr(struct, 'connectOutput1'):
+					struct.connectOutput1(outputs[0])
+				if len(outputs) >= 2 and hasattr(struct, 'connectOutput2'):
+					struct.connectOutput2(outputs[1])
+
+		# Conectar cintas entre sí cuando coinciden posiciones
+		for conv in conveyors:
+			for other_conv in conveyors:
+				if conv != other_conv:
+					if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
+						int(conv.end_pos.y) == int(other_conv.start_pos.y)):
+						grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+						grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+						struct = find_structure_at(grid_x, grid_y)
+						if struct is None:
+							conv.connectOutput(other_conv)
+
+		# If a game_manager was provided, set some convenient references
+		if game_manager is not None:
+			# find a Mine structure if present
+			for row in self.cells:
+				for cell in row:
+					if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Mine':
+						game_manager.mine = cell.structure
+						break
+				if hasattr(game_manager, 'mine') and game_manager.mine:
+					break
+
+			# determine final_conveyor and well
+			game_manager.final_conveyor = None
+			game_manager.well = None
+			for conv in conveyors:
+				end_grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+				end_grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+				if 0 <= end_grid_y < len(self.cells) and 0 <= end_grid_x < len(self.cells[end_grid_y]):
+					cell = self.cells[end_grid_y][end_grid_x]
+					if not cell.isEmpty() and cell.structure.__class__.__name__ == 'Well':
+						game_manager.final_conveyor = conv
+						game_manager.well = cell.structure
+						break
+

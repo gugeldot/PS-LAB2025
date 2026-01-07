@@ -1,4 +1,4 @@
-from gameState import GameState
+from .gameState import GameState
 import pygame as pg
 
 class BuildState(GameState):

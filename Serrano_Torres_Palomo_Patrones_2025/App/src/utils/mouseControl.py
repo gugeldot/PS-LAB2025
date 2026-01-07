@@ -13,17 +13,25 @@ class MouseControl:
         self.has_structure = False
 
         pg.mouse.set_visible(False)
-        
-        #  Ruta base del proyecto (un nivel arriba de src)
-        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent  # parent de src
+        #  Ruta base del proyecto (carpeta `App`). Subimos un nivel más
+        #  para que la ruta quede en '/.../App' en lugar de '/.../App/src'.
+        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent  # parent de src -> App
 
         #  Construir la ruta de cualquier recurso en Assets
         CURSOR_IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "cursor.png"
 
+        # Si por alguna razón el asset no existe en la ubicación esperada,
+        # intentar una ruta alternativa (compatibilidad con setups que
+        # coloquen Assets dentro de src). Esto evita fallos al arrancar.
+        if not CURSOR_IMG_PATH.exists():
+            alt = pathlib.Path(__file__).resolve().parent / "Assets" / "Sprites" / "cursor.png"
+            if alt.exists():
+                CURSOR_IMG_PATH = alt
+
         # Cargar la imagen
         self.cursor_img = pg.image.load(CURSOR_IMG_PATH).convert_alpha()
         self.cursor_img = pg.transform.scale(self.cursor_img, (MOUSE_WIDTH, MOUSE_HEIGHT)) #ajustar tamaño a tamaño especificado en setting
-        self.cursor_offset = pg.Vector2(-25, -20) 
+        self.cursor_offset = pg.Vector2(-25, -20)
     def update(self):
         '''
         '''
