@@ -3,6 +3,9 @@ from .renderer import GMRenderer
 
 
 def draw(gm):
-    """Wrapper thin function kept for compatibility: delegates to GMRenderer."""
+    """Thin compatibility wrapper that delegates to GMRenderer.
+
+    Keeps the original `gm_draw.draw(gm)` entrypoint unchanged.
+    """
     renderer = GMRenderer(gm)
     renderer.draw()
