@@ -1,3 +1,10 @@
+"""Splitter module: routes items from a single input to two outputs.
+
+The SplitterModule alternates which output conveyor receives each item.
+This file contains only documentation additions; implementation is left
+unchanged.
+"""
+
 import pygame as pg
 from settings import CELL_SIZE_PX
 import pathlib

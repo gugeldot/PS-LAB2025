@@ -1,4 +1,7 @@
 import pathlib
+"""Multiplication module: consumes two inputs and produces their product."""
+
+import pathlib
 import pygame as pg
 from core import conveyor
 from .module import *

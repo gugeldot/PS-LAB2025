@@ -1,3 +1,10 @@
+"""Merger module: takes two inputs and merges them into one output.
+
+This module provides the MergerModule class which combines items from two
+input conveyors and forwards them to a single output conveyor. Docstrings
+here describe behavior only; implementation is unchanged.
+"""
+
 import pygame as pg
 from settings import CELL_SIZE_PX
 import pathlib

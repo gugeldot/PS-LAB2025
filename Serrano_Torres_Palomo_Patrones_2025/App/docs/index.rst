@@ -7,6 +7,7 @@ Welcome to PS-LAB2025's documentation
 
    map
    gm
+   core
 
 Indices and tables
 ==================

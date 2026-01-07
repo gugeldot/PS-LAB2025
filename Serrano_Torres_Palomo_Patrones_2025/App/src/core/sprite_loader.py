@@ -1,12 +1,20 @@
+"""Sprite loading helpers for assets.
+
+Provides a small utility to load and scale images from the project's
+Assets/Sprites folder. The function returns a :class:`pygame.Surface` or
+``None`` if loading fails.
+"""
+
 import pathlib
 import pygame as pg
 
 
 def load_sprite_from_assets(filename: str, size=(40, 40)):
-    """Try to load a sprite from the project Assets/Sprites folder.
+    """Load a sprite from Assets/Sprites and scale it to ``size``.
 
-    Returns a pygame.Surface or None if loading failed. Exceptions are
-    caught and printed as warnings to avoid breaking the game flow.
+    Returns a :class:`pygame.Surface` or ``None`` if the file is not found
+    or loading fails. Errors are caught and logged as warnings to avoid
+    breaking the game flow during startup.
     """
     try:
         base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
@@ -16,7 +24,6 @@ def load_sprite_from_assets(filename: str, size=(40, 40)):
             surf = pg.transform.scale(surf, size)
             return surf
         else:
-            # Not an error; caller can fallback to drawing shapes
             print(f"Warning: sprite not found at {sprite_path}")
     except Exception as e:
         print(f"Warning: Could not load sprite {filename}: {e}")

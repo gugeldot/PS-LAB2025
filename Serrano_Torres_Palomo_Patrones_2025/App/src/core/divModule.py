@@ -1,3 +1,8 @@
+"""Division module: performs division between two inputs.
+
+Note: may be a placeholder if division module is not fully implemented.
+"""
+
 import pygame as pg
 import pathlib
 from core import conveyor

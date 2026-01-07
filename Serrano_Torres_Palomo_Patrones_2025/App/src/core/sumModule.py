@@ -1,3 +1,9 @@
+"""Sum module: consumes two inputs and produces their sum.
+
+Defines :class:`SumModule` which reads from two input conveyors, adds the
+values and pushes the result to an output conveyor.
+"""
+
 import pathlib
 import pygame as pg
 from core import conveyor

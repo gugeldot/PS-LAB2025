@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Core package &#8212; PS-LAB2025 0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=837179f8"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="GM package" href="gm.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="core-package">
+<h1>Core package<a class="headerlink" href="#core-package" title="Link to this heading">¶</a></h1>
+<p>This page documents the <cite>core</cite> package (structures, conveyors and creators).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These pages use autodoc to pull docstrings from the source. If
+your environment lacks graphical dependencies (e.g. <code class="docutils literal notranslate"><span class="pre">pygame</span></code>), consider
+mocking them in <code class="docutils literal notranslate"><span class="pre">conf.py</span></code> before building the docs.</p>
+</div>
+<p id="module-core.conveyor">Conveyor implementation.</p>
+<p>This module provides <a class="reference internal" href="#core.conveyor.Conveyor" title="core.conveyor.Conveyor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Conveyor</span></code></a>, a lightweight structure that
+transports numeric items between other structures using an internal queue.</p>
+<p>The conveyor stores items as dictionaries with <code class="docutils literal notranslate"><span class="pre">value</span></code> and <code class="docutils literal notranslate"><span class="pre">position</span></code>
+keys where <code class="docutils literal notranslate"><span class="pre">position</span></code> progresses from 0.0 to 1.0 during transmission.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.conveyor.</span></span><span class="sig-name descname"><span class="pre">Conveyor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#core.structure.Structure" title="core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></a></p>
+<p>Conveyor belt that transports numbers between structures.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">start_pos,</span> <span class="pre">end_pos</span></span></dt>
+<dd><p>Pixel coordinates for the conveyor endpoints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pg.Vector2</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.queue">
+<span class="sig-name descname"><span class="pre">queue</span></span><a class="headerlink" href="#core.conveyor.Conveyor.queue" title="Link to this definition">¶</a></dt>
+<dd><p>Items waiting on the belt. Each item is a dict with <code class="docutils literal notranslate"><span class="pre">value</span></code> and
+<code class="docutils literal notranslate"><span class="pre">position</span></code> (0.0..1.0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>collections.deque</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.travel_time">
+<span class="sig-name descname"><span class="pre">travel_time</span></span><a class="headerlink" href="#core.conveyor.Conveyor.travel_time" title="Link to this definition">¶</a></dt>
+<dd><p>Time in milliseconds required for an item to travel the full belt.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.connectOutput">
+<span class="sig-name descname"><span class="pre">connectOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.connectOutput" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience to set the conveyor output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.createIterator">
+<span class="sig-name descname"><span class="pre">createIterator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.createIterator" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the conveyor and the queued item values on screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.isEmpty">
+<span class="sig-name descname"><span class="pre">isEmpty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.isEmpty" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.isReady">
+<span class="sig-name descname"><span class="pre">isReady</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.isReady" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if an item is positioned at the conveyor end.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.output">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#core.conveyor.Conveyor.output" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.peek">
+<span class="sig-name descname"><span class="pre">peek</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.peek" title="Link to this definition">¶</a></dt>
+<dd><p>Return the value at the front of the queue without removing it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.pop" title="Link to this definition">¶</a></dt>
+<dd><p>Remove and return the value at the end of the belt if ready.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.push">
+<span class="sig-name descname"><span class="pre">push</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.push" title="Link to this definition">¶</a></dt>
+<dd><p>Enqueue a number at the start of the conveyor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.size" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyor.Conveyor.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyor.Conveyor.update" title="Link to this definition">¶</a></dt>
+<dd><p>Advance item positions based on the game delta time and move items
+to the next conveyor when they reach the end.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.conveyorCreator">
+<dt class="sig sig-object py" id="core.conveyorCreator.ConveyorCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.conveyorCreator.</span></span><span class="sig-name descname"><span class="pre">ConveyorCreator</span></span><a class="headerlink" href="#core.conveyorCreator.ConveyorCreator" title="Link to this definition">¶</a></dt>
+<dd><p>Creator para cintas transportadoras.
+Requiere dos posiciones: inicio y fin.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyorCreator.ConveyorCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyorCreator.ConveyorCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd><p>Crea una cinta transportadora entre dos puntos.
+start_pos: posición inicial (puede ser tuple de grid o pg.Vector2 de píxeles)
+end_pos: posición final (puede ser tuple de grid o pg.Vector2 de píxeles)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyorCreator.ConveyorCreator.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyorCreator.ConveyorCreator.getCost" title="Link to this definition">¶</a></dt>
+<dd><p>Costo base de construir una cinta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.conveyorCreator.ConveyorCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.conveyorCreator.ConveyorCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd><p>Color pastel para preview de cinta</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-core.divModule">Division module: performs division between two inputs.</p>
+<p>Note: may be a placeholder if division module is not fully implemented.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.divModule.DivModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.divModule.</span></span><span class="sig-name descname"><span class="pre">DivModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.divModule.DivModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.divModule.DivModule.calcular">
+<span class="sig-name descname"><span class="pre">calcular</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.divModule.DivModule.calcular" title="Link to this definition">¶</a></dt>
+<dd><p>Divide the first input by the second input and returns the result.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.divModule.DivModule.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.divModule.DivModule.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Draw the module as a circle on the game surface.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.divModule.DivModule.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.divModule.DivModule.getCost" title="Link to this definition">¶</a></dt>
+<dd><p>Optional: return module build cost.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.divModule.DivModule.setConveyor">
+<span class="sig-name descname"><span class="pre">setConveyor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.divModule.DivModule.setConveyor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.divModuleCreator">
+<dt class="sig sig-object py" id="core.divModuleCreator.DivModuleCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.divModuleCreator.</span></span><span class="sig-name descname"><span class="pre">DivModuleCreator</span></span><a class="headerlink" href="#core.divModuleCreator.DivModuleCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.divModuleCreator.DivModuleCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.divModuleCreator.DivModuleCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.divModuleCreator.DivModuleCreator.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.divModuleCreator.DivModuleCreator.getCost" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.divModuleCreator.DivModuleCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.divModuleCreator.DivModuleCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-core.mergerModule">Merger module: takes two inputs and merges them into one output.</p>
+<p>This module provides the MergerModule class which combines items from two
+input conveyors and forwards them to a single output conveyor. Docstrings
+here describe behavior only; implementation is unchanged.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.mergerModule.</span></span><span class="sig-name descname"><span class="pre">MergerModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerModule.MergerModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.connectInput1">
+<span class="sig-name descname"><span class="pre">connectInput1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerModule.MergerModule.connectInput1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.connectInput2">
+<span class="sig-name descname"><span class="pre">connectInput2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerModule.MergerModule.connectInput2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.connectOutput">
+<span class="sig-name descname"><span class="pre">connectOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerModule.MergerModule.connectOutput" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerModule.MergerModule.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the structure on screen.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.input1">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input1</span></span><a class="headerlink" href="#core.mergerModule.MergerModule.input1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.input2">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#core.mergerModule.MergerModule.input2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.output">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#core.mergerModule.MergerModule.output" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerModule.MergerModule.process" title="Link to this definition">¶</a></dt>
+<dd><p>Combines numbers from two inputs into one output</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mergerModule.MergerModule.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerModule.MergerModule.update" title="Link to this definition">¶</a></dt>
+<dd><p>Advance internal state once per frame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.mergerCreator">
+<dt class="sig sig-object py" id="core.mergerCreator.MergerCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.mergerCreator.</span></span><span class="sig-name descname"><span class="pre">MergerCreator</span></span><a class="headerlink" href="#core.mergerCreator.MergerCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.mergerCreator.MergerCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerCreator.MergerCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mergerCreator.MergerCreator.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerCreator.MergerCreator.getCost" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mergerCreator.MergerCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mergerCreator.MergerCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-core.mine">Mine structure.</p>
+<p>Implements <a class="reference internal" href="#core.mine.Mine" title="core.mine.Mine"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mine</span></code></a>, a producer structure that emits numbers at a fixed
+production interval. The class stores both grid and pixel coordinates and
+renders itself on the game surface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.mine.Mine">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.mine.</span></span><span class="sig-name descname"><span class="pre">Mine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mine.Mine" title="Link to this definition">¶</a></dt>
+<dd><p>A Mine that produces numeric values into an output conveyor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>tuple</em><em>[</em><em>int</em><em>,</em><em>int</em><em>]</em>) – Grid coordinates (x, y) where the mine will be placed.</p></li>
+<li><p><strong>number</strong> (<em>int</em>) – Base numeric value produced by this mine (upgrades may change
+the effective value).</p></li>
+<li><p><strong>gameManager</strong> (<em>object</em>) – Reference to the GameManager instance used for timing and rendering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mine.Mine.connectOutput">
+<span class="sig-name descname"><span class="pre">connectOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mine.Mine.connectOutput" title="Link to this definition">¶</a></dt>
+<dd><p>Connect a conveyor to this mine’s output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mine.Mine.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mine.Mine.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the mine and the current number on screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mine.Mine.produce">
+<span class="sig-name descname"><span class="pre">produce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mine.Mine.produce" title="Link to this definition">¶</a></dt>
+<dd><p>Push the mine’s value into the provided conveyor.</p>
+<p>Uses an upgraded effective value when available.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mine.Mine.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mine.Mine.update" title="Link to this definition">¶</a></dt>
+<dd><p>Periodic update called from the main loop (placeholder).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.mineCreator">
+<dt class="sig sig-object py" id="core.mineCreator.MineCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.mineCreator.</span></span><span class="sig-name descname"><span class="pre">MineCreator</span></span><a class="headerlink" href="#core.mineCreator.MineCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.mineCreator.MineCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mineCreator.MineCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mineCreator.MineCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mineCreator.MineCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-core.module">Base module class used by operation modules (sum, mul, div, etc.).</p>
+<p>This module defines <a class="reference internal" href="#core.module.Module" title="core.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>, a convenience subclass of
+<code class="docutils literal notranslate"><span class="pre">Structure</span></code> that places common behaviour and drawing for modules used in
+the game grid.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.module.Module">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.module.</span></span><span class="sig-name descname"><span class="pre">Module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.module.Module" title="Link to this definition">¶</a></dt>
+<dd><p>Generic module base class.</p>
+<p>Subclasses should override <a class="reference internal" href="#core.module.Module.calcular" title="core.module.Module.calcular"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calcular()</span></code></a> to implement their specific
+operation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.module.Module.calcular">
+<span class="sig-name descname"><span class="pre">calcular</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.module.Module.calcular" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the module-specific operation. Subclasses must override.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.module.Module.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.module.Module.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Draw the module as a circle on the game surface.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.module.Module.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.module.Module.getCost" title="Link to this definition">¶</a></dt>
+<dd><p>Optional: return module build cost.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.module.Module.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.module.Module.update" title="Link to this definition">¶</a></dt>
+<dd><p>Per-frame update (placeholder in base class).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.mulModule">
+<dt class="sig sig-object py" id="core.mulModule.MulModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.mulModule.</span></span><span class="sig-name descname"><span class="pre">MulModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.mulModule.MulModule.calcular">
+<span class="sig-name descname"><span class="pre">calcular</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule.calcular" title="Link to this definition">¶</a></dt>
+<dd><p>Suma los números de entrada y devuelve el resultado.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModule.MulModule.connectInput1">
+<span class="sig-name descname"><span class="pre">connectInput1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule.connectInput1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModule.MulModule.connectInput2">
+<span class="sig-name descname"><span class="pre">connectInput2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule.connectInput2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModule.MulModule.connectOutput">
+<span class="sig-name descname"><span class="pre">connectOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule.connectOutput" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModule.MulModule.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Draw the module as a circle on the game surface.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModule.MulModule.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule.getCost" title="Link to this definition">¶</a></dt>
+<dd><p>Optional: return module build cost.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModule.MulModule.setConveyor">
+<span class="sig-name descname"><span class="pre">setConveyor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModule.MulModule.setConveyor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.mulModuleCreator">
+<dt class="sig sig-object py" id="core.mulModuleCreator.MulModuleCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.mulModuleCreator.</span></span><span class="sig-name descname"><span class="pre">MulModuleCreator</span></span><a class="headerlink" href="#core.mulModuleCreator.MulModuleCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.mulModuleCreator.MulModuleCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModuleCreator.MulModuleCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModuleCreator.MulModuleCreator.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModuleCreator.MulModuleCreator.getCost" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.mulModuleCreator.MulModuleCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.mulModuleCreator.MulModuleCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.operationCreator">
+<dt class="sig sig-object py" id="core.operationCreator.MultiplyCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operationCreator.</span></span><span class="sig-name descname"><span class="pre">MultiplyCreator</span></span><a class="headerlink" href="#core.operationCreator.MultiplyCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operationCreator.MultiplyCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationCreator.MultiplyCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="core.operationCreator.SumCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operationCreator.</span></span><span class="sig-name descname"><span class="pre">SumCreator</span></span><a class="headerlink" href="#core.operationCreator.SumCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operationCreator.SumCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationCreator.SumCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.operationModule">
+<dt class="sig sig-object py" id="core.operationModule.DivModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operationModule.</span></span><span class="sig-name descname"><span class="pre">DivModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.DivModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.DivModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.DivModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.DivModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.DivModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="core.operationModule.MultiplyModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operationModule.</span></span><span class="sig-name descname"><span class="pre">MultiplyModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.MultiplyModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.MultiplyModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.MultiplyModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.MultiplyModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.MultiplyModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operationModule.</span></span><span class="sig-name descname"><span class="pre">OperationModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule" title="Link to this definition">¶</a></dt>
+<dd><p>Base operation module that handles connections and processing flow.</p>
+<p>Concrete operation logic (operate) must be implemented by subclasses.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.connectInput">
+<span class="sig-name descname"><span class="pre">connectInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.connectInput" title="Link to this definition">¶</a></dt>
+<dd><p>Automatic connection based on Y position (compatible with Merger logic)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.connectInput1">
+<span class="sig-name descname"><span class="pre">connectInput1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.connectInput1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.connectInput2">
+<span class="sig-name descname"><span class="pre">connectInput2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.connectInput2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.connectOutput">
+<span class="sig-name descname"><span class="pre">connectOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.connectOutput" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the structure on screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.input1">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input1</span></span><a class="headerlink" href="#core.operationModule.OperationModule.input1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.input2">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#core.operationModule.OperationModule.input2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.output">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#core.operationModule.OperationModule.output" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.process" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.OperationModule.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.OperationModule.update" title="Link to this definition">¶</a></dt>
+<dd><p>Advance internal state once per frame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="core.operationModule.SumModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operationModule.</span></span><span class="sig-name descname"><span class="pre">SumModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.SumModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.SumModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.SumModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operationModule.SumModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operationModule.SumModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.operation_base">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operation_base.</span></span><span class="sig-name descname"><span class="pre">OperationModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule" title="Link to this definition">¶</a></dt>
+<dd><p>Base operation module that handles connections and processing flow.</p>
+<p>Concrete operation logic (operate) must be implemented by subclasses.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.connectInput">
+<span class="sig-name descname"><span class="pre">connectInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.connectInput" title="Link to this definition">¶</a></dt>
+<dd><p>Automatic connection based on Y position (compatible with Merger logic)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.connectInput1">
+<span class="sig-name descname"><span class="pre">connectInput1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.connectInput1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.connectInput2">
+<span class="sig-name descname"><span class="pre">connectInput2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.connectInput2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.connectOutput">
+<span class="sig-name descname"><span class="pre">connectOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.connectOutput" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the structure on screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.input1">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input1</span></span><a class="headerlink" href="#core.operation_base.OperationModule.input1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.input2">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input2</span></span><a class="headerlink" href="#core.operation_base.OperationModule.input2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.output">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#core.operation_base.OperationModule.output" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.process" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_base.OperationModule.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_base.OperationModule.update" title="Link to this definition">¶</a></dt>
+<dd><p>Advance internal state once per frame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.operation_math">
+<dt class="sig sig-object py" id="core.operation_math.DivModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operation_math.</span></span><span class="sig-name descname"><span class="pre">DivModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.DivModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operation_math.DivModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.DivModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_math.DivModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.DivModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="core.operation_math.MultiplyModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operation_math.</span></span><span class="sig-name descname"><span class="pre">MultiplyModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.MultiplyModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operation_math.MultiplyModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.MultiplyModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_math.MultiplyModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.MultiplyModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="core.operation_math.SumModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.operation_math.</span></span><span class="sig-name descname"><span class="pre">SumModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.SumModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.operation_math.SumModule.get_symbol">
+<span class="sig-name descname"><span class="pre">get_symbol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.SumModule.get_symbol" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.operation_math.SumModule.operate">
+<span class="sig-name descname"><span class="pre">operate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.operation_math.SumModule.operate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.splitterCreator">
+<dt class="sig sig-object py" id="core.splitterCreator.SplitterCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.splitterCreator.</span></span><span class="sig-name descname"><span class="pre">SplitterCreator</span></span><a class="headerlink" href="#core.splitterCreator.SplitterCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.splitterCreator.SplitterCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterCreator.SplitterCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.splitterCreator.SplitterCreator.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterCreator.SplitterCreator.getCost" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.splitterCreator.SplitterCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterCreator.SplitterCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-core.splitterModule">Splitter module: routes items from a single input to two outputs.</p>
+<p>The SplitterModule alternates which output conveyor receives each item.
+This file contains only documentation additions; implementation is left
+unchanged.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.splitterModule.</span></span><span class="sig-name descname"><span class="pre">SplitterModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterModule.SplitterModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.connectInput">
+<span class="sig-name descname"><span class="pre">connectInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterModule.SplitterModule.connectInput" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.connectOutput1">
+<span class="sig-name descname"><span class="pre">connectOutput1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterModule.SplitterModule.connectOutput1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.connectOutput2">
+<span class="sig-name descname"><span class="pre">connectOutput2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterModule.SplitterModule.connectOutput2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterModule.SplitterModule.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the structure on screen.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.input">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#core.splitterModule.SplitterModule.input" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.output1">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output1</span></span><a class="headerlink" href="#core.splitterModule.SplitterModule.output1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.output2">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output2</span></span><a class="headerlink" href="#core.splitterModule.SplitterModule.output2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterModule.SplitterModule.process" title="Link to this definition">¶</a></dt>
+<dd><p>Splits numbers from input alternating between two outputs</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.splitterModule.SplitterModule.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.splitterModule.SplitterModule.update" title="Link to this definition">¶</a></dt>
+<dd><p>Advance internal state once per frame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-core.sprite_loader">Sprite loading helpers for assets.</p>
+<p>Provides a small utility to load and scale images from the project’s
+Assets/Sprites folder. The function returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">pygame.Surface</span></code> or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> if loading fails.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="core.sprite_loader.load_sprite_from_assets">
+<span class="sig-prename descclassname"><span class="pre">core.sprite_loader.</span></span><span class="sig-name descname"><span class="pre">load_sprite_from_assets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(40,</span> <span class="pre">40)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.sprite_loader.load_sprite_from_assets" title="Link to this definition">¶</a></dt>
+<dd><p>Load a sprite from Assets/Sprites and scale it to <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p>
+<p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">pygame.Surface</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the file is not found
+or loading fails. Errors are caught and logged as warnings to avoid
+breaking the game flow during startup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p id="module-core.structure">Base structure abstraction used across core modules.</p>
+<p>Subclasses must implement <code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">draw()</span></code>. This module
+defines the minimal interface consumed by the rest of the game logic.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.structure.Structure">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.structure.</span></span><span class="sig-name descname"><span class="pre">Structure</span></span><a class="headerlink" href="#core.structure.Structure" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract base class for all placeable structures (mines, modules, etc.).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.structure.Structure.draw">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.structure.Structure.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the structure on screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.structure.Structure.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.structure.Structure.getCost" title="Link to this definition">¶</a></dt>
+<dd><p>Return the build cost for this structure (optional).</p>
+<p>Subclasses may override to provide cost information used by builders.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.structure.Structure.update">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.structure.Structure.update" title="Link to this definition">¶</a></dt>
+<dd><p>Advance internal state once per frame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.structureCreator">
+<dt class="sig sig-object py" id="core.structureCreator.StructureCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.structureCreator.</span></span><span class="sig-name descname"><span class="pre">StructureCreator</span></span><a class="headerlink" href="#core.structureCreator.StructureCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.structureCreator.StructureCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.structureCreator.StructureCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.structureCreator.StructureCreator.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.structureCreator.StructureCreator.getCost" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.structureCreator.StructureCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.structureCreator.StructureCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-core.sumModule">Sum module: consumes two inputs and produces their sum.</p>
+<p>Defines <a class="reference internal" href="#core.sumModule.SumModule" title="core.sumModule.SumModule"><code class="xref py py-class docutils literal notranslate"><span class="pre">SumModule</span></code></a> which reads from two input conveyors, adds the
+values and pushes the result to an output conveyor.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.sumModule.SumModule">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.sumModule.</span></span><span class="sig-name descname"><span class="pre">SumModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.sumModule.SumModule.calcular">
+<span class="sig-name descname"><span class="pre">calcular</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule.calcular" title="Link to this definition">¶</a></dt>
+<dd><p>Suma los números de entrada y devuelve el resultado.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModule.SumModule.connectInput1">
+<span class="sig-name descname"><span class="pre">connectInput1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule.connectInput1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModule.SumModule.connectInput2">
+<span class="sig-name descname"><span class="pre">connectInput2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule.connectInput2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModule.SumModule.connectOutput">
+<span class="sig-name descname"><span class="pre">connectOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule.connectOutput" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModule.SumModule.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Draw the module as a circle on the game surface.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModule.SumModule.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule.getCost" title="Link to this definition">¶</a></dt>
+<dd><p>Optional: return module build cost.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModule.SumModule.setConveyor">
+<span class="sig-name descname"><span class="pre">setConveyor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModule.SumModule.setConveyor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.sumModuleCreator">
+<dt class="sig sig-object py" id="core.sumModuleCreator.SumModuleCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.sumModuleCreator.</span></span><span class="sig-name descname"><span class="pre">SumModuleCreator</span></span><a class="headerlink" href="#core.sumModuleCreator.SumModuleCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.sumModuleCreator.SumModuleCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModuleCreator.SumModuleCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModuleCreator.SumModuleCreator.getCost">
+<span class="sig-name descname"><span class="pre">getCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModuleCreator.SumModuleCreator.getCost" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.sumModuleCreator.SumModuleCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.sumModuleCreator.SumModuleCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-core.well">Well (pozo) structure: consumes numbers and awards points.</p>
+<p>This module implements the Well structure used by the game. A Well
+consumes numeric items pushed by conveyors and awards points when the
+consumed number matches rules (multiples, difficulty-based bonuses).
+Only documentation and docstrings are added; implementation is unchanged.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.well.Well">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.well.</span></span><span class="sig-name descname"><span class="pre">Well</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumingNumber</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.well.Well" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>locked</strong> (<em>bool</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.well.Well.connectInput">
+<span class="sig-name descname"><span class="pre">connectInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.well.Well.connectInput" title="Link to this definition">¶</a></dt>
+<dd><p>Permite que el sistema de reconexión conecte una cinta al pozo</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.well.Well.consume">
+<span class="sig-name descname"><span class="pre">consume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.well.Well.consume" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.well.Well.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.well.Well.draw" title="Link to this definition">¶</a></dt>
+<dd><p>Render the structure on screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.well.Well.push">
+<span class="sig-name descname"><span class="pre">push</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.well.Well.push" title="Link to this definition">¶</a></dt>
+<dd><p>Permite que un conveyor empuje un número directamente al pozo</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.well.Well.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.well.Well.update" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-core.wellCreator">
+<dt class="sig sig-object py" id="core.wellCreator.WellCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.wellCreator.</span></span><span class="sig-name descname"><span class="pre">WellCreator</span></span><a class="headerlink" href="#core.wellCreator.WellCreator" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="core.wellCreator.WellCreator.createStructure">
+<span class="sig-name descname"><span class="pre">createStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumingNumber</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.wellCreator.WellCreator.createStructure" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>locked</strong> (<em>bool</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.wellCreator.WellCreator.getSpritePreview">
+<span class="sig-name descname"><span class="pre">getSpritePreview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.wellCreator.WellCreator.getSpritePreview" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PS-LAB2025</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core.conveyor.Conveyor"><code class="docutils literal notranslate"><span class="pre">Conveyor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.conveyorCreator.ConveyorCreator"><code class="docutils literal notranslate"><span class="pre">ConveyorCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.divModule.DivModule"><code class="docutils literal notranslate"><span class="pre">DivModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.divModuleCreator.DivModuleCreator"><code class="docutils literal notranslate"><span class="pre">DivModuleCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.mergerModule.MergerModule"><code class="docutils literal notranslate"><span class="pre">MergerModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.mergerCreator.MergerCreator"><code class="docutils literal notranslate"><span class="pre">MergerCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.mine.Mine"><code class="docutils literal notranslate"><span class="pre">Mine</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.mineCreator.MineCreator"><code class="docutils literal notranslate"><span class="pre">MineCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.module.Module"><code class="docutils literal notranslate"><span class="pre">Module</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.mulModule.MulModule"><code class="docutils literal notranslate"><span class="pre">MulModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.mulModuleCreator.MulModuleCreator"><code class="docutils literal notranslate"><span class="pre">MulModuleCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operationCreator.MultiplyCreator"><code class="docutils literal notranslate"><span class="pre">MultiplyCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operationCreator.SumCreator"><code class="docutils literal notranslate"><span class="pre">SumCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operationModule.DivModule"><code class="docutils literal notranslate"><span class="pre">DivModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operationModule.MultiplyModule"><code class="docutils literal notranslate"><span class="pre">MultiplyModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operationModule.OperationModule"><code class="docutils literal notranslate"><span class="pre">OperationModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operationModule.SumModule"><code class="docutils literal notranslate"><span class="pre">SumModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operation_base.OperationModule"><code class="docutils literal notranslate"><span class="pre">OperationModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operation_math.DivModule"><code class="docutils literal notranslate"><span class="pre">DivModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operation_math.MultiplyModule"><code class="docutils literal notranslate"><span class="pre">MultiplyModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.operation_math.SumModule"><code class="docutils literal notranslate"><span class="pre">SumModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.splitterCreator.SplitterCreator"><code class="docutils literal notranslate"><span class="pre">SplitterCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.splitterModule.SplitterModule"><code class="docutils literal notranslate"><span class="pre">SplitterModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.sprite_loader.load_sprite_from_assets"><code class="docutils literal notranslate"><span class="pre">load_sprite_from_assets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.structure.Structure"><code class="docutils literal notranslate"><span class="pre">Structure</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.structureCreator.StructureCreator"><code class="docutils literal notranslate"><span class="pre">StructureCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.sumModule.SumModule"><code class="docutils literal notranslate"><span class="pre">SumModule</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.sumModuleCreator.SumModuleCreator"><code class="docutils literal notranslate"><span class="pre">SumModuleCreator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.well.Well"><code class="docutils literal notranslate"><span class="pre">Well</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core.wellCreator.WellCreator"><code class="docutils literal notranslate"><span class="pre">WellCreator</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="gm.html" title="previous chapter">GM package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/core.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
