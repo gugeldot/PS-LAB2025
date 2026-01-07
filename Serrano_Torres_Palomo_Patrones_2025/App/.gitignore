@@ -11,6 +11,8 @@ venv/
 # Ignore PyInstaller and build artifacts we create during packaging
 # Keep the top-level `dist/` folder for scripts/docs, but ignore generated
 # platform-specific outputs and build working dir.
+/dist/linux/
+/dist/windows/
 /build/
 /.venv_build/
 
