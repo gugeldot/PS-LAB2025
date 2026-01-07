@@ -686,6 +686,9 @@ class GameManager(Singleton):
                     else:
                         self.hud.shop_mode = "SHOP"
                     self.hud._setup_buttons()
+                    # Consume this click: menu toggling should not fall through
+                    # to other HUD/module click handlers in the same event.
+                    continue
                 if self.hud and self.hud.build_button.collidepoint(event.pos):
                     if self.hud.shop_mode == "DESTROY":
                         self.setState(self.normalState)
@@ -695,6 +698,9 @@ class GameManager(Singleton):
                         self.hud.shop_mode = "BUILD"
 
                     self.hud._setup_buttons()
+                    # Prevent the same click from immediately selecting a module
+                    # (the new BUILD submenu should require a second click).
+                    continue
                 #boton destruir
                 if self.hud and self.hud.destroy_button.collidepoint(event.pos):
                     if self.hud.shop_mode == "DESTROY":
@@ -704,6 +710,8 @@ class GameManager(Singleton):
                         self.hud.shop_mode = "DESTROY"
                         self.setState(self.destroyState)
                     self.hud._setup_buttons()
+                    # Consume destroy toggle click to avoid falling through
+                    continue
 
                 #botones de construccion
                 elif self.hud and self.hud.shop_mode == "BUILD":
