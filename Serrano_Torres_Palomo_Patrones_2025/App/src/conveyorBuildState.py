@@ -70,8 +70,12 @@ class ConveyorBuildState(GameState):
                     self.start_pos = None
                     return
                 
-                # Verificar costo
-                cost = self.conveyorCreator.getCost()
+                # Verificar costo: preferir el coste declarado en gm.build_costs
+                try:
+                    costs_map = getattr(self.gameManager, 'build_costs', {}) or {}
+                    cost = int(costs_map.get('conveyor', self.conveyorCreator.getCost()))
+                except Exception:
+                    cost = self.conveyorCreator.getCost()
                 if getattr(self.gameManager, 'points', 0) >= cost:
                     # Crear la cinta
                     conveyor = self.conveyorCreator.createStructure(

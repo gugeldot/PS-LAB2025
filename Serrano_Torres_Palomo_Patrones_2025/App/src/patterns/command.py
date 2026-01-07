@@ -41,7 +41,29 @@ class BuildStructureCommand(Command):
         self.creator = creator
         self.position = position
         self.structure = None
-        self.cost = creator.getCost()
+        # Prefer cost from gameManager.build_costs if available, else fallback to creator.getCost()
+        try:
+            costs_map = getattr(self.gameManager, 'build_costs', None) or {}
+            cname = creator.__class__.__name__.lower() if creator is not None else ''
+            if costs_map:
+                if 'sum' in cname:
+                    self.cost = int(costs_map.get('sum', creator.getCost()))
+                elif 'mul' in cname or 'multiply' in cname:
+                    self.cost = int(costs_map.get('mul', creator.getCost()))
+                elif 'div' in cname:
+                    self.cost = int(costs_map.get('div', creator.getCost()))
+                elif 'splitter' in cname:
+                    self.cost = int(costs_map.get('splitter', creator.getCost()))
+                elif 'merger' in cname:
+                    self.cost = int(costs_map.get('merger', creator.getCost()))
+                elif 'conveyor' in cname or 'convey' in cname:
+                    self.cost = int(costs_map.get('conveyor', creator.getCost()))
+                else:
+                    self.cost = int(creator.getCost())
+            else:
+                self.cost = int(creator.getCost())
+        except Exception:
+            self.cost = creator.getCost()
     
     def execute(self) -> bool:
         """Construye la estructura si hay puntos suficientes"""
@@ -121,7 +143,12 @@ class BuildConveyorCommand(Command):
         self.start_pos = start_pos
         self.end_pos = end_pos
         self.conveyor = None
-        self.cost = conveyorCreator.getCost()
+        # Prefer cost from gameManager.build_costs if available, else fallback
+        try:
+            costs_map = getattr(self.gameManager, 'build_costs', {}) or {}
+            self.cost = int(costs_map.get('conveyor', conveyorCreator.getCost()))
+        except Exception:
+            self.cost = conveyorCreator.getCost()
     
     def execute(self) -> bool:
         if getattr(self.gameManager, 'points', 0) < self.cost:

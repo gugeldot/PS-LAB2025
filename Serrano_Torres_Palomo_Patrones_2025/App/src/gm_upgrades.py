@@ -37,9 +37,20 @@ def process_action_buffer(gm, max_per_frame: int = 5):
 
 
 def apply_mine_action(gm) -> bool:
-    # determine next cost
+    # determine next cost (if we run out of defined costs, use the last one)
     try:
-        next_cost = int(gm.mine_costs[gm.mine_uses_used]) if 0 <= gm.mine_uses_used < len(gm.mine_costs) else None
+        next_idx = int(getattr(gm, 'mine_uses_used', 0))
+        if getattr(gm, 'mine_costs', None):
+            if 0 <= next_idx < len(gm.mine_costs):
+                next_cost = int(gm.mine_costs[next_idx])
+            else:
+                # use last defined cost for any further mines
+                try:
+                    next_cost = int(gm.mine_costs[-1])
+                except Exception:
+                    next_cost = None
+        else:
+            next_cost = None
     except Exception:
         next_cost = None
 
@@ -58,8 +69,9 @@ def apply_mine_action(gm) -> bool:
         return False
 
     try:
-        gm.mine_uses_used += 1
-        gm.mine_uses_left = max(0, 10 - gm.mine_uses_used)
+        # increment the counter so future purchases pick the correct cost index
+        gm.mine_uses_used = int(getattr(gm, 'mine_uses_used', 0)) + 1
+        # mine_uses_left is unlimited (None) so we don't update it here
         if next_cost is not None:
             try:
                 gm.points = max(0, int(gm.points) - int(next_cost))
@@ -70,11 +82,11 @@ def apply_mine_action(gm) -> bool:
                     pass
         if not getattr(gm, '_popup_message', None):
             try:
-                gm._popup_message = f"Mina creada ({gm.mine_uses_left} restantes)"
+                gm._popup_message = f"Mina creada"
                 gm._popup_timer = 3000
             except Exception:
                 pass
-        print(f"[Action] Mine purchase applied (uses left={gm.mine_uses_left}) | -{next_cost} pts (total={gm.points})")
+        print(f"[Action] Mine purchase applied | -{next_cost} pts (total={gm.points})")
         return True
     except Exception:
         return True

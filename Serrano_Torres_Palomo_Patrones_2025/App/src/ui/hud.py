@@ -418,10 +418,14 @@ class HUD:
             #si esta modo tienda se dibujan las opciones de compra
             # Speed Upgrade Button
             next_speed_cost = self._get_next_cost(self.game.speed_costs, self.game.speed_uses_used)
-            can_buy_speed = (self.game.points >= (next_speed_cost or 0)) and (self.game.speed_uses_left > 0)
-            
-            label = f"Velocidad ({next_speed_cost})"
-            sublabel = f"Quedan: {self.game.speed_uses_left}"
+            # treat None as unlimited
+            speed_remaining = getattr(self.game, 'speed_uses_left', None)
+            can_buy_speed = (self.game.points >= (next_speed_cost or 0)) and (speed_remaining is None or speed_remaining > 0)
+
+            # Show remaining uses in parentheses and cost below
+            rem_display = str(speed_remaining) if speed_remaining is not None else "∞"
+            label = f"Velocidad ({rem_display})"
+            sublabel = f"Coste: {next_speed_cost}"
             self._draw_button(
                 screen,
                 self.speed_button,
@@ -434,10 +438,12 @@ class HUD:
             
             # Efficiency Upgrade Button
             next_eff_cost = self._get_next_cost(self.game.eff_costs, self.game.eff_uses_used)
-            can_buy_eff = (self.game.points >= (next_eff_cost or 0)) and (self.game.eff_uses_left > 0)
-            
-            label = f"Eficiencia ({next_eff_cost})"
-            sublabel = f"Quedan: {self.game.eff_uses_left}"
+            eff_remaining = getattr(self.game, 'eff_uses_left', None)
+            can_buy_eff = (self.game.points >= (next_eff_cost or 0)) and (eff_remaining is None or eff_remaining > 0)
+
+            rem_display = str(eff_remaining) if eff_remaining is not None else "∞"
+            label = f"Eficiencia ({rem_display})"
+            sublabel = f"Coste: {next_eff_cost}"
             self._draw_button(
                 screen,
                 self.efficiency_button,
@@ -449,11 +455,25 @@ class HUD:
             )
             
             # New Mine Button
-            next_mine_cost = self._get_next_cost(self.game.mine_costs, self.game.mine_uses_used)
-            can_buy_mine = (self.game.points >= (next_mine_cost or 0)) and (self.game.mine_uses_left > 0)
-            
-            label = f"Nueva Mina ({next_mine_cost})"
-            sublabel = f"Quedan: {self.game.mine_uses_left}"
+            # determine mine cost: if index exceeds defined list, use last value
+            try:
+                idx = int(getattr(self.game, 'mine_uses_used', 0))
+                if getattr(self.game, 'mine_costs', None) and len(self.game.mine_costs) > 0:
+                    if 0 <= idx < len(self.game.mine_costs):
+                        next_mine_cost = int(self.game.mine_costs[idx])
+                    else:
+                        next_mine_cost = int(self.game.mine_costs[-1])
+                else:
+                    next_mine_cost = None
+            except Exception:
+                next_mine_cost = None
+
+            can_buy_mine = (self.game.points >= (next_mine_cost or 0))
+
+            mine_remaining = getattr(self.game, 'mine_uses_left', None)
+            rem_display = str(mine_remaining) if mine_remaining is not None else "∞"
+            label = f"Nueva Mina"
+            sublabel = f"Coste: {next_mine_cost}"
             self._draw_button(
                 screen,
                 self.new_mine_button,

@@ -94,6 +94,10 @@ class PlacementController:
                         cost = int(costs_map.get('mul', self.factory.getCost()))
                     elif 'div' in cname:
                         cost = int(costs_map.get('div', self.factory.getCost()))
+                    elif 'splitter' in cname:
+                        cost = int(costs_map.get('splitter', self.factory.getCost()))
+                    elif 'merger' in cname:
+                        cost = int(costs_map.get('merger', self.factory.getCost()))
                     elif 'conveyor' in cname or 'convey' in cname:
                         cost = int(costs_map.get('conveyor', self.factory.getCost()))
                 if cost is None:
@@ -129,8 +133,30 @@ class PlacementController:
             if structure and hasattr(structure, '__class__'):
                 structure_type = structure.__class__.__name__.lower()
                 if 'mine' in structure_type or 'well' in structure_type:
-                    print(f"No se puede destruir {structure.__class__.__name__} en {structure.grid_position}.")
-                    return
+                    # Mostrar popup informativo en vez de solo imprimir
+                    try:
+                        gm = self.gameManager
+                        msg = f"No se pueden destruir {structure.__class__.__name__}"
+                        # Prefer HUD popup helper if available
+                        if hasattr(gm, 'hud') and getattr(gm, 'hud'):
+                            try:
+                                gm.hud.show_popup(msg)
+                            except Exception:
+                                # fallback to writing directly to gm popup fields
+                                try:
+                                    gm._popup_message = msg
+                                    gm._popup_timer = 3000
+                                except Exception:
+                                    pass
+                        else:
+                            try:
+                                gm._popup_message = msg
+                                gm._popup_timer = 3000
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+                    return False
             
             structure= self.gameManager.map.removeStructure(self.cellPosX, self.cellPosY)
             if structure in self.gameManager.structures:

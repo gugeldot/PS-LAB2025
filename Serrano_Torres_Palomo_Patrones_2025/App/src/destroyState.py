@@ -111,8 +111,11 @@ class DestroyState(GameState):
             if conveyor in structures:
                 structures.remove(conveyor)
             
-            # Devolver el costo (5 puntos)
-            refund = 5
+            # Devolver el coste configurado para cintas (usa gm.build_costs si existe)
+            try:
+                refund = int(getattr(self.gameManager, 'build_costs', {}).get('conveyor', 5))
+            except Exception:
+                refund = 5
             if hasattr(self.gameManager, 'addPoints'):
                 self.gameManager.addPoints(refund)
             elif hasattr(self.gameManager, 'points'):
