@@ -1,14 +1,31 @@
+"""Update loop helpers for GameManager.
+
+This module implements the detailed steps executed each frame by the
+GameManager update loop. The public entrypoint is :func:`update` which
+orchestrates input, camera, world updates, production and HUD updates.
+"""
+
 import pygame as pg
 from settings import *
 from .gm_upgrades import process_action_buffer
 
 
 def _handle_input_and_state(gm):
+    """Process input and forward to the current game state.
+
+    This updates the mouse helper and invokes the active state's update
+    callback.
+    """
     gm.mouse.update()
     gm.state.update()
 
 
 def _process_action_buffer(gm):
+    """Safely process queued upgrade actions using gm_upgrades helpers.
+
+    Exceptions from the processing are ignored to keep the main loop
+    robust.
+    """
     try:
         process_action_buffer(gm)
     except Exception:
@@ -16,6 +33,11 @@ def _process_action_buffer(gm):
 
 
 def _handle_camera(gm):
+    """Update camera position according to keyboard input.
+
+    The function handles WASD and arrow keys and clamps the camera within a
+    margin around the map bounds.
+    """
     try:
         keys = pg.key.get_pressed()
         if keys[pg.K_w] or keys[pg.K_UP]:
@@ -45,6 +67,7 @@ def _handle_camera(gm):
 
 
 def _update_world(gm):
+    """Update map and conveyors when the tutorial is not paused."""
     if not getattr(gm, '_tutorial_paused', False):
         try:
             gm.map.update()
@@ -59,6 +82,7 @@ def _update_world(gm):
 
 
 def _handle_production(gm):
+    """Advance production timers and trigger Mine production when due."""
     if not hasattr(gm, '_base_production_interval'):
         gm._base_production_interval = 2000
     if not hasattr(gm, 'production_interval'):
@@ -79,6 +103,11 @@ def _handle_production(gm):
 
 
 def _process_operation_modules(gm):
+    """Process operation modules (Sum/Mul) when their inputs are ready.
+
+    When both input conveyors are ready and an output conveyor exists the
+    module's ``calcular()`` method is invoked.
+    """
     structures = getattr(gm, 'structures', [])
     for struct in structures:
         struct_type = struct.__class__.__name__
@@ -97,6 +126,7 @@ def _process_operation_modules(gm):
 
 
 def _tick_and_caption(gm):
+    """Advance clock and update window caption."""
     gm.delta_time = gm.clock.tick(FPS)
     try:
         pg.display.set_caption("Number Tycoon")
@@ -105,6 +135,7 @@ def _tick_and_caption(gm):
 
 
 def _update_hud(gm):
+    """Update the HUD if present, swallowing errors to keep the loop robust."""
     try:
         if hasattr(gm, 'hud') and gm.hud:
             try:

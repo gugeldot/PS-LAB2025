@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Map package &#8212; PS-LAB2025 0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=837179f8"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="map.map" href="_autosummaries/map.map.html" />
+    <link rel="prev" title="Welcome to PS-LAB2025’s documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="map-package">
+<h1>Map package<a class="headerlink" href="#map-package" title="Link to this heading">¶</a></h1>
+<p>Module documentation for the <code class="docutils literal notranslate"><span class="pre">map</span></code> package.</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#module-map.map" title="map.map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map.map</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#module-map.cell" title="map.cell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map.cell</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class" id="module-map.map">
+<dt class="sig sig-object py" id="map.map.Map">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">map.map.</span></span><span class="sig-name descname"><span class="pre">Map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Singleton</span></code></p>
+<p>Grid that stores cells and provides helpers to place and reconnect structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>int</em>)</p></li>
+<li><p><strong>height</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="map.map.Map.width">
+<span class="sig-name descname"><span class="pre">width</span></span><a class="headerlink" href="#map.map.Map.width" title="Link to this definition">¶</a></dt>
+<dd><p>Number of columns (x).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="map.map.Map.height">
+<span class="sig-name descname"><span class="pre">height</span></span><a class="headerlink" href="#map.map.Map.height" title="Link to this definition">¶</a></dt>
+<dd><p>Number of rows (y).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="map.map.Map.cells">
+<span class="sig-name descname"><span class="pre">cells</span></span><a class="headerlink" href="#map.map.Map.cells" title="Link to this definition">¶</a></dt>
+<dd><p>2D list of Cell instances indexed as cells[y][x].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[<a class="reference internal" href="#map.cell.Cell" title="map.cell.Cell">Cell</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.getCell">
+<span class="sig-name descname"><span class="pre">getCell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.getCell" title="Link to this definition">¶</a></dt>
+<dd><p>Return the Cell at grid coordinates (x, y) or None if out of bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>)</p></li>
+<li><p><strong>y</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#map.cell.Cell" title="map.cell.Cell"><em>Cell</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.isInsideBounds">
+<span class="sig-name descname"><span class="pre">isInsideBounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.isInsideBounds" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>)</p></li>
+<li><p><strong>y</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.load_from_file">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.load_from_file" title="Link to this definition">¶</a></dt>
+<dd><p>Load a map from <code class="docutils literal notranslate"><span class="pre">filepath</span></code> and optionally recreate structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>str</em>) – Path to the JSON file previously produced by <a class="reference internal" href="#map.map.Map.to_dict" title="map.map.Map.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a>.</p></li>
+<li><p><strong>creators</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Optional mapping from structure class name to a creator
+object exposing a <code class="docutils literal notranslate"><span class="pre">createStructure(...)</span></code> method used to
+reconstruct instances.</p></li>
+<li><p><strong>gameManager</strong> – Optional game manager passed through to creators when
+required by their signature.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Map instance populated according to the file contents.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#map.map.Map" title="map.map.Map">Map</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.placeStructure">
+<span class="sig-name descname"><span class="pre">placeStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.placeStructure" title="Link to this definition">¶</a></dt>
+<dd><p>Place <code class="docutils literal notranslate"><span class="pre">structure</span></code> into the cell at <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code> if it is empty.</p>
+<p>If placement succeeds the method attempts to record grid coordinates on
+the structure using a best-effort approach (<code class="docutils literal notranslate"><span class="pre">grid_position</span></code> attribute
+preferred, or <code class="docutils literal notranslate"><span class="pre">position</span></code> when the structure signals it expects grid
+coordinates).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if placement succeeded, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>)</p></li>
+<li><p><strong>y</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.reconnect_structures">
+<span class="sig-name descname"><span class="pre">reconnect_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">game_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.reconnect_structures" title="Link to this definition">¶</a></dt>
+<dd><p>Re-establish connections between structures and conveyors.</p>
+<p>This method collects conveyors, determines which structures are at the
+conveyor endpoints and connects inputs/outputs on structures using the
+available connect* helper methods exposed by structure instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conveyors</strong> – Iterable of conveyor-like objects having <code class="docutils literal notranslate"><span class="pre">start_pos</span></code> and
+<code class="docutils literal notranslate"><span class="pre">end_pos</span></code> Vector2 attributes.</p></li>
+<li><p><strong>game_manager</strong> – Optional game manager instance. When provided some
+convenience references (mine, final_conveyor, well) will be set on
+the manager when they can be determined.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.removeStructure">
+<span class="sig-name descname"><span class="pre">removeStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.removeStructure" title="Link to this definition">¶</a></dt>
+<dd><p>Remove and return the structure at (x, y) or None if empty/out of bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>)</p></li>
+<li><p><strong>y</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.save_to_file">
+<span class="sig-name descname"><span class="pre">save_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.save_to_file" title="Link to this definition">¶</a></dt>
+<dd><p>Save the current map layout to <code class="docutils literal notranslate"><span class="pre">filepath</span></code> as JSON.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Serialize map layout to a JSON-friendly dictionary.</p>
+<p>The representation is intentionally conservative and stores only simple
+attributes needed to later reconstruct instances via creator objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Dict</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.map.Map.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map.map.Map.update" title="Link to this definition">¶</a></dt>
+<dd><p>Call update() on every structure placed in the map (if available).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-map.cell">
+<dt class="sig sig-object py" id="map.cell.Cell">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">map.cell.</span></span><span class="sig-name descname"><span class="pre">Cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.cell.Cell" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container for a single grid cell.</p>
+<p>This class stores the cell grid coordinates and an optional reference to a
+structure placed in the cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>position</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="map.cell.Cell.position">
+<span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#map.cell.Cell.position" title="Link to this definition">¶</a></dt>
+<dd><p>Grid coordinates (x, y).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[int, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="map.cell.Cell.structure">
+<span class="sig-name descname"><span class="pre">structure</span></span><a class="headerlink" href="#map.cell.Cell.structure" title="Link to this definition">¶</a></dt>
+<dd><p>Optional reference to a structure object placed in this cell.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.cell.Cell.getStructure">
+<span class="sig-name descname"><span class="pre">getStructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map.cell.Cell.getStructure" title="Link to this definition">¶</a></dt>
+<dd><p>Return the structure currently stored in the cell, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.cell.Cell.isEmpty">
+<span class="sig-name descname"><span class="pre">isEmpty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map.cell.Cell.isEmpty" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the cell has no structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.cell.Cell.removeStructure">
+<span class="sig-name descname"><span class="pre">removeStructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map.cell.Cell.removeStructure" title="Link to this definition">¶</a></dt>
+<dd><p>Remove and return the structure currently in the cell, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The removed structure instance, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the cell was empty.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="map.cell.Cell.setStructure">
+<span class="sig-name descname"><span class="pre">setStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#map.cell.Cell.setStructure" title="Link to this definition">¶</a></dt>
+<dd><p>Place <code class="docutils literal notranslate"><span class="pre">structure</span></code> into this cell.</p>
+<p>This will overwrite any existing structure. The caller may prefer to
+check <a class="reference internal" href="#map.cell.Cell.isEmpty" title="map.cell.Cell.isEmpty"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isEmpty()</span></code></a> before calling this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>structure</strong> – Any object representing a placed structure.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PS-LAB2025</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Map package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_autosummaries/map.map.html">map.map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummaries/map.cell.html">map.cell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#map.map.Map"><code class="docutils literal notranslate"><span class="pre">Map</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#map.cell.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to PS-LAB2025’s documentation</a></li>
+      <li>Next: <a href="_autosummaries/map.map.html" title="next chapter">map.map</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/map.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

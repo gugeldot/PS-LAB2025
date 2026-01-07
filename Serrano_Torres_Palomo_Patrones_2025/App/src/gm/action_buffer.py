@@ -8,11 +8,11 @@ from collections import deque
 
 
 def process_action_buffer(gm, max_per_frame: int = 5):
-    """Process up to `max_per_frame` queued upgrade actions on the given
-    GameManager-like object `gm`.
+    """Process up to ``max_per_frame`` queued upgrade actions.
 
-    The function mutates gm.action_buffer (assumed to be a deque) and calls
-    helper apply functions. Returns None.
+    The function mutates ``gm.action_buffer`` (expected to be a
+    :class:`collections.deque`) and dispatches individual actions to the
+    specialised helpers defined in this module. It returns ``None``.
     """
     to_process = min(max_per_frame, len(gm.action_buffer))
     applied_this_frame = set()

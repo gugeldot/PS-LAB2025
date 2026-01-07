@@ -1,8 +1,41 @@
+"""Upgrade implementation helpers used by the GameManager.
+
+This module contains the low-level implementations that process queued
+upgrade actions and apply specific upgrade effects (mine purchase, speed
+and efficiency). Functions expect a ``gm`` object which implements the
+subset of attributes and methods described in each function's docstring.
+
+The public functions are:
+- :func:`process_action_buffer`
+- :func:`apply_mine_action`
+- :func:`apply_speed_action`
+- :func:`apply_eff_action`
+
+The implementations are intentionally defensive and swallow many
+exceptions to avoid crashing the main game loop. They mutate state on the
+provided ``gm`` instance (counters, points, popup messages) and return
+True/False to indicate whether an action was successfully applied.
+"""
+
 from collections import deque
 
 
 def process_action_buffer(gm, max_per_frame: int = 5):
-    """Process up to `max_per_frame` queued upgrade actions for the given GameManager instance."""
+    """Process up to ``max_per_frame`` queued upgrade actions.
+
+    The function expects ``gm.action_buffer`` to be a :class:`collections.deque`
+    containing dict actions with at least a ``type`` key whose value is one of
+    ``'speed'``, ``'eff'`` or ``'mine'``. Actions may include optional keys
+    ``tries`` and ``max_tries`` which control retry behaviour.
+
+    Side effects:
+    - May call :meth:`gm.create_new_mine` when processing a ``'mine'`` action.
+    - May decrement ``gm.points`` and update ``gm.speed_uses_used``,
+      ``gm.eff_uses_used`` or ``gm.mine_uses_used`` depending on the action.
+
+    Returns ``None``. Actions that cannot be applied are re-queued up to
+    ``max_tries`` (per action) and then dropped.
+    """
     to_process = min(max_per_frame, len(gm.action_buffer))
     applied_this_frame = set()
     for _ in range(to_process):
