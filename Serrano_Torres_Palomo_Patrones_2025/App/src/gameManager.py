@@ -5,21 +5,18 @@ import json
 import random
 from collections import deque
 
-from buildState import BuildState
-from conveyorBuildState import ConveyorBuildState
+from states.buildState import BuildState
+from states.conveyorBuildState import ConveyorBuildState
 from core.mulModuleCreator import MulModuleCreator
 from core.sumModuleCreator import SumModuleCreator
 from core.conveyorCreator import ConveyorCreator
-from destroyState import DestroyState
-from normalState import NormalState
+from states.destroyState import DestroyState
+from states.normalState import NormalState
 from placementController import PlacementController
 from settings import *
-# Módulos delegados (modularización)
-from gm_init import init_pygame, init_paths, init_ui, init_counters, init_well_positions
-from gm_update import update as gm_update
-from gm_draw import draw as gm_draw
-# No necesitamos importar las funciones de upgrades aquí, ya que gm_update las gestiona,
-# pero sí necesitamos que gm_update funcione correctamente.
+from gm.gm_init import init_pygame, init_paths, init_ui, init_counters, init_well_positions
+from gm.gm_update import update as gm_update
+from gm.gm_draw import draw as gm_draw
 
 from mouseControl import MouseControl
 from patterns.singleton import Singleton

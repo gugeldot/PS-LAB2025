@@ -1,4 +1,4 @@
-from gameState import GameState
+from .gameState import GameState
 import pygame as pg
 from settings import CELL_SIZE_PX, WIDTH, HEIGHT
 

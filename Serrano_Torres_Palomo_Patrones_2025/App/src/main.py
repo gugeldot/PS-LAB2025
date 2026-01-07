@@ -7,7 +7,7 @@ from gameManager import GameManager
 # Redirect all stdout to App/game.log early so any prints go to the log file.
 try:
     # local import from same folder
-    from logger import redirect_stdout_to_game_log
+    from utils.logger import redirect_stdout_to_game_log
     redirect_stdout_to_game_log()
 except Exception:
     # If anything goes wrong with redirection, continue running using normal stdout

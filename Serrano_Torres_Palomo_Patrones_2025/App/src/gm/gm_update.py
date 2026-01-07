@@ -1,6 +1,6 @@
 import pygame as pg
 from settings import *
-from gm_upgrades import process_action_buffer
+from .gm_upgrades import process_action_buffer
 
 
 def update(gm):
