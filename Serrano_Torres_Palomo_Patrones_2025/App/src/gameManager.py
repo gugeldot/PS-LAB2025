@@ -850,15 +850,27 @@ class GameManager(Singleton):
                         if not hasattr(self, 'mine') or self.mine is None:
                             self.mine = mine
                         
-                        # Aplicar mejoras de eficiencia existentes a la nueva mina
-                        eff_used = getattr(self, 'eff_uses_used', 0)
-                        if eff_used > 0:
+                        # NEW BEHAVIOR: newly created mines should always spawn with
+                        # base number 1. Efficiency upgrades apply only to existing
+                        # structures at the time of purchase — they must not make
+                        # newly created mines start at a higher number.
+                        try:
+                            mine._base_number = 1
+                            # Clear any effective override so the mine shows/produces
+                            # its canonical base value unless upgrades are applied
+                            # specifically to this instance later.
                             try:
-                                mine._base_number = 1 + eff_used
-                                mine._effective_number = mine._base_number
-                                print(f"Applied {eff_used} efficiency upgrades to new mine -> effective number: {mine._effective_number}")
-                            except Exception as e:
-                                print(f"Failed to apply efficiency to new mine: {e}")
+                                if hasattr(mine, '_effective_number'):
+                                    delattr(mine, '_effective_number')
+                            except Exception:
+                                pass
+                            # Ensure any internal eff counters start at 0 for new mines
+                            try:
+                                mine._eff_number_increase = 0
+                            except Exception:
+                                pass
+                        except Exception:
+                            pass
                         
                         try:
                             self._popup_message = f"Mina creada en ({x},{y})"
