@@ -18,6 +18,7 @@ from gm.gm_init import init_pygame, init_paths, init_ui, init_counters, init_wel
 from gm.gm_update import update as gm_update
 from gm.gm_draw import draw as gm_draw
 import gm.action_buffer as action_buffer
+import gm.persistence as persistence
 
 from utils.mouseControl import MouseControl
 from patterns.singleton import Singleton
@@ -97,112 +98,19 @@ class GameManager(Singleton):
         # Asegurar que existe el directorio de guardado
         os.makedirs(self.save_dir, exist_ok=True)
 
-        if self.save_file.exists():
-            print(f"Found saved map at {self.save_file}, loading...")
+        # Try loading via persistence helper if a save exists, otherwise create default map
+        loaded = False
+        if getattr(self, 'save_file', None) and self.save_file.exists():
+            print(f"Found saved map at {self.save_file}, attempting to load...")
             try:
-                self.map = Map.load_from_file(str(self.save_file), creators=creators, gameManager=self)
-                # Intentar leer mejoras persistidas y aplicarlas
-                try:
-                    with open(self.save_file, 'r', encoding='utf-8') as fh:
-                        saved = json.load(fh)
-                        # Restaurar puntuación
-                        try:
-                            self.points = int(saved.get('score', getattr(self, 'points', 0)))
-                        except Exception:
-                            self.points = int(getattr(self, 'points', 0) or 0)
-
-                        upgrades = saved.get('upgrades', {})
-                    speed_used = int(upgrades.get('speed_uses_used', 0))
-                    eff_used = int(upgrades.get('eff_uses_used', 0))
-                    mine_used = int(upgrades.get('mine_uses_used', 0))
-                    
-                    # Set counters
-                    self.speed_uses_used = speed_used
-                    self.eff_uses_used = eff_used
-                    # Restaurar contadores de compra de minas
-                    try:
-                        self.mine_uses_used = mine_used
-                        # Unlimited purchases: represent as None
-                        self.mine_uses_left = None
-                    except Exception:
-                        pass
-                    self.speed_uses_left = max(0, 10 - self.speed_uses_used)
-                    self.eff_uses_left = max(0, 10 - self.eff_uses_used)
-                    
-                    # Aplicar efectos visuales/lógicos de carga (restauración de estado)
-                    if speed_used > 0:
-                        try:
-                            multiplier = 0.9 ** self.speed_uses_used
-                            for conv in getattr(self, 'conveyors', []):
-                                base_conv = conv
-                                while hasattr(base_conv, 'target'):
-                                    base_conv = base_conv.target
-                                if not hasattr(base_conv, '_base_travel_time'):
-                                    base_conv._base_travel_time = getattr(base_conv, 'travel_time', 2000)
-                                base_conv.travel_time = max(50, int(base_conv._base_travel_time * multiplier))
-                            try:
-                                if not hasattr(self, '_base_production_interval'):
-                                    self._base_production_interval = 2000
-                                self.production_interval = max(100, int(self._base_production_interval * multiplier))
-                            except Exception:
-                                pass
-                        except Exception:
-                            pass
-                    if eff_used > 0:
-                        try:
-                            for row in self.map.cells:
-                                for cell in row:
-                                    if cell and not cell.isEmpty():
-                                        s = cell.structure
-                                        base_s = s
-                                        try:
-                                            while hasattr(base_s, 'target'):
-                                                base_s = base_s.target
-                                        except Exception:
-                                            pass
-                                        # Preserve `_base_*` as the canonical/original
-                                        # values. Restore the runtime/effective values by
-                                        # applying `eff_used` as an increase counter so
-                                        # upgrades don't overwrite the base identifiers.
-                                        if hasattr(base_s, 'number'):
-                                            if not hasattr(base_s, '_base_number'):
-                                                try:
-                                                    base_s._base_number = int(base_s.number)
-                                                except Exception:
-                                                    base_s._base_number = getattr(base_s, 'number', 1)
-                                            # set effective increase from saved eff_used
-                                            try:
-                                                base_s._eff_number_increase = int(eff_used)
-                                            except Exception:
-                                                base_s._eff_number_increase = getattr(base_s, '_eff_number_increase', 0)
-                                            base_s._effective_number = max(1, int(base_s._base_number + getattr(base_s, '_eff_number_increase', 0)))
-                                        if hasattr(base_s, 'consumingNumber'):
-                                            if not hasattr(base_s, '_base_consumingNumber'):
-                                                try:
-                                                    base_s._base_consumingNumber = int(base_s.consumingNumber)
-                                                except Exception:
-                                                    base_s._base_consumingNumber = getattr(base_s, 'consumingNumber', 1)
-                                            try:
-                                                base_s._eff_consuming_increase = int(eff_used)
-                                            except Exception:
-                                                base_s._eff_consuming_increase = getattr(base_s, '_eff_consuming_increase', 0)
-                                            base_val = max(1, int(base_s._base_consumingNumber + getattr(base_s, '_eff_consuming_increase', 0)))
-                                            base_s.consumingNumber = base_val
-                                            try:
-                                                if s is not base_s and hasattr(s, 'consumingNumber'):
-                                                    s.consumingNumber = base_val
-                                            except Exception:
-                                                pass
-                        except Exception:
-                            pass
-                except Exception:
-                    pass
-                print("Map loaded successfully.")
+                loaded = persistence.load_game(self, creators)
+                if loaded:
+                    print("Map loaded successfully.")
             except Exception as e:
-                print("Failed to load map, creating a new default map:", e)
-                self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
-        else:
-            print(f"No saved map found at {self.save_file}, creating default map.")
+                print("Failed to load map via persistence helper:", e)
+
+        if not loaded:
+            print(f"No saved map found or load failed at {getattr(self, 'save_file', None)}, creating default map.")
             self.map = Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)
 
             # Signal HUD to open GIF modal on first start/new game
@@ -477,107 +385,13 @@ class GameManager(Singleton):
     def save_map(self):
         """Save map to App/saves/map.json"""
         try:
-            base = self.map.to_dict()
+            return persistence.save_game(self)
+        except Exception as e:
             try:
-                grid = base.get('grid', [])
-                eff_used = int(getattr(self, 'eff_uses_used', 0))
-                for y, row in enumerate(grid):
-                    for x, entry in enumerate(row):
-                        if not entry:
-                            continue
-                        try:
-                            cell = self.map.getCell(x, y)
-                            if cell and not cell.isEmpty():
-                                s = cell.structure
-                                if 'number' in entry:
-                                    if hasattr(s, '_base_number'):
-                                        try:
-                                            # `_base_number` stores the canonical/original
-                                            # mine number; save that directly.
-                                            entry['number'] = int(getattr(s, '_base_number'))
-                                        except Exception:
-                                            entry['number'] = int(entry.get('number', 1))
-                                if 'consumingNumber' in entry:
-                                    if hasattr(s, '_base_consumingNumber'):
-                                        try:
-                                            # `_base_consumingNumber` is kept as the
-                                            # original canonical value; save that
-                                            # original directly (don't subtract eff_used)
-                                            entry['consumingNumber'] = int(getattr(s, '_base_consumingNumber'))
-                                        except Exception:
-                                            entry['consumingNumber'] = int(entry.get('consumingNumber', 1))
-                        except Exception:
-                            pass
+                print("Failed to save map via persistence helper:", e)
             except Exception:
                 pass
-            
-            convs = []
-            for conv in getattr(self, 'conveyors', []):
-                sx = sy = ex = ey = None
-                found = False
-                for y, row in enumerate(self.map.cells):
-                    for x, cell in enumerate(row):
-                        if not cell.isEmpty() and hasattr(cell.structure, 'position'):
-                            pos = cell.structure.position
-                            try:
-                                px, py = float(pos.x), float(pos.y)
-                            except Exception:
-                                px, py = float(pos[0]), float(pos[1])
-                            if int(px) == int(conv.start_pos.x) and int(py) == int(conv.start_pos.y):
-                                sx, sy = x, y
-                                found = True
-                                break
-                    if found:
-                        break
-                if sx is None:
-                    sx = int(conv.start_pos.x) // CELL_SIZE_PX
-                    sy = int(conv.start_pos.y) // CELL_SIZE_PX
-
-                found = False
-                for y, row in enumerate(self.map.cells):
-                    for x, cell in enumerate(row):
-                        if not cell.isEmpty() and hasattr(cell.structure, 'position'):
-                            pos = cell.structure.position
-                            try:
-                                px, py = float(pos.x), float(pos.y)
-                            except Exception:
-                                px, py = float(pos[0]), float(pos[1])
-                            if int(px) == int(conv.end_pos.x) and int(py) == int(conv.end_pos.y):
-                                ex, ey = x, y
-                                found = True
-                                break
-                    if found:
-                        break
-                if ex is None:
-                    ex = int(conv.end_pos.x) // CELL_SIZE_PX
-                    ey = int(conv.end_pos.y) // CELL_SIZE_PX
-
-                travel = getattr(conv, 'travel_time', None)
-                if hasattr(conv, '_base_travel_time'):
-                    try:
-                        travel = int(getattr(conv, '_base_travel_time'))
-                    except Exception:
-                        travel = getattr(conv, 'travel_time', None)
-                entry = {"start": [sx, sy], "end": [ex, ey], "travel_time": travel}
-                convs.append(entry)
-
-            base['conveyors'] = convs
-            base['upgrades'] = {
-                'speed_uses_used': getattr(self, 'speed_uses_used', 0),
-                'eff_uses_used': getattr(self, 'eff_uses_used', 0),
-                'mine_uses_used': getattr(self, 'mine_uses_used', 0)
-            }
-            try:
-                base['score'] = int(getattr(self, 'points', 0))
-            except Exception:
-                base['score'] = getattr(self, 'points', 0)
-            
-            os.makedirs(self.save_dir, exist_ok=True)
-            with open(self.save_file, 'w', encoding='utf-8') as fh:
-                json.dump(base, fh, indent=2)
-            print(f"Map (with conveyors) saved to {self.save_file}")
-        except Exception as e:
-            print("Failed to save map:", e)
+            return False
 
     def save_and_exit(self):
         # Guardar y volver al menú principal en vez de cerrar la app
