@@ -141,17 +141,64 @@ class PlacementController:
                         if hasattr(gm, 'hud') and getattr(gm, 'hud'):
                             try:
                                 gm.hud.show_popup(msg)
+                                # After showing the popup, return to normal state so
+                                # the game doesn't remain in destroy mode. Also clear
+                                # the HUD destroy mode so the destroy button toggles
+                                # correctly the next time the player clicks it.
+                                try:
+                                    if hasattr(gm, 'hud') and getattr(gm, 'hud'):
+                                        try:
+                                            gm.hud.shop_mode = None
+                                            gm.hud._setup_buttons()
+                                        except Exception:
+                                            pass
+                                except Exception:
+                                    pass
+                                try:
+                                    if hasattr(gm, 'setState') and hasattr(gm, 'normalState'):
+                                        gm.setState(gm.normalState)
+                                except Exception:
+                                    pass
                             except Exception:
                                 # fallback to writing directly to gm popup fields
                                 try:
                                     gm._popup_message = msg
                                     gm._popup_timer = 3000
+                                    # Clear HUD destroy mode (fallback) and return to normal
+                                    try:
+                                        if hasattr(gm, 'hud') and getattr(gm, 'hud'):
+                                            try:
+                                                gm.hud.shop_mode = None
+                                                gm.hud._setup_buttons()
+                                            except Exception:
+                                                pass
+                                    except Exception:
+                                        pass
+                                    try:
+                                        if hasattr(gm, 'setState') and hasattr(gm, 'normalState'):
+                                            gm.setState(gm.normalState)
+                                    except Exception:
+                                        pass
                                 except Exception:
                                     pass
                         else:
                             try:
                                 gm._popup_message = msg
                                 gm._popup_timer = 3000
+                                try:
+                                    if hasattr(gm, 'hud') and getattr(gm, 'hud'):
+                                        try:
+                                            gm.hud.shop_mode = None
+                                            gm.hud._setup_buttons()
+                                        except Exception:
+                                            pass
+                                except Exception:
+                                    pass
+                                try:
+                                    if hasattr(gm, 'setState') and hasattr(gm, 'normalState'):
+                                        gm.setState(gm.normalState)
+                                except Exception:
+                                    pass
                             except Exception:
                                 pass
                     except Exception:
