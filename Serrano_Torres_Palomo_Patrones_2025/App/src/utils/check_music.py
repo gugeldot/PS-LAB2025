@@ -1,7 +1,22 @@
+"""Development helper to verify audio asset loading and mixer initialization.
+
+This script is useful to check whether the audio mixer can be initialized and
+the music asset at ``App/Assets/Music/kirbySoundTrack.mp3`` can be loaded and
+played. It is tolerant of errors and prints diagnostic messages instead of
+raising exceptions (suitable for local debugging).
+"""
+
 import pygame as pg
 import pathlib
 
+
 def check_music():
+    """Attempt to initialize the mixer and play the sample music file.
+
+    The function prints diagnostic messages about mixer init status, file
+    existence and whether playback was successfully started. All exceptions
+    are caught and printed to avoid crashing the host process.
+    """
     base_dir = pathlib.Path(__file__).resolve().parent
     app_dir = base_dir.parent
     music_path = app_dir / "Assets" / "Music" / "kirbySoundTrack.mp3"
@@ -31,6 +46,7 @@ def check_music():
                 print(f"[CHECK] failed to load/play: {e}")
     except Exception as e:
         print(f"[CHECK] unexpected error: {e}")
+
 
 if __name__ == '__main__':
     check_music()

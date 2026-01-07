@@ -1,10 +1,30 @@
+"""Main menu implementation for Number Tycoon.
+
+This module provides the :class:`MainMenu` class which renders the game's
+main menu, handles input and launches or resumes games by creating a
+:class:`gameManager.GameManager` instance. The implementation uses pygame
+surfaces and draws a custom cursor to match the in-game UI.
+
+Only documentation strings are added to support Sphinx; behavior is
+unchanged.
+"""
+
 import os
 import pathlib
 import pygame as pg
 from settings import *
 from gameManager import GameManager
 
+
 class MainMenu:
+    """Main menu controller.
+
+    Public methods:
+    - draw(): render the menu to the screen
+    - update(): tick the menu clock
+    - handle_events(): process pygame events
+    - start_game(new=False): start a GameManager instance
+    """
     def __init__(self, screen):
         self.screen = screen
         self.clock = pg.time.Clock()

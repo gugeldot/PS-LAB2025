@@ -1,8 +1,10 @@
-"""
-Command Pattern - Encapsular acciones como objetos
+"""Command pattern utilities.
 
-Permite deshacer/rehacer operaciones y mantener historial de acciones.
-Útil para construcción/destrucción de estructuras.
+Provides a small command framework used to encapsulate actions as objects.
+Includes concrete commands for building structures and conveyors and a
+command history manager that supports undo/redo. The implementation aims
+to be defensive and non-intrusive so it can be integrated with the game's
+existing managers.
 """
 
 from abc import ABC, abstractmethod
@@ -10,7 +12,11 @@ from typing import List, Optional, Dict, Any
 
 
 class Command(ABC):
-    """Interfaz base para comandos"""
+    """Base interface for commands.
+
+    Implementations must provide `execute` and `undo` methods. Both
+    methods return a boolean indicating success.
+    """
     
     @abstractmethod
     def execute(self) -> bool:
@@ -34,7 +40,12 @@ class Command(ABC):
 
 
 class BuildStructureCommand(Command):
-    """Comando para construir una estructura"""
+    """Command to build a structure using a provided creator.
+
+    The command checks the game manager's points against the computed
+    cost, creates the structure, places it on the map, deducts points,
+    and supports undo which removes the structure and refunds points.
+    """
     
     def __init__(self, gameManager, creator, position):
         self.gameManager = gameManager
@@ -135,7 +146,12 @@ class BuildStructureCommand(Command):
 
 
 class BuildConveyorCommand(Command):
-    """Comando para construir una cinta transportadora"""
+    """Command to build a conveyor between two points.
+
+    On execute the command creates the conveyor, appends it to the
+    game manager lists and deducts points. Undo removes the conveyor and
+    refunds points.
+    """
     
     def __init__(self, gameManager, conveyorCreator, start_pos, end_pos):
         self.gameManager = gameManager
@@ -211,7 +227,12 @@ class BuildConveyorCommand(Command):
 
 
 class CommandHistory:
-    """Gestiona historial de comandos para undo/redo"""
+    """Manages a history of executed commands supporting undo/redo.
+
+    Stores a bounded list of Command instances and exposes `execute`,
+    `undo`, and `redo` operations. `execute` will run the command and
+    add it to the history only on success.
+    """
     
     def __init__(self, max_history=50):
         self.history: List[Command] = []

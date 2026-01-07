@@ -1,13 +1,22 @@
+"""Decorator patterns for structure upgrades.
+
+This module offers decorators that wrap `core.structure.Structure` instances
+to add upgrade behavior (speed, efficiency, etc.) without modifying the
+original object. Decorators delegate most operations to the wrapped
+structure and apply one-time modifications where appropriate.
+"""
+
 from abc import ABC, abstractmethod
 from core.structure import Structure
 
 
 class UpgradeDecorator(Structure, ABC):
-    '''
-    Abstract decorator for upgrades.
-    Wraps a Structure and delegates to it while allowing subclasses to add upgrade behavior.
-    Uses the Decorator pattern.
-    '''
+    """Abstract decorator for upgrades.
+
+    Wraps a Structure and delegates to it while allowing subclasses to add
+    upgrade-related behavior. Subclasses must implement `update` and
+    `draw` and typically call the wrapped target's implementations.
+    """
     
     def __init__(self, target):
         '''
@@ -86,7 +95,12 @@ class SpeedUpgrade(UpgradeDecorator):
             pass
 
     def update(self):
-        # delegate to wrapped structure
+        """Delegate update to the wrapped structure.
+
+        Subclasses may extend this method; the base implementation forwards
+        to the wrapped structure and suppresses exceptions to preserve
+        runtime stability in the game loop.
+        """
         try:
             return self.target.update()
         except Exception:

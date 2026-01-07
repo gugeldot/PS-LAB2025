@@ -1,3 +1,11 @@
+"""Well (pozo) structure: consumes numbers and awards points.
+
+This module implements the Well structure used by the game. A Well
+consumes numeric items pushed by conveyors and awards points when the
+consumed number matches rules (multiples, difficulty-based bonuses).
+Only documentation and docstrings are added; implementation is unchanged.
+"""
+
 import pygame as pg
 import pathlib
 from .structure import *

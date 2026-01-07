@@ -1,18 +1,45 @@
 import json
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 from settings import CELL_SIZE_PX
 from map.map import Map
 
 
-def load_game(gm, creators: Dict[str, object]):
-    """Load map and upgrades from gm.save_file into the given GameManager-like object.
+"""Persistence helpers to load and save game state.
 
-    Returns True on success, False on failure. On success the gm.map and gm.conveyors
-    are set and several counters (points, upgrades) are restored like the original
-    GameManager.new_game behaviour.
+This module provides two convenience functions, :func:`load_game` and
+:func:`save_game`, that operate on a GameManager-like object ``gm``. The
+functions expect ``gm.save_file`` and ``gm.save_dir`` to be set (see
+``gm_init.init_paths``).
+
+The saved JSON format is conservative: the map grid stores structure class
+names and a few base attributes (``number``, ``consumingNumber``). Conveyors
+are stored separately with grid start/end coordinates and an optional
+``travel_time`` value. The functions attempt to restore upgrade counters and
+apply their effects where possible.
+"""
+
+
+def load_game(gm, creators: Dict[str, object]) -> bool:
+    """Load map and upgrades into the provided GameManager-like object.
+
+    Args:
+        gm: GameManager-like instance where the loaded data will be applied.
+        creators: Mapping from structure class name (str) to a creator object
+            exposing a ``createStructure((x,y), ...)`` method able to
+            re-create structure instances from the saved attributes.
+
+    Returns:
+        True on success, False on failure. On success the following side
+        effects occur on ``gm``:
+        - ``gm.map`` is set to a restored :class:`map.map.Map` instance.
+        - ``gm.conveyors`` is set when conveyors are present and a
+          ``gameManager``/``gm`` is supplied to the Map loader.
+        - Upgrade counters (``speed_uses_used``, ``eff_uses_used``,
+          ``mine_uses_used``) and ``gm.points`` are restored when present
+          in the save file.
     """
     try:
         if not getattr(gm, 'save_file', None) or not gm.save_file.exists():

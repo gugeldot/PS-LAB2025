@@ -1,10 +1,8 @@
-"""
-Memento Pattern - Capturar y restaurar el estado del juego
+"""Memento pattern utilities.
 
-Permite guardar snapshots del estado del juego para:
-- Guardar/cargar partidas
-- Checkpoint automático
-- Recuperación ante errores
+Implements a small memento system to capture and restore game state.
+Useful for save/load, checkpoints, and rollback scenarios. Includes
+`GameMemento`, `GameCaretaker`, and `GameOriginator` classes.
 """
 
 from typing import Dict, Any, Optional
@@ -13,7 +11,11 @@ import copy
 
 
 class GameMemento:
-    """Memento que almacena el estado del juego en un momento específico"""
+    """A memento that stores a snapshot of the game state.
+
+    Stores a deep copy of the provided state dictionary along with
+    optional metadata (name, timestamp, etc.).
+    """
     
     def __init__(self, state: Dict[str, Any], metadata: Optional[Dict[str, Any]] = None):
         """
@@ -50,7 +52,11 @@ class GameMemento:
 
 
 class GameCaretaker:
-    """Caretaker que gestiona múltiples mementos del juego"""
+    """Caretaker that manages multiple game mementos.
+
+    Provides named snapshot storage and a simple automatic snapshot
+    list used for checkpointing.
+    """
     
     def __init__(self, max_snapshots=10):
         self._snapshots: Dict[str, GameMemento] = {}
@@ -95,7 +101,11 @@ class GameCaretaker:
 
 
 class GameOriginator:
-    """Originator que crea y restaura mementos del estado del juego"""
+    """Originator that creates and restores game mementos.
+
+    Knows how to capture the current game manager state and to apply a
+    memento to restore that state back onto the game manager.
+    """
     
     def __init__(self, gameManager):
         self.gameManager = gameManager

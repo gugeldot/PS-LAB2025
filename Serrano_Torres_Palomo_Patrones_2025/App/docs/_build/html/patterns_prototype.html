@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>patterns.prototype &mdash; PS-LAB2025 0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=837179f8"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="patterns.singleton" href="patterns_singleton.html" />
+    <link rel="prev" title="patterns.observer" href="patterns_observer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PS-LAB2025
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameManager.html">gameManager module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainMenu.html">mainMenu module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">settings module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="patterns.html">Patterns package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="patterns_command.html">patterns.command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_mediator.html">patterns.mediator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_memento.html">patterns.memento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_observer.html">patterns.observer</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">patterns.prototype</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.prototype.LayoutPrototype"><code class="docutils literal notranslate"><span class="pre">LayoutPrototype</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.LayoutPrototype.clone"><code class="docutils literal notranslate"><span class="pre">LayoutPrototype.clone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.LayoutPrototype.get_structures"><code class="docutils literal notranslate"><span class="pre">LayoutPrototype.get_structures()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.prototype.LayoutRegistry"><code class="docutils literal notranslate"><span class="pre">LayoutRegistry</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.LayoutRegistry.get_layout"><code class="docutils literal notranslate"><span class="pre">LayoutRegistry.get_layout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.LayoutRegistry.list_layouts"><code class="docutils literal notranslate"><span class="pre">LayoutRegistry.list_layouts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.LayoutRegistry.register"><code class="docutils literal notranslate"><span class="pre">LayoutRegistry.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.prototype.Prototype"><code class="docutils literal notranslate"><span class="pre">Prototype</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.Prototype.clone"><code class="docutils literal notranslate"><span class="pre">Prototype.clone()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.prototype.PrototypeFactory"><code class="docutils literal notranslate"><span class="pre">PrototypeFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeFactory.create_conveyor_prototype"><code class="docutils literal notranslate"><span class="pre">PrototypeFactory.create_conveyor_prototype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeFactory.create_mine_prototype"><code class="docutils literal notranslate"><span class="pre">PrototypeFactory.create_mine_prototype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeFactory.create_operator_prototype"><code class="docutils literal notranslate"><span class="pre">PrototypeFactory.create_operator_prototype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeFactory.create_well_prototype"><code class="docutils literal notranslate"><span class="pre">PrototypeFactory.create_well_prototype()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.prototype.PrototypeRegistry"><code class="docutils literal notranslate"><span class="pre">PrototypeRegistry</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeRegistry.create_from_prototype"><code class="docutils literal notranslate"><span class="pre">PrototypeRegistry.create_from_prototype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeRegistry.get_prototype"><code class="docutils literal notranslate"><span class="pre">PrototypeRegistry.get_prototype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeRegistry.list_prototypes"><code class="docutils literal notranslate"><span class="pre">PrototypeRegistry.list_prototypes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeRegistry.register"><code class="docutils literal notranslate"><span class="pre">PrototypeRegistry.register()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.PrototypeRegistry.unregister"><code class="docutils literal notranslate"><span class="pre">PrototypeRegistry.unregister()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.prototype.StructurePrototype"><code class="docutils literal notranslate"><span class="pre">StructurePrototype</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.StructurePrototype.clone"><code class="docutils literal notranslate"><span class="pre">StructurePrototype.clone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.StructurePrototype.create_structure"><code class="docutils literal notranslate"><span class="pre">StructurePrototype.create_structure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.prototype.StructurePrototype.get_config"><code class="docutils literal notranslate"><span class="pre">StructurePrototype.get_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_singleton.html">patterns.singleton</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="placement.html">placement package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="states.html">States package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">ui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PS-LAB2025</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="patterns.html">Patterns package</a></li>
+      <li class="breadcrumb-item active">patterns.prototype</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/patterns_prototype.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-patterns.prototype">
+<span id="patterns-prototype"></span><h1>patterns.prototype<a class="headerlink" href="#module-patterns.prototype" title="Link to this heading"></a></h1>
+<p>Prototype pattern utilities.</p>
+<p>Helpers for cloning complex objects and registering reusable prototypes.
+Provides <cite>StructurePrototype</cite>, <cite>PrototypeRegistry</cite> and layout helpers to
+define common building configurations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.prototype.LayoutPrototype">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.prototype.</span></span><span class="sig-name descname"><span class="pre">LayoutPrototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.LayoutPrototype" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Prototipo de un layout completo (conjunto de estructuras)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>structures</strong> (<em>list</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.LayoutPrototype.clone">
+<span class="sig-name descname"><span class="pre">clone</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.LayoutPrototype.clone" title="Link to this definition"></a></dt>
+<dd><p>Retorna una copia del layout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#patterns.prototype.LayoutPrototype" title="patterns.prototype.LayoutPrototype"><em>LayoutPrototype</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.LayoutPrototype.get_structures">
+<span class="sig-name descname"><span class="pre">get_structures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.LayoutPrototype.get_structures" title="Link to this definition"></a></dt>
+<dd><p>Retorna lista de estructuras del layout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<em>Dict</em>[str, <em>Any</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.prototype.LayoutRegistry">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.prototype.</span></span><span class="sig-name descname"><span class="pre">LayoutRegistry</span></span><a class="headerlink" href="#patterns.prototype.LayoutRegistry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Registro de layouts predefinidos</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.LayoutRegistry.get_layout">
+<span class="sig-name descname"><span class="pre">get_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.LayoutRegistry.get_layout" title="Link to this definition"></a></dt>
+<dd><p>Obtiene un layout por nombre</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#patterns.prototype.LayoutPrototype" title="patterns.prototype.LayoutPrototype"><em>LayoutPrototype</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.LayoutRegistry.list_layouts">
+<span class="sig-name descname"><span class="pre">list_layouts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.LayoutRegistry.list_layouts" title="Link to this definition"></a></dt>
+<dd><p>Lista todos los layouts disponibles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.LayoutRegistry.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.LayoutRegistry.register" title="Link to this definition"></a></dt>
+<dd><p>Registra un layout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>layout</strong> (<a class="reference internal" href="#patterns.prototype.LayoutPrototype" title="patterns.prototype.LayoutPrototype"><em>LayoutPrototype</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.prototype.Prototype">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.prototype.</span></span><span class="sig-name descname"><span class="pre">Prototype</span></span><a class="headerlink" href="#patterns.prototype.Prototype" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Interface for objects that can be cloned.</p>
+<p>Implementations should provide a <cite>clone()</cite> method returning a copy of
+the object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.Prototype.clone">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clone</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.Prototype.clone" title="Link to this definition"></a></dt>
+<dd><p>Retorna una copia del objeto</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeFactory">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.prototype.</span></span><span class="sig-name descname"><span class="pre">PrototypeFactory</span></span><a class="headerlink" href="#patterns.prototype.PrototypeFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Factory que crea prototipos de estructuras comunes</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeFactory.create_conveyor_prototype">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_conveyor_prototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conveyorCreator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeFactory.create_conveyor_prototype" title="Link to this definition"></a></dt>
+<dd><p>Crea prototipo de cinta transportadora</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#patterns.prototype.StructurePrototype" title="patterns.prototype.StructurePrototype"><em>StructurePrototype</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeFactory.create_mine_prototype">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_mine_prototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mineCreator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeFactory.create_mine_prototype" title="Link to this definition"></a></dt>
+<dd><p>Crea prototipo de mina</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>number</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#patterns.prototype.StructurePrototype" title="patterns.prototype.StructurePrototype"><em>StructurePrototype</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeFactory.create_operator_prototype">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_operator_prototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operatorCreator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeFactory.create_operator_prototype" title="Link to this definition"></a></dt>
+<dd><p>Crea prototipo de operador</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>operation</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#patterns.prototype.StructurePrototype" title="patterns.prototype.StructurePrototype"><em>StructurePrototype</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeFactory.create_well_prototype">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_well_prototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wellCreator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumingNumber</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeFactory.create_well_prototype" title="Link to this definition"></a></dt>
+<dd><p>Crea prototipo de pozo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>consumingNumber</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#patterns.prototype.StructurePrototype" title="patterns.prototype.StructurePrototype"><em>StructurePrototype</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeRegistry">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.prototype.</span></span><span class="sig-name descname"><span class="pre">PrototypeRegistry</span></span><a class="headerlink" href="#patterns.prototype.PrototypeRegistry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Central registry for available prototypes.</p>
+<p>Prototypes are stored by name and returned as clones to avoid
+accidental shared mutable state.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeRegistry.create_from_prototype">
+<span class="sig-name descname"><span class="pre">create_from_prototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeRegistry.create_from_prototype" title="Link to this definition"></a></dt>
+<dd><p>Crea una estructura desde un prototipo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeRegistry.get_prototype">
+<span class="sig-name descname"><span class="pre">get_prototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeRegistry.get_prototype" title="Link to this definition"></a></dt>
+<dd><p>Obtiene un prototipo por nombre</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#patterns.prototype.StructurePrototype" title="patterns.prototype.StructurePrototype"><em>StructurePrototype</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeRegistry.list_prototypes">
+<span class="sig-name descname"><span class="pre">list_prototypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeRegistry.list_prototypes" title="Link to this definition"></a></dt>
+<dd><p>Lista todos los prototipos disponibles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeRegistry.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prototype</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeRegistry.register" title="Link to this definition"></a></dt>
+<dd><p>Registra un prototipo con un nombre</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>prototype</strong> (<a class="reference internal" href="#patterns.prototype.StructurePrototype" title="patterns.prototype.StructurePrototype"><em>StructurePrototype</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.PrototypeRegistry.unregister">
+<span class="sig-name descname"><span class="pre">unregister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.PrototypeRegistry.unregister" title="Link to this definition"></a></dt>
+<dd><p>Elimina un prototipo del registro</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.prototype.StructurePrototype">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.prototype.</span></span><span class="sig-name descname"><span class="pre">StructurePrototype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">creator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.StructurePrototype" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Prototype for a structure with predefined configuration.</p>
+<p>Stores a creator and a configuration dictionary used when creating
+a concrete structure instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.StructurePrototype.clone">
+<span class="sig-name descname"><span class="pre">clone</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.StructurePrototype.clone" title="Link to this definition"></a></dt>
+<dd><p>Retorna una copia del prototipo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#patterns.prototype.StructurePrototype" title="patterns.prototype.StructurePrototype"><em>StructurePrototype</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.StructurePrototype.create_structure">
+<span class="sig-name descname"><span class="pre">create_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.StructurePrototype.create_structure" title="Link to this definition"></a></dt>
+<dd><p>Crea una estructura usando la configuración del prototipo</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.prototype.StructurePrototype.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.prototype.StructurePrototype.get_config" title="Link to this definition"></a></dt>
+<dd><p>Retorna la configuración del prototipo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="patterns_observer.html" class="btn btn-neutral float-left" title="patterns.observer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="patterns_singleton.html" class="btn btn-neutral float-right" title="patterns.singleton" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

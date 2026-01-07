@@ -1,3 +1,11 @@
+"""State for building conveyors.
+
+This module implements `ConveyorBuildState`, a thin wrapper that delegates
+click/update/draw work to the helpers in `conveyor_helpers.py`. The
+delegation keeps the class small while keeping the behaviour identical to
+the original implementation.
+"""
+
 from .gameState import GameState
 from .conveyor_helpers import (
     handle_click_event as _handle_click_event,

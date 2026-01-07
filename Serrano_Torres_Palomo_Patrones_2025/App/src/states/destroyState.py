@@ -1,8 +1,24 @@
+"""Destroy state: handles destruction of structures and conveyors.
+
+Provides `DestroyState`, responsible for user-initiated destruction
+actions. It attempts to destroy conveyors when clicks are near them and
+falls back to placementController destruction for structures. The
+implementation mirrors prior behavior and is intentionally defensive to
+avoid runtime errors during gameplay.
+"""
+
 from .gameState import GameState
 import pygame as pg
 from settings import CELL_SIZE_PX
 
+
 class DestroyState(GameState):
+    """State used when the player is in destroy mode.
+
+    Delegates certain tasks to `placementController` and contains helpers
+    to detect/remove conveyors and compute refunds.
+    """
+
     def __init__(self, placementController):
         self.placementController = placementController
         self.gameManager = placementController.gameManager

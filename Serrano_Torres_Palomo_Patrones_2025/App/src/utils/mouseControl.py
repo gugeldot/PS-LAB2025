@@ -1,54 +1,72 @@
+"""Mouse input helper used by the UI.
+
+This module exposes :class:`MouseControl`, a thin wrapper that tracks the
+mouse position, draws a custom cursor sprite and helps translate clicks to
+grid coordinates. It uses :func:`inspect_cell` to check if a clicked grid
+cell contains a structure.
+"""
+
 import pygame as pg
 from settings import *
-import pathlib 
+import pathlib
 from utils.cursor_inspector import inspect_cell
+
+
 class MouseControl:
-    def __init__(self,gameManager):
-        '''
-        init del raton
-        '''
-        self.gameManager=gameManager
+    """Mouse helper that manages cursor image, position and click handling.
+
+    Public API
+    - update(): refresh internal mouse position
+    - draw(): blit the custom cursor image to the screen
+    - checkClickEvent(event): handle a pygame event and return context or None
+    """
+
+    def __init__(self, gameManager):
+        """Initialize mouse helper bound to a GameManager instance.
+
+        The constructor attempts to resolve the cursor sprite inside the
+        project's Assets folder with a fallback path for alternative layouts.
+        """
+        self.gameManager = gameManager
         self.position = pg.Vector2(0, 0)
-        # booleano que indica si la última celda clicada tenía una estructura
+        # boolean indicating if the last clicked cell had a structure
         self.has_structure = False
 
         pg.mouse.set_visible(False)
-        #  Ruta base del proyecto (carpeta `App`). Subimos un nivel más
-        #  para que la ruta quede en '/.../App' en lugar de '/.../App/src'.
-        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent  # parent de src -> App
+        # Base path for App/ (two levels up from this file)
+        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 
-        #  Construir la ruta de cualquier recurso en Assets
+        # Construct cursor image path
         CURSOR_IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "cursor.png"
 
-        # Si por alguna razón el asset no existe en la ubicación esperada,
-        # intentar una ruta alternativa (compatibilidad con setups que
-        # coloquen Assets dentro de src). Esto evita fallos al arrancar.
+        # Fallback if asset is in an alternate location
         if not CURSOR_IMG_PATH.exists():
             alt = pathlib.Path(__file__).resolve().parent / "Assets" / "Sprites" / "cursor.png"
             if alt.exists():
                 CURSOR_IMG_PATH = alt
 
-        # Cargar la imagen
+        # Load and resize the cursor image
         self.cursor_img = pg.image.load(CURSOR_IMG_PATH).convert_alpha()
-        self.cursor_img = pg.transform.scale(self.cursor_img, (MOUSE_WIDTH, MOUSE_HEIGHT)) #ajustar tamaño a tamaño especificado en setting
+        self.cursor_img = pg.transform.scale(self.cursor_img, (MOUSE_WIDTH, MOUSE_HEIGHT))
         self.cursor_offset = pg.Vector2(-25, -20)
+
     def update(self):
-        '''
-        '''
+        """Update internal mouse position from pygame state."""
         self.position = pg.Vector2(pg.mouse.get_pos())
-        
-        
+
     def draw(self):
-        '''
-        Dibuja el cursor en la posicion
-        '''
-        
-        self.gameManager.screen.blit(self.cursor_img, (self.position.x + self.cursor_offset.x, self.position.y + self.cursor_offset.y))
-    
-    def checkClickEvent(self,event):
-        '''
-        Detecta clicks del mouse
-        '''
+        """Draw the custom cursor image to the GameManager screen."""
+        self.gameManager.screen.blit(
+            self.cursor_img, (self.position.x + self.cursor_offset.x, self.position.y + self.cursor_offset.y)
+        )
+
+    def checkClickEvent(self, event):
+        """Handle a pygame event and return context for click events.
+
+        Returns
+        - True/False if left-click (indicates whether a structure was present)
+        - None for non-left clicks or if the event is not a mouse button event
+        """
         if event.type == pg.MOUSEBUTTONDOWN:
             # calculate grid cell from current mouse pos, taking camera offset into account
             try:
@@ -59,24 +77,24 @@ class MouseControl:
             gx = mx // CELL_SIZE_PX
             gy = my // CELL_SIZE_PX
 
-            if event.button == 1:  # Botón izquierdo
+            if event.button == 1:  # left button
                 # check map presence
                 try:
                     m = self.gameManager.map
                     has_struct, info = inspect_cell(m, gx, gy)
                     self.has_structure = bool(has_struct)
-                    print(f"Click izquierdo en celda ({gx}, {gy}) -> {info}")
+                    print(f"Left click on cell ({gx}, {gy}) -> {info}")
                     return self.has_structure
                 except Exception as e:
                     self.has_structure = False
-                    print("Error al consultar el mapa en el click:", e)
+                    print("Error consulting the map on click:", e)
                     return self.has_structure
 
-            elif event.button == 2:  # Botón medio
-                print("Botón medio presionado en", self.position)
+            elif event.button == 2:  # middle
+                print("Middle button pressed at", self.position)
                 return None
-            elif event.button == 3:  # Botón derecho
-                print("Botón derecho presionado en", self.position)
+            elif event.button == 3:  # right
+                print("Right button pressed at", self.position)
                 return None
-        # si no es un evento de click devolvemos None
+        # not a click event
         return None

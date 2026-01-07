@@ -1,0 +1,488 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ui package &mdash; PS-LAB2025 0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=837179f8"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utils package" href="utils.html" />
+    <link rel="prev" title="States package" href="states.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PS-LAB2025
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameManager.html">gameManager module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainMenu.html">mainMenu module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">settings module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns.html">Patterns package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="placement.html">placement package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="states.html">States package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ui package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ui.hud.Colors"><code class="docutils literal notranslate"><span class="pre">Colors</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.BG_DARK"><code class="docutils literal notranslate"><span class="pre">Colors.BG_DARK</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.BG_LIGHT"><code class="docutils literal notranslate"><span class="pre">Colors.BG_LIGHT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.BUTTON_ACTIVE"><code class="docutils literal notranslate"><span class="pre">Colors.BUTTON_ACTIVE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.BUTTON_DEFAULT"><code class="docutils literal notranslate"><span class="pre">Colors.BUTTON_DEFAULT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.BUTTON_DISABLED"><code class="docutils literal notranslate"><span class="pre">Colors.BUTTON_DISABLED</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.BUTTON_HOVER"><code class="docutils literal notranslate"><span class="pre">Colors.BUTTON_HOVER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.CONVEYOR"><code class="docutils literal notranslate"><span class="pre">Colors.CONVEYOR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.ERROR"><code class="docutils literal notranslate"><span class="pre">Colors.ERROR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.GRID_HOVER"><code class="docutils literal notranslate"><span class="pre">Colors.GRID_HOVER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.GRID_LINE"><code class="docutils literal notranslate"><span class="pre">Colors.GRID_LINE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.MERGER"><code class="docutils literal notranslate"><span class="pre">Colors.MERGER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.MINE"><code class="docutils literal notranslate"><span class="pre">Colors.MINE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.OPERATOR"><code class="docutils literal notranslate"><span class="pre">Colors.OPERATOR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.SPLITTER"><code class="docutils literal notranslate"><span class="pre">Colors.SPLITTER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.SUBMENU_BUTTON"><code class="docutils literal notranslate"><span class="pre">Colors.SUBMENU_BUTTON</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.SUBMENU_HOVER"><code class="docutils literal notranslate"><span class="pre">Colors.SUBMENU_HOVER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.SUBMENU_TEXT"><code class="docutils literal notranslate"><span class="pre">Colors.SUBMENU_TEXT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.SUCCESS"><code class="docutils literal notranslate"><span class="pre">Colors.SUCCESS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.TEXT_ACCENT"><code class="docutils literal notranslate"><span class="pre">Colors.TEXT_ACCENT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.TEXT_LIGHT"><code class="docutils literal notranslate"><span class="pre">Colors.TEXT_LIGHT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.TEXT_PRIMARY"><code class="docutils literal notranslate"><span class="pre">Colors.TEXT_PRIMARY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.TEXT_SECONDARY"><code class="docutils literal notranslate"><span class="pre">Colors.TEXT_SECONDARY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.WARNING"><code class="docutils literal notranslate"><span class="pre">Colors.WARNING</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.Colors.WELL"><code class="docutils literal notranslate"><span class="pre">Colors.WELL</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ui.hud.HUD"><code class="docutils literal notranslate"><span class="pre">HUD</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.close_gif_modal"><code class="docutils literal notranslate"><span class="pre">HUD.close_gif_modal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.draw"><code class="docutils literal notranslate"><span class="pre">HUD.draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_files"><code class="docutils literal notranslate"><span class="pre">HUD.gif_files</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_frame_durations"><code class="docutils literal notranslate"><span class="pre">HUD.gif_frame_durations</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_frame_index"><code class="docutils literal notranslate"><span class="pre">HUD.gif_frame_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_frame_timer"><code class="docutils literal notranslate"><span class="pre">HUD.gif_frame_timer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_frames"><code class="docutils literal notranslate"><span class="pre">HUD.gif_frames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_index"><code class="docutils literal notranslate"><span class="pre">HUD.gif_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_modal_active"><code class="docutils literal notranslate"><span class="pre">HUD.gif_modal_active</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.gif_titles"><code class="docutils literal notranslate"><span class="pre">HUD.gif_titles</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.is_over_button"><code class="docutils literal notranslate"><span class="pre">HUD.is_over_button()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.next_gif"><code class="docutils literal notranslate"><span class="pre">HUD.next_gif()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.open_gif_modal"><code class="docutils literal notranslate"><span class="pre">HUD.open_gif_modal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.prev_gif"><code class="docutils literal notranslate"><span class="pre">HUD.prev_gif()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.show_popup"><code class="docutils literal notranslate"><span class="pre">HUD.show_popup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.hud.HUD.update"><code class="docutils literal notranslate"><span class="pre">HUD.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ui.button.draw_button"><code class="docutils literal notranslate"><span class="pre">draw_button()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ui.gif_modal.GifModal"><code class="docutils literal notranslate"><span class="pre">GifModal</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ui.gif_modal.GifModal.close"><code class="docutils literal notranslate"><span class="pre">GifModal.close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.gif_modal.GifModal.draw"><code class="docutils literal notranslate"><span class="pre">GifModal.draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.gif_modal.GifModal.next"><code class="docutils literal notranslate"><span class="pre">GifModal.next()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.gif_modal.GifModal.open"><code class="docutils literal notranslate"><span class="pre">GifModal.open()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.gif_modal.GifModal.prev"><code class="docutils literal notranslate"><span class="pre">GifModal.prev()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui.gif_modal.GifModal.update"><code class="docutils literal notranslate"><span class="pre">GifModal.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PS-LAB2025</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ui package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ui.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ui-package">
+<h1>ui package<a class="headerlink" href="#ui-package" title="Link to this heading"></a></h1>
+<p>User interface helpers and HUD components used by the game’s UI.</p>
+<p id="module-ui.hud">HUD (Heads-Up Display) helpers used by the game’s UI.</p>
+<p>This module contains the Colors palette and the HUD class responsible for
+rendering the on-screen HUD: buttons, points counter, transient popups and
+integration with the GIF modal. Only documentation additions are made here.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.hud.Colors">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ui.hud.</span></span><span class="sig-name descname"><span class="pre">Colors</span></span><a class="headerlink" href="#ui.hud.Colors" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.BG_DARK">
+<span class="sig-name descname"><span class="pre">BG_DARK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(45,</span> <span class="pre">52,</span> <span class="pre">64)</span></em><a class="headerlink" href="#ui.hud.Colors.BG_DARK" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.BG_LIGHT">
+<span class="sig-name descname"><span class="pre">BG_LIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(236,</span> <span class="pre">240,</span> <span class="pre">241)</span></em><a class="headerlink" href="#ui.hud.Colors.BG_LIGHT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.BUTTON_ACTIVE">
+<span class="sig-name descname"><span class="pre">BUTTON_ACTIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(130,</span> <span class="pre">204,</span> <span class="pre">221)</span></em><a class="headerlink" href="#ui.hud.Colors.BUTTON_ACTIVE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.BUTTON_DEFAULT">
+<span class="sig-name descname"><span class="pre">BUTTON_DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(178,</span> <span class="pre">190,</span> <span class="pre">195)</span></em><a class="headerlink" href="#ui.hud.Colors.BUTTON_DEFAULT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.BUTTON_DISABLED">
+<span class="sig-name descname"><span class="pre">BUTTON_DISABLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(127,</span> <span class="pre">140,</span> <span class="pre">141)</span></em><a class="headerlink" href="#ui.hud.Colors.BUTTON_DISABLED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.BUTTON_HOVER">
+<span class="sig-name descname"><span class="pre">BUTTON_HOVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(149,</span> <span class="pre">175,</span> <span class="pre">192)</span></em><a class="headerlink" href="#ui.hud.Colors.BUTTON_HOVER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.CONVEYOR">
+<span class="sig-name descname"><span class="pre">CONVEYOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(189,</span> <span class="pre">195,</span> <span class="pre">199)</span></em><a class="headerlink" href="#ui.hud.Colors.CONVEYOR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(255,</span> <span class="pre">159,</span> <span class="pre">163)</span></em><a class="headerlink" href="#ui.hud.Colors.ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.GRID_HOVER">
+<span class="sig-name descname"><span class="pre">GRID_HOVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(149,</span> <span class="pre">175,</span> <span class="pre">192,</span> <span class="pre">100)</span></em><a class="headerlink" href="#ui.hud.Colors.GRID_HOVER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.GRID_LINE">
+<span class="sig-name descname"><span class="pre">GRID_LINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(55,</span> <span class="pre">65,</span> <span class="pre">75)</span></em><a class="headerlink" href="#ui.hud.Colors.GRID_LINE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.MERGER">
+<span class="sig-name descname"><span class="pre">MERGER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(210,</span> <span class="pre">180,</span> <span class="pre">222)</span></em><a class="headerlink" href="#ui.hud.Colors.MERGER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.MINE">
+<span class="sig-name descname"><span class="pre">MINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(255,</span> <span class="pre">177,</span> <span class="pre">193)</span></em><a class="headerlink" href="#ui.hud.Colors.MINE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.OPERATOR">
+<span class="sig-name descname"><span class="pre">OPERATOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(255,</span> <span class="pre">218,</span> <span class="pre">185)</span></em><a class="headerlink" href="#ui.hud.Colors.OPERATOR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.SPLITTER">
+<span class="sig-name descname"><span class="pre">SPLITTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(174,</span> <span class="pre">214,</span> <span class="pre">241)</span></em><a class="headerlink" href="#ui.hud.Colors.SPLITTER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.SUBMENU_BUTTON">
+<span class="sig-name descname"><span class="pre">SUBMENU_BUTTON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(52,</span> <span class="pre">152,</span> <span class="pre">219)</span></em><a class="headerlink" href="#ui.hud.Colors.SUBMENU_BUTTON" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.SUBMENU_HOVER">
+<span class="sig-name descname"><span class="pre">SUBMENU_HOVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(41,</span> <span class="pre">128,</span> <span class="pre">185)</span></em><a class="headerlink" href="#ui.hud.Colors.SUBMENU_HOVER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.SUBMENU_TEXT">
+<span class="sig-name descname"><span class="pre">SUBMENU_TEXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(255,</span> <span class="pre">255,</span> <span class="pre">255)</span></em><a class="headerlink" href="#ui.hud.Colors.SUBMENU_TEXT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.SUCCESS">
+<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(129,</span> <span class="pre">236,</span> <span class="pre">236)</span></em><a class="headerlink" href="#ui.hud.Colors.SUCCESS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.TEXT_ACCENT">
+<span class="sig-name descname"><span class="pre">TEXT_ACCENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(255,</span> <span class="pre">234,</span> <span class="pre">167)</span></em><a class="headerlink" href="#ui.hud.Colors.TEXT_ACCENT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.TEXT_LIGHT">
+<span class="sig-name descname"><span class="pre">TEXT_LIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(236,</span> <span class="pre">240,</span> <span class="pre">241)</span></em><a class="headerlink" href="#ui.hud.Colors.TEXT_LIGHT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.TEXT_PRIMARY">
+<span class="sig-name descname"><span class="pre">TEXT_PRIMARY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(44,</span> <span class="pre">62,</span> <span class="pre">80)</span></em><a class="headerlink" href="#ui.hud.Colors.TEXT_PRIMARY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.TEXT_SECONDARY">
+<span class="sig-name descname"><span class="pre">TEXT_SECONDARY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(149,</span> <span class="pre">165,</span> <span class="pre">166)</span></em><a class="headerlink" href="#ui.hud.Colors.TEXT_SECONDARY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.WARNING">
+<span class="sig-name descname"><span class="pre">WARNING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(253,</span> <span class="pre">203,</span> <span class="pre">110)</span></em><a class="headerlink" href="#ui.hud.Colors.WARNING" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ui.hud.Colors.WELL">
+<span class="sig-name descname"><span class="pre">WELL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(163,</span> <span class="pre">228,</span> <span class="pre">215)</span></em><a class="headerlink" href="#ui.hud.Colors.WELL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.hud.HUD">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ui.hud.</span></span><span class="sig-name descname"><span class="pre">HUD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">game_manager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.close_gif_modal">
+<span class="sig-name descname"><span class="pre">close_gif_modal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.close_gif_modal" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mouse_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.draw" title="Link to this definition"></a></dt>
+<dd><p>Dibuja todos los elementos del HUD</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_files">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_files</span></span><a class="headerlink" href="#ui.hud.HUD.gif_files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_frame_durations">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_frame_durations</span></span><a class="headerlink" href="#ui.hud.HUD.gif_frame_durations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_frame_index">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_frame_index</span></span><a class="headerlink" href="#ui.hud.HUD.gif_frame_index" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_frame_timer">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_frame_timer</span></span><a class="headerlink" href="#ui.hud.HUD.gif_frame_timer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_frames">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_frames</span></span><a class="headerlink" href="#ui.hud.HUD.gif_frames" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_index">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_index</span></span><a class="headerlink" href="#ui.hud.HUD.gif_index" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_modal_active">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_modal_active</span></span><a class="headerlink" href="#ui.hud.HUD.gif_modal_active" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ui.hud.HUD.gif_titles">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gif_titles</span></span><a class="headerlink" href="#ui.hud.HUD.gif_titles" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.is_over_button">
+<span class="sig-name descname"><span class="pre">is_over_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.is_over_button" title="Link to this definition"></a></dt>
+<dd><p>Devuelve True si la posición de pantalla <cite>pos</cite> está sobre algún botón del HUD.</p>
+<p><cite>pos</cite> debe ser una tupla (x, y) en coordenadas de pantalla (igual que event.pos).
+Esto se usa para evitar que clicks sobre la UI “pasen” al mapa debajo.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.next_gif">
+<span class="sig-name descname"><span class="pre">next_gif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.next_gif" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.open_gif_modal">
+<span class="sig-name descname"><span class="pre">open_gif_modal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.open_gif_modal" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>start_index</strong> (<em>int</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.prev_gif">
+<span class="sig-name descname"><span class="pre">prev_gif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.prev_gif" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.show_popup">
+<span class="sig-name descname"><span class="pre">show_popup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.show_popup" title="Link to this definition"></a></dt>
+<dd><p>Request a popup message. Prefer to write into the GameManager
+so a single timer is used for all popups. If no GameManager is
+attached, the HUD will set the internal values (fallback).</p>
+<p>Also suppress the specific annoying message “Botón activado”.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.hud.HUD.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.hud.HUD.update" title="Link to this definition"></a></dt>
+<dd><p>Actualiza el estado del HUD</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-ui.button">Small button drawing helpers used by the HUD UI.</p>
+<p>This module provides utilities to draw rounded buttons using the HUD’s
+font and color palette while avoiding circular imports with the HUD module.
+The primary public functions are <code class="docutils literal notranslate"><span class="pre">draw_button</span></code> and <code class="docutils literal notranslate"><span class="pre">_draw_rounded_rect</span></code>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ui.button.draw_button">
+<span class="sig-prename descclassname"><span class="pre">ui.button.</span></span><span class="sig-name descname"><span class="pre">draw_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hud</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mouse_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">can_use</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sublabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.button.draw_button" title="Link to this definition"></a></dt>
+<dd><p>Draw a button using the HUD instance for fonts and Colors.</p>
+<p>hud: the HUD instance (used to access fonts and Colors)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sublabel</strong> (<em>str</em><em> | </em><em>None</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p id="module-ui.gif_modal">GIF modal helper used by the HUD.</p>
+<p>This module implements <a class="reference internal" href="#ui.gif_modal.GifModal" title="ui.gif_modal.GifModal"><code class="xref py py-class docutils literal notranslate"><span class="pre">GifModal</span></code></a>, a small helper that loads GIF
+files from the game’s Assets/gifs folder, converts frames to pygame
+surfaces and exposes a simple modal API used by the HUD:</p>
+<ul class="simple">
+<li><p>open(start_index=0), close(), next(), prev()</p></li>
+<li><p>update(dt_ms), draw(screen)</p></li>
+<li><p>readable attributes: active, files, titles, index, frames,
+frame_durations, frame_index, frame_timer</p></li>
+<li><p>buttons: prev_button, next_button, exit_button (pygame.Rect or None)</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="ui.gif_modal.GifModal">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ui.gif_modal.</span></span><span class="sig-name descname"><span class="pre">GifModal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">game</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.gif_modal.GifModal" title="Link to this definition"></a></dt>
+<dd><p>Modal controller that displays GIFs as an in-game tutorial/gallery.</p>
+<p>The class is intentionally tolerant: if Pillow is missing it falls back
+to loading a single static surface via <code class="docutils literal notranslate"><span class="pre">pygame.image.load</span></code>. Frames and
+durations are stored in <code class="docutils literal notranslate"><span class="pre">frames</span></code> and <code class="docutils literal notranslate"><span class="pre">frame_durations</span></code> respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>base_path</strong> (<em>Path</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.gif_modal.GifModal.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.gif_modal.GifModal.close" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.gif_modal.GifModal.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">screen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.gif_modal.GifModal.draw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.gif_modal.GifModal.next">
+<span class="sig-name descname"><span class="pre">next</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.gif_modal.GifModal.next" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.gif_modal.GifModal.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.gif_modal.GifModal.open" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>start_index</strong> (<em>int</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.gif_modal.GifModal.prev">
+<span class="sig-name descname"><span class="pre">prev</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.gif_modal.GifModal.prev" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ui.gif_modal.GifModal.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt_ms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ui.gif_modal.GifModal.update" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dt_ms</strong> (<em>int</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="states.html" class="btn btn-neutral float-left" title="States package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utils.html" class="btn btn-neutral float-right" title="utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

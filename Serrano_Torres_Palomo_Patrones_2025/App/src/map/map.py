@@ -1,33 +1,33 @@
 import json
 import os
-from typing import Optional, Tuple, Dict
+import logging
+from typing import Optional, Tuple, Dict, Any
 import pygame as pg
 
 from patterns.singleton import Singleton
 from settings import CELL_SIZE_PX
 from .cell import Cell
 
+_logger = logging.getLogger(__name__)
+
+
 
 class Map(Singleton):
-	"""Grid map that stores Cell objects and allows placement/removal/updating
+	"""Grid that stores cells and provides helpers to place and reconnect structures.
 
 	Attributes:
-		width: number of columns (x)
-		height: number of rows (y)
-		cells: 2D list of Cell instances indexed as cells[y][x]
-
-	The class inherits from the project's basic Singleton base so only one
-	Map instance will exist when constructed via Map(width, height).
+		width (int): Number of columns (x).
+		height (int): Number of rows (y).
+		cells (list[list[Cell]]): 2D list of Cell instances indexed as cells[y][x].
 	"""
 
 	def __init__(self, width: int = 10, height: int = 10):
-		# guard to avoid reinitializing singleton instance
+		# Avoid reinitializing the singleton instance
 		if getattr(self, "_initialized", False):
 			return
 
 		self.width = int(width)
 		self.height = int(height)
-		# create grid cells[y][x]
 		self.cells = [[Cell((x, y)) for x in range(self.width)] for y in range(self.height)]
 
 		self._initialized = True
@@ -42,29 +42,29 @@ class Map(Singleton):
 		return self.cells[y][x]
 
 	def placeStructure(self, x: int, y: int, structure) -> bool:
-		"""Place `structure` into cell (x, y) if empty.
+		"""Place ``structure`` into the cell at ``(x, y)`` if it is empty.
 
-		Returns True if placement succeeded, False otherwise.
+		If placement succeeds the method attempts to record grid coordinates on
+		the structure using a best-effort approach (``grid_position`` attribute
+		preferred, or ``position`` when the structure signals it expects grid
+		coordinates).
+
+		Returns:
+			bool: True if placement succeeded, False otherwise.
 		"""
 		cell = self.getCell(x, y)
-		if cell is None:
-			return False
-		if not cell.isEmpty():
+		if cell is None or not cell.isEmpty():
 			return False
 
 		cell.setStructure(structure)
-		# record grid coordinates on the structure without overwriting
-		# its pixel `position` (many structures use a Vector2 for pixel coords).
 		try:
-			# prefer a dedicated attribute `grid_position` if available
 			if hasattr(structure, "grid_position"):
 				structure.grid_position = (x, y)
-			# fallback: only set `position` if structure expects grid coords
 			elif getattr(structure, "expects_grid_position", False):
 				structure.position = (x, y)
 		except Exception:
-			# ignore if setting attributes is not supported
-			pass
+			# keep robust if the structure rejects attribute assignment
+			_logger.debug("Could not set grid position on structure %s", type(structure))
 
 		return True
 
@@ -85,18 +85,14 @@ class Map(Singleton):
 						try:
 							s.update()
 						except Exception:
-							# keep map update robust: ignore structure exceptions
-							pass
+							_logger.exception("Exception while updating structure %s", type(s))
 
 	# --- simple persistence helpers ---
 	def to_dict(self) -> Dict:
-		"""Serialize map layout to a JSON-friendly dict.
+		"""Serialize map layout to a JSON-friendly dictionary.
 
-		This method stores basic information about placed structures (class
-		name and a few common attributes). It's intentionally conservative: it
-		won't try to fully serialize complex objects (pygame surfaces, game
-		manager, etc.). Use creator mappings with load_from_file to restore
-		structure instances.
+		The representation is intentionally conservative and stores only simple
+		attributes needed to later reconstruct instances via creator objects.
 		"""
 		grid = []
 		for row in self.cells:
@@ -124,20 +120,25 @@ class Map(Singleton):
 		return {"width": self.width, "height": self.height, "grid": grid}
 
 	def save_to_file(self, filepath: str) -> None:
+		"""Save the current map layout to ``filepath`` as JSON."""
 		os.makedirs(os.path.dirname(filepath) or ".", exist_ok=True)
 		with open(filepath, "w", encoding="utf-8") as fh:
 			json.dump(self.to_dict(), fh, indent=2)
 
 	@classmethod
-	def load_from_file(cls, filepath: str, creators: Dict[str, object] = None, gameManager=None):
-		"""Load map data from file and (optionally) re-create structures.
+	def load_from_file(cls, filepath: str, creators: Dict[str, object] = None, gameManager=None) -> "Map":
+		"""Load a map from ``filepath`` and optionally recreate structures.
 
-		creators: mapping from structure class name (str) to a creator object
-				  with a `createStructure(...)` method compatible with the
-				  project's creators (see core/*Creator.py). The method will
-				  be used with a best-effort set of args depending on the
-				  available saved fields.
-		gameManager: optional game manager passed to creators when required.
+		Args:
+			filepath: Path to the JSON file previously produced by :meth:`to_dict`.
+			creators: Optional mapping from structure class name to a creator
+				object exposing a ``createStructure(...)`` method used to
+				reconstruct instances.
+			gameManager: Optional game manager passed through to creators when
+				required by their signature.
+
+		Returns:
+			Map: A Map instance populated according to the file contents.
 		"""
 		with open(filepath, "r", encoding="utf-8") as fh:
 			data = json.load(fh)
@@ -155,11 +156,11 @@ class Map(Singleton):
 					if cls_name == "Mine" and "number" in entry:
 						struct = creator.createStructure((x, y), entry["number"], gameManager)
 					elif cls_name == "Well" and "consumingNumber" in entry:
-						# pass through locked flag if present in the save
 						locked_flag = entry.get('locked', False)
 						struct = creator.createStructure((x, y), entry["consumingNumber"], gameManager, locked=locked_flag)
 					else:
-						# fallback: try simple creator signatures
+						# fallback: try a few common creator signatures
+						struct = None
 						try:
 							struct = creator.createStructure((x, y), gameManager)
 						except TypeError:
@@ -171,73 +172,79 @@ class Map(Singleton):
 					if struct is not None:
 						m.placeStructure(x, y, struct)
 
-		# Load conveyors if present and gameManager is provided
+		# Load conveyors if present and a gameManager is available
 		conveyors_data = data.get("conveyors", [])
-		print(f"[Map.load_from_file] Found {len(conveyors_data)} conveyors in save file")
+		_logger.debug("Found %d conveyors in save file", len(conveyors_data))
 		if conveyors_data and gameManager:
-			from core.conveyor import Conveyor
+			from core.conveyor import Conveyor  # local import to avoid cycles
 			conveyors_list = []
 			for conv_data in conveyors_data:
 				start_grid = conv_data.get("start")
 				end_grid = conv_data.get("end")
 				travel_time = conv_data.get("travel_time", 2000)
-				
+
 				if start_grid and end_grid:
-					# Convert grid coords to centered pixel positions (like structures do)
 					start_pos = pg.Vector2(
 						start_grid[0] * CELL_SIZE_PX + CELL_SIZE_PX // 2,
-						start_grid[1] * CELL_SIZE_PX + CELL_SIZE_PX // 2
+						start_grid[1] * CELL_SIZE_PX + CELL_SIZE_PX // 2,
 					)
 					end_pos = pg.Vector2(
 						end_grid[0] * CELL_SIZE_PX + CELL_SIZE_PX // 2,
-						end_grid[1] * CELL_SIZE_PX + CELL_SIZE_PX // 2
+						end_grid[1] * CELL_SIZE_PX + CELL_SIZE_PX // 2,
 					)
-					
-					# Create conveyor with gameManager
+
 					conv = Conveyor(start_pos, end_pos, gameManager)
 					conv.travel_time = travel_time if travel_time else 2000
 					conveyors_list.append(conv)
-					print(f"[Map.load_from_file] Created conveyor from {start_grid} to {end_grid}")
-			
-			# Store conveyors in gameManager
+					_logger.debug("Created conveyor from %s to %s", start_grid, end_grid)
+
 			gameManager.conveyors = conveyors_list
-			print(f"[Map.load_from_file] Stored {len(conveyors_list)} conveyors in gameManager")
+			_logger.debug("Stored %d conveyors in gameManager", len(conveyors_list))
 
 		return m
 
 	def reconnect_structures(self, conveyors, game_manager=None):
 		"""Re-establish connections between structures and conveyors.
 
-		This is a port of the previous GameManager._reconnect_structures() logic,
-		adapted to operate on the Map instance and a list of conveyors. If a
-		`game_manager` is provided, the function will also set `game_manager.mine`,
-		`game_manager.final_conveyor` and `game_manager.well` when they can be
-		determined from the map/conveyors.
+		This method collects conveyors, determines which structures are at the
+		conveyor endpoints and connects inputs/outputs on structures using the
+		available connect* helper methods exposed by structure instances.
+
+		Args:
+			conveyors: Iterable of conveyor-like objects having ``start_pos`` and
+				``end_pos`` Vector2 attributes.
+			game_manager: Optional game manager instance. When provided some
+				convenience references (mine, final_conveyor, well) will be set on
+				the manager when they can be determined.
 		"""
 
-		def find_structure_at(grid_x, grid_y):
+		def find_structure_at(grid_x: int, grid_y: int):
 			if 0 <= grid_y < len(self.cells) and 0 <= grid_x < len(self.cells[grid_y]):
 				cell = self.cells[grid_y][grid_x]
 				if not cell.isEmpty():
 					return cell.structure
 			return None
 
-		# Limpiar conexiones previas en todas las estructuras del mapa
+		# Clear previous input/output references on structures
 		for row in self.cells:
 			for cell in row:
 				if not cell.isEmpty():
 					struct = cell.structure
-					# Limpiar inputs
-					if hasattr(struct, 'input1'): struct.input1 = None
-					if hasattr(struct, 'input2'): struct.input2 = None
-					if hasattr(struct, 'inputConveyor1'): struct.inputConveyor1 = None
-					if hasattr(struct, 'inputConveyor2'): struct.inputConveyor2 = None
-					# Limpiar outputs
-					if hasattr(struct, 'output'): struct.output = None
-					if hasattr(struct, 'outputConveyor'): struct.outputConveyor = None
+					if hasattr(struct, 'input1'):
+						struct.input1 = None
+					if hasattr(struct, 'input2'):
+						struct.input2 = None
+					if hasattr(struct, 'inputConveyor1'):
+						struct.inputConveyor1 = None
+					if hasattr(struct, 'inputConveyor2'):
+						struct.inputConveyor2 = None
+					if hasattr(struct, 'output'):
+						struct.output = None
+					if hasattr(struct, 'outputConveyor'):
+						struct.outputConveyor = None
 
-		# Recopilar conexiones de cintas
-		struct_connections = {}
+		# Collect conveyors per structure
+		struct_connections: Dict[Any, Dict[str, list]] = {}
 		for conv in conveyors:
 			start_grid_x = int(conv.start_pos.x) // CELL_SIZE_PX
 			start_grid_y = int(conv.start_pos.y) // CELL_SIZE_PX
@@ -248,16 +255,14 @@ class Map(Singleton):
 			end_struct = find_structure_at(end_grid_x, end_grid_y)
 
 			if start_struct:
-				if start_struct not in struct_connections:
-					struct_connections[start_struct] = {'inputs': [], 'outputs': []}
+				struct_connections.setdefault(start_struct, {'inputs': [], 'outputs': []})
 				struct_connections[start_struct]['outputs'].append(conv)
 
 			if end_struct:
-				if end_struct not in struct_connections:
-					struct_connections[end_struct] = {'inputs': [], 'outputs': []}
+				struct_connections.setdefault(end_struct, {'inputs': [], 'outputs': []})
 				struct_connections[end_struct]['inputs'].append(conv)
 
-		# Ahora conectar según el tipo de estructura
+		# Connect structures based on their types and available connection methods
 		for struct, connections in struct_connections.items():
 			struct_type = struct.__class__.__name__.lower()
 			inputs = connections['inputs']
@@ -295,19 +300,20 @@ class Map(Singleton):
 				if len(outputs) >= 2 and hasattr(struct, 'connectOutput2'):
 					struct.connectOutput2(outputs[1])
 
-		# Conectar cintas entre sí cuando coinciden posiciones
+		# Connect conveyors to each other when endpoints match and there is no structure
 		for conv in conveyors:
 			for other_conv in conveyors:
-				if conv != other_conv:
-					if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
-						int(conv.end_pos.y) == int(other_conv.start_pos.y)):
-						grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
-						grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
-						struct = find_structure_at(grid_x, grid_y)
-						if struct is None:
-							conv.connectOutput(other_conv)
+				if conv is other_conv:
+					continue
+				if (int(conv.end_pos.x) == int(other_conv.start_pos.x) and
+					int(conv.end_pos.y) == int(other_conv.start_pos.y)):
+					grid_x = int(conv.end_pos.x) // CELL_SIZE_PX
+					grid_y = int(conv.end_pos.y) // CELL_SIZE_PX
+					struct = find_structure_at(grid_x, grid_y)
+					if struct is None:
+						conv.connectOutput(other_conv)
 
-		# If a game_manager was provided, set some convenient references
+		# When provided, set some convenient references on the game manager
 		if game_manager is not None:
 			# find a Mine structure if present
 			for row in self.cells:
@@ -318,7 +324,6 @@ class Map(Singleton):
 				if hasattr(game_manager, 'mine') and game_manager.mine:
 					break
 
-			# determine final_conveyor and well
 			game_manager.final_conveyor = None
 			game_manager.well = None
 			for conv in conveyors:

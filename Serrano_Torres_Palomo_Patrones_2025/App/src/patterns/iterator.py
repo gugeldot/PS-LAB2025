@@ -1,5 +1,16 @@
+"""Utilities for iterator patterns used in the project.
+
+This module provides a simple iterator implementation used to traverse
+conveyor queues and other sequence-like collections in a predictable way.
+"""
+
+
 class FlowIterator:
-    '''Iterator pattern for conveyor queue traversal'''
+    """Iterator pattern for conveyor queue traversal.
+
+    Wraps a list-like object and exposes a Python iterator interface
+    (supports for..in and explicit next()).
+    """
     
     def __init__(self, number_list):
         self.refList = number_list

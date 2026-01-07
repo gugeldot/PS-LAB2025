@@ -1,3 +1,11 @@
+"""Drawing helpers for placement UI.
+
+This small module extracts drawing code used by the placement flow so the
+visual logic can be tested and documented separately. Provides `draw_preview`
+and `draw_destroy` helpers which operate on a `PlacementController`-like
+object (expects `gameManager`, `mousePosition` and `factory`).
+"""
+
 import pygame as pg
 
 

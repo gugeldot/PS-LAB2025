@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>patterns.memento &mdash; PS-LAB2025 0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=837179f8"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="patterns.observer" href="patterns_observer.html" />
+    <link rel="prev" title="patterns.mediator" href="patterns_mediator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PS-LAB2025
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameManager.html">gameManager module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainMenu.html">mainMenu module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">settings module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="patterns.html">Patterns package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="patterns_command.html">patterns.command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_mediator.html">patterns.mediator</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">patterns.memento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.memento.GameCaretaker"><code class="docutils literal notranslate"><span class="pre">GameCaretaker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameCaretaker.delete_snapshot"><code class="docutils literal notranslate"><span class="pre">GameCaretaker.delete_snapshot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameCaretaker.get_all_snapshots"><code class="docutils literal notranslate"><span class="pre">GameCaretaker.get_all_snapshots()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameCaretaker.get_latest_auto_snapshot"><code class="docutils literal notranslate"><span class="pre">GameCaretaker.get_latest_auto_snapshot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameCaretaker.list_snapshots"><code class="docutils literal notranslate"><span class="pre">GameCaretaker.list_snapshots()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameCaretaker.load_snapshot"><code class="docutils literal notranslate"><span class="pre">GameCaretaker.load_snapshot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameCaretaker.save_auto_snapshot"><code class="docutils literal notranslate"><span class="pre">GameCaretaker.save_auto_snapshot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameCaretaker.save_snapshot"><code class="docutils literal notranslate"><span class="pre">GameCaretaker.save_snapshot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.memento.GameMemento"><code class="docutils literal notranslate"><span class="pre">GameMemento</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameMemento.get_description"><code class="docutils literal notranslate"><span class="pre">GameMemento.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameMemento.get_metadata"><code class="docutils literal notranslate"><span class="pre">GameMemento.get_metadata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameMemento.get_state"><code class="docutils literal notranslate"><span class="pre">GameMemento.get_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameMemento.get_timestamp"><code class="docutils literal notranslate"><span class="pre">GameMemento.get_timestamp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.memento.GameOriginator"><code class="docutils literal notranslate"><span class="pre">GameOriginator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameOriginator.create_memento"><code class="docutils literal notranslate"><span class="pre">GameOriginator.create_memento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.memento.GameOriginator.restore_memento"><code class="docutils literal notranslate"><span class="pre">GameOriginator.restore_memento()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_observer.html">patterns.observer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_prototype.html">patterns.prototype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_singleton.html">patterns.singleton</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="placement.html">placement package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="states.html">States package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">ui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PS-LAB2025</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="patterns.html">Patterns package</a></li>
+      <li class="breadcrumb-item active">patterns.memento</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/patterns_memento.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-patterns.memento">
+<span id="patterns-memento"></span><h1>patterns.memento<a class="headerlink" href="#module-patterns.memento" title="Link to this heading"></a></h1>
+<p>Memento pattern utilities.</p>
+<p>Implements a small memento system to capture and restore game state.
+Useful for save/load, checkpoints, and rollback scenarios. Includes
+<cite>GameMemento</cite>, <cite>GameCaretaker</cite>, and <cite>GameOriginator</cite> classes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.memento.</span></span><span class="sig-name descname"><span class="pre">GameCaretaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_snapshots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Caretaker that manages multiple game mementos.</p>
+<p>Provides named snapshot storage and a simple automatic snapshot
+list used for checkpointing.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker.delete_snapshot">
+<span class="sig-name descname"><span class="pre">delete_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker.delete_snapshot" title="Link to this definition"></a></dt>
+<dd><p>Elimina un snapshot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker.get_all_snapshots">
+<span class="sig-name descname"><span class="pre">get_all_snapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker.get_all_snapshots" title="Link to this definition"></a></dt>
+<dd><p>Retorna todos los snapshots nombrados</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Dict</em>[str, <a class="reference internal" href="#patterns.memento.GameMemento" title="patterns.memento.GameMemento"><em>GameMemento</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker.get_latest_auto_snapshot">
+<span class="sig-name descname"><span class="pre">get_latest_auto_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker.get_latest_auto_snapshot" title="Link to this definition"></a></dt>
+<dd><p>Retorna el último snapshot automático</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#patterns.memento.GameMemento" title="patterns.memento.GameMemento"><em>GameMemento</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker.list_snapshots">
+<span class="sig-name descname"><span class="pre">list_snapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker.list_snapshots" title="Link to this definition"></a></dt>
+<dd><p>Lista todos los nombres de snapshots disponibles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker.load_snapshot">
+<span class="sig-name descname"><span class="pre">load_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker.load_snapshot" title="Link to this definition"></a></dt>
+<dd><p>Carga un snapshot por nombre</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#patterns.memento.GameMemento" title="patterns.memento.GameMemento"><em>GameMemento</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker.save_auto_snapshot">
+<span class="sig-name descname"><span class="pre">save_auto_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memento</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker.save_auto_snapshot" title="Link to this definition"></a></dt>
+<dd><p>Guarda un snapshot automático (checkpoint)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>memento</strong> (<a class="reference internal" href="#patterns.memento.GameMemento" title="patterns.memento.GameMemento"><em>GameMemento</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameCaretaker.save_snapshot">
+<span class="sig-name descname"><span class="pre">save_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memento</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameCaretaker.save_snapshot" title="Link to this definition"></a></dt>
+<dd><p>Guarda un snapshot con nombre específico</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>memento</strong> (<a class="reference internal" href="#patterns.memento.GameMemento" title="patterns.memento.GameMemento"><em>GameMemento</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.memento.GameMemento">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.memento.</span></span><span class="sig-name descname"><span class="pre">GameMemento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameMemento" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A memento that stores a snapshot of the game state.</p>
+<p>Stores a deep copy of the provided state dictionary along with
+optional metadata (name, timestamp, etc.).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>metadata</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameMemento.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameMemento.get_description" title="Link to this definition"></a></dt>
+<dd><p>Retorna descripción legible del memento</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameMemento.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameMemento.get_metadata" title="Link to this definition"></a></dt>
+<dd><p>Retorna metadata del memento</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameMemento.get_state">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameMemento.get_state" title="Link to this definition"></a></dt>
+<dd><p>Retorna una copia del estado guardado</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameMemento.get_timestamp">
+<span class="sig-name descname"><span class="pre">get_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameMemento.get_timestamp" title="Link to this definition"></a></dt>
+<dd><p>Retorna el timestamp de creación</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>datetime</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.memento.GameOriginator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.memento.</span></span><span class="sig-name descname"><span class="pre">GameOriginator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameOriginator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Originator that creates and restores game mementos.</p>
+<p>Knows how to capture the current game manager state and to apply a
+memento to restore that state back onto the game manager.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameOriginator.create_memento">
+<span class="sig-name descname"><span class="pre">create_memento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'snapshot'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameOriginator.create_memento" title="Link to this definition"></a></dt>
+<dd><p>Crea un memento del estado actual del juego</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#patterns.memento.GameMemento" title="patterns.memento.GameMemento"><em>GameMemento</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.memento.GameOriginator.restore_memento">
+<span class="sig-name descname"><span class="pre">restore_memento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memento</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.memento.GameOriginator.restore_memento" title="Link to this definition"></a></dt>
+<dd><p>Restaura el estado del juego desde un memento</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>memento</strong> (<a class="reference internal" href="#patterns.memento.GameMemento" title="patterns.memento.GameMemento"><em>GameMemento</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="patterns_mediator.html" class="btn btn-neutral float-left" title="patterns.mediator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="patterns_observer.html" class="btn btn-neutral float-right" title="patterns.observer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

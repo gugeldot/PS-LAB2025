@@ -1,13 +1,36 @@
-"""Redirect all stdout writes to a file named `game.log` at the project root (App/)
-and prefix each logged line with a timestamp.
+"""Redirect stdout to a timestamped game log file.
 
-Usage:
-    from stdout_redirect import redirect_stdout_to_game_log
+This module provides a small file-like wrapper that replaces ``sys.stdout``
+so all printed output is appended to ``App/logs/game.log`` with a leading
+timestamp. It is thread-safe and designed to fail gracefully (logging
+errors are swallowed to avoid crashing the host application).
+
+Usage
+-----
+Import and enable logging at application start::
+
+    from utils.logger import redirect_stdout_to_game_log
     redirect_stdout_to_game_log()
 
-This module replaces ``sys.stdout`` with a small file-like object that appends
-timestamped lines to the ``game.log`` file and flushes immediately. A restore
-function is provided for tests or graceful shutdowns.
+Example
+-------
+Use a try/finally block to ensure the original stdout is restored on exit::
+
+    from utils.logger import redirect_stdout_to_game_log, restore_stdout
+
+    log_path = redirect_stdout_to_game_log()
+    try:
+        print("This will go to App/logs/game.log with a timestamp")
+    finally:
+        restore_stdout()
+
+Functions in this module:
+- :func:`redirect_stdout_to_game_log` — redirect stdout to ``App/logs/game.log``.
+- :func:`restore_stdout` — restore the original stdout and close the log file.
+
+The design goal is durability: failures to create or write the log are
+caught and ignored so the game keeps running even if logging cannot be
+performed (for example, due to permission or filesystem issues).
 """
 from __future__ import annotations
 

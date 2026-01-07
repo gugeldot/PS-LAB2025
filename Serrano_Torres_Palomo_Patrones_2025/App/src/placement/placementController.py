@@ -1,4 +1,17 @@
 import pygame as pg
+"""PlacementController and helpers for building/destroying structures.
+
+This module provides `PlacementController`, a thin coordinator that
+manages the placement UI and actions: converting mouse coordinates to
+grid cells, drawing a placement preview, validating build/destroy
+operations, and delegating cost/refund computations to helper modules.
+
+The controller delegates low-level tasks to functions in the sibling
+modules (`placement_mouse`, `placement_draw`, `placement_finance`,
+`placement_popup`, `placement_inspect`). Only docstrings were added — the
+implementation is unchanged to preserve runtime behaviour.
+"""
+
 from core.mineCreator import MineCreator
 from settings import *
 from utils.cursor_inspector import inspect_cell
@@ -8,7 +21,18 @@ from .placement_finance import compute_cost, compute_refund
 from .placement_popup import notify_destroy_not_allowed
 from .placement_inspect import get_structure_in_cell, check_structure_in_cell
 
+
 class PlacementController:
+    """Controller that handles placement-related input and actions.
+
+    Attributes:
+        gameManager: reference to the main game manager
+        mouse: gameManager.mouse wrapper
+        mousePosition: last known mouse position (Vector2)
+        buildMode: whether the controller is in build mode
+        factory: creator object used to create structures
+    """
+
     def __init__(self, gameManager,factory):
         self.gameManager = gameManager
         self.mouse= gameManager.mouse

@@ -1,8 +1,9 @@
-"""
-Mediator Pattern - Centralizar comunicación entre componentes
+"""Mediator pattern utilities.
 
-Reduce el acoplamiento entre objetos al evitar que se comuniquen directamente.
-El mediador gestiona todas las interacciones.
+Provides a lightweight mediator abstraction used to centralize
+communication between game components (UI, states, structures, points
+system). The mediator reduces direct coupling by routing events and
+coordinating responses.
 """
 
 from abc import ABC, abstractmethod
@@ -10,7 +11,11 @@ from typing import Dict, Any, Optional, List
 
 
 class Mediator(ABC):
-    """Interfaz base para mediadores"""
+    """Base interface for mediator implementations.
+
+    Concrete mediators implement `notify` to react to events sent by
+    components and to coordinate actions across subsystems.
+    """
     
     @abstractmethod
     def notify(self, sender: object, event: str, data: Dict[str, Any] = None) -> None:
@@ -26,12 +31,11 @@ class Mediator(ABC):
 
 
 class GameMediator(Mediator):
-    """
-    Mediador central del juego que coordina interacciones entre:
-    - UI (HUD, menús)
-    - Estados del juego
-    - Estructuras
-    - Sistema de puntos
+    """Central game mediator.
+
+    Coordinates interactions between the HUD, game states, structures,
+    and the points system. It exposes registration for components and a
+    high-level `notify` method used by components to signal events.
     """
     
     def __init__(self, gameManager):
@@ -223,9 +227,10 @@ class GameMediator(Mediator):
 
 
 class StructureMediator(Mediator):
-    """
-    Mediador específico para comunicación entre estructuras
-    Gestiona flujo de items entre estructuras conectadas
+    """Mediator specialized for structure-to-structure communication.
+
+    Routes produced items across conveyors and notifies connected
+    structures about events like production, consumption, or upgrades.
     """
     
     def __init__(self):

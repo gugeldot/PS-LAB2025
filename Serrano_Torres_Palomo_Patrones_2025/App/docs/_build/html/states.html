@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>States package &mdash; PS-LAB2025 0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=837179f8"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ui package" href="ui.html" />
+    <link rel="prev" title="placement package" href="placement.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PS-LAB2025
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameManager.html">gameManager module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainMenu.html">mainMenu module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">settings module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns.html">Patterns package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="placement.html">placement package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">States package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#states.buildState.BuildState"><code class="docutils literal notranslate"><span class="pre">BuildState</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#states.buildState.BuildState.draw"><code class="docutils literal notranslate"><span class="pre">BuildState.draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.buildState.BuildState.handleClickEvent"><code class="docutils literal notranslate"><span class="pre">BuildState.handleClickEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.buildState.BuildState.setFactory"><code class="docutils literal notranslate"><span class="pre">BuildState.setFactory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.buildState.BuildState.update"><code class="docutils literal notranslate"><span class="pre">BuildState.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#states.conveyor_helpers.draw"><code class="docutils literal notranslate"><span class="pre">draw()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#states.conveyor_helpers.get_structure_at_grid"><code class="docutils literal notranslate"><span class="pre">get_structure_at_grid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#states.conveyor_helpers.handle_click_event"><code class="docutils literal notranslate"><span class="pre">handle_click_event()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#states.conveyor_helpers.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#states.conveyorBuildState.ConveyorBuildState"><code class="docutils literal notranslate"><span class="pre">ConveyorBuildState</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#states.conveyorBuildState.ConveyorBuildState.draw"><code class="docutils literal notranslate"><span class="pre">ConveyorBuildState.draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.conveyorBuildState.ConveyorBuildState.handleClickEvent"><code class="docutils literal notranslate"><span class="pre">ConveyorBuildState.handleClickEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.conveyorBuildState.ConveyorBuildState.update"><code class="docutils literal notranslate"><span class="pre">ConveyorBuildState.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#states.destroyState.DestroyState"><code class="docutils literal notranslate"><span class="pre">DestroyState</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#states.destroyState.DestroyState.draw"><code class="docutils literal notranslate"><span class="pre">DestroyState.draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.destroyState.DestroyState.handleClickEvent"><code class="docutils literal notranslate"><span class="pre">DestroyState.handleClickEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.destroyState.DestroyState.update"><code class="docutils literal notranslate"><span class="pre">DestroyState.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#states.gameState.GameState"><code class="docutils literal notranslate"><span class="pre">GameState</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#states.gameState.GameState.draw"><code class="docutils literal notranslate"><span class="pre">GameState.draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.gameState.GameState.handleClickEvent"><code class="docutils literal notranslate"><span class="pre">GameState.handleClickEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#states.gameState.GameState.update"><code class="docutils literal notranslate"><span class="pre">GameState.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#states.normalState.NormalState"><code class="docutils literal notranslate"><span class="pre">NormalState</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#states.normalState.NormalState.handleClickEvent"><code class="docutils literal notranslate"><span class="pre">NormalState.handleClickEvent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">ui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PS-LAB2025</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">States package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/states.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="states-package">
+<h1>States package<a class="headerlink" href="#states-package" title="Link to this heading"></a></h1>
+<p>This section documents the <cite>states</cite> package which implements the game’s
+state machine (build, destroy, conveyor placement, normal mode, etc.).</p>
+<p id="module-states.buildState">Build state: handles placement/build interactions.</p>
+<p>This module provides <cite>BuildState</cite>, a GameState used when the player is
+in build mode. It delegates placement actions to a <cite>PlacementController</cite>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="states.buildState.BuildState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">states.buildState.</span></span><span class="sig-name descname"><span class="pre">BuildState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">placementController</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.buildState.BuildState" title="Link to this definition"></a></dt>
+<dd><p>State used for constructing structures via the placement controller.</p>
+<p>The state forwards input events and draw/update calls to the
+provided <cite>placementController</cite> to preserve the original behaviour.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="states.buildState.BuildState.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.buildState.BuildState.draw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.buildState.BuildState.handleClickEvent">
+<span class="sig-name descname"><span class="pre">handleClickEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.buildState.BuildState.handleClickEvent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.buildState.BuildState.setFactory">
+<span class="sig-name descname"><span class="pre">setFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.buildState.BuildState.setFactory" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.buildState.BuildState.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.buildState.BuildState.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-states.conveyor_helpers">Helper functions for conveyor-building state.</p>
+<p>This module contains the extracted logic used by <cite>ConveyorBuildState</cite> so
+the heavy click/update/draw code is isolated for clarity and testing.
+The helpers operate on a <cite>state</cite> object that matches the fields used in
+the original state class.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="states.conveyor_helpers.draw">
+<span class="sig-prename descclassname"><span class="pre">states.conveyor_helpers.</span></span><span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyor_helpers.draw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="states.conveyor_helpers.get_structure_at_grid">
+<span class="sig-prename descclassname"><span class="pre">states.conveyor_helpers.</span></span><span class="sig-name descname"><span class="pre">get_structure_at_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyor_helpers.get_structure_at_grid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="states.conveyor_helpers.handle_click_event">
+<span class="sig-prename descclassname"><span class="pre">states.conveyor_helpers.</span></span><span class="sig-name descname"><span class="pre">handle_click_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyor_helpers.handle_click_event" title="Link to this definition"></a></dt>
+<dd><p>Handle click logic extracted from ConveyorBuildState.handleClickEvent.</p>
+<p>Operates on the provided <cite>state</cite> object (the ConveyorBuildState
+instance) to avoid duplicating state and to keep the public class
+interface unchanged.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="states.conveyor_helpers.update">
+<span class="sig-prename descclassname"><span class="pre">states.conveyor_helpers.</span></span><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyor_helpers.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p id="module-states.conveyorBuildState">State for building conveyors.</p>
+<p>This module implements <cite>ConveyorBuildState</cite>, a thin wrapper that delegates
+click/update/draw work to the helpers in <cite>conveyor_helpers.py</cite>. The
+delegation keeps the class small while keeping the behaviour identical to
+the original implementation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="states.conveyorBuildState.ConveyorBuildState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">states.conveyorBuildState.</span></span><span class="sig-name descname"><span class="pre">ConveyorBuildState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conveyorCreator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyorBuildState.ConveyorBuildState" title="Link to this definition"></a></dt>
+<dd><p>Thin state object that delegates heavy logic to helpers in
+<cite>conveyor_helpers.py</cite> to keep the file small and readable while
+preserving the public API and behavior.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="states.conveyorBuildState.ConveyorBuildState.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyorBuildState.ConveyorBuildState.draw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.conveyorBuildState.ConveyorBuildState.handleClickEvent">
+<span class="sig-name descname"><span class="pre">handleClickEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyorBuildState.ConveyorBuildState.handleClickEvent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.conveyorBuildState.ConveyorBuildState.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.conveyorBuildState.ConveyorBuildState.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-states.destroyState">Destroy state: handles destruction of structures and conveyors.</p>
+<p>Provides <cite>DestroyState</cite>, responsible for user-initiated destruction
+actions. It attempts to destroy conveyors when clicks are near them and
+falls back to placementController destruction for structures. The
+implementation mirrors prior behavior and is intentionally defensive to
+avoid runtime errors during gameplay.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="states.destroyState.DestroyState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">states.destroyState.</span></span><span class="sig-name descname"><span class="pre">DestroyState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">placementController</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.destroyState.DestroyState" title="Link to this definition"></a></dt>
+<dd><p>State used when the player is in destroy mode.</p>
+<p>Delegates certain tasks to <cite>placementController</cite> and contains helpers
+to detect/remove conveyors and compute refunds.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="states.destroyState.DestroyState.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.destroyState.DestroyState.draw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.destroyState.DestroyState.handleClickEvent">
+<span class="sig-name descname"><span class="pre">handleClickEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.destroyState.DestroyState.handleClickEvent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.destroyState.DestroyState.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.destroyState.DestroyState.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-states.gameState">Base class for game states.</p>
+<p><cite>GameState</cite> defines the minimal interface used by the game’s state
+machine: handleClickEvent, update and draw. Concrete states implement
+these methods and are used to switch the game’s behavior (build, destroy,
+normal, etc.).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="states.gameState.GameState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">states.gameState.</span></span><span class="sig-name descname"><span class="pre">GameState</span></span><a class="headerlink" href="#states.gameState.GameState" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="states.gameState.GameState.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.gameState.GameState.draw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.gameState.GameState.handleClickEvent">
+<span class="sig-name descname"><span class="pre">handleClickEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.gameState.GameState.handleClickEvent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="states.gameState.GameState.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#states.gameState.GameState.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-states.normalState">Normal state: delegate basic input handling to mouse controller.</p>
+<p><cite>NormalState</cite> forwards click handling to a provided mouse controller
+object. This keeps the game’s default interaction mode simple and
+delegated.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="states.normalState.NormalState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">states.normalState.</span></span><span class="sig-name descname"><span class="pre">NormalState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mouse_controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.normalState.NormalState" title="Link to this definition"></a></dt>
+<dd><p>Default game state where normal interactions are handled.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="states.normalState.NormalState.handleClickEvent">
+<span class="sig-name descname"><span class="pre">handleClickEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#states.normalState.NormalState.handleClickEvent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="placement.html" class="btn btn-neutral float-left" title="placement package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ui.html" class="btn btn-neutral float-right" title="ui package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

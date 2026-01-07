@@ -4,9 +4,10 @@ from ui.hud import Colors
 
 
 class GMRenderer:
-    """Encapsula la lógica de dibujo del GameManager en capas.
+    """Encapsulate GameManager drawing logic in layered methods.
 
-    Mantiene compatibilidad: use `from gm.gm_draw import draw` as before.
+    The class preserves backward compatibility with the previous
+    single-function interface (see :mod:`gm.gm_draw`).
     """
     def __init__(self, gm):
         self.gm = gm
@@ -105,7 +106,7 @@ class GMRenderer:
             pass
 
     def draw(self):
-        # fondo
+        # fill background
         self.screen.fill(Colors.BG_DARK)
         cam = getattr(self.gm, 'camera', pg.Vector2(0, 0))
 

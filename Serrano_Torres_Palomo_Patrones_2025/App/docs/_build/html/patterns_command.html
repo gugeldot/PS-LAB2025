@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>patterns.command &mdash; PS-LAB2025 0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=837179f8"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="patterns.mediator" href="patterns_mediator.html" />
+    <link rel="prev" title="Patterns package" href="patterns.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PS-LAB2025
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameManager.html">gameManager module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainMenu.html">mainMenu module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">settings module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="patterns.html">Patterns package</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">patterns.command</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.command.BuildConveyorCommand"><code class="docutils literal notranslate"><span class="pre">BuildConveyorCommand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.BuildConveyorCommand.execute"><code class="docutils literal notranslate"><span class="pre">BuildConveyorCommand.execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.BuildConveyorCommand.get_description"><code class="docutils literal notranslate"><span class="pre">BuildConveyorCommand.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.BuildConveyorCommand.undo"><code class="docutils literal notranslate"><span class="pre">BuildConveyorCommand.undo()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.command.BuildStructureCommand"><code class="docutils literal notranslate"><span class="pre">BuildStructureCommand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.BuildStructureCommand.execute"><code class="docutils literal notranslate"><span class="pre">BuildStructureCommand.execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.BuildStructureCommand.get_description"><code class="docutils literal notranslate"><span class="pre">BuildStructureCommand.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.BuildStructureCommand.undo"><code class="docutils literal notranslate"><span class="pre">BuildStructureCommand.undo()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.command.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.Command.execute"><code class="docutils literal notranslate"><span class="pre">Command.execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.Command.get_description"><code class="docutils literal notranslate"><span class="pre">Command.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.Command.undo"><code class="docutils literal notranslate"><span class="pre">Command.undo()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#patterns.command.CommandHistory"><code class="docutils literal notranslate"><span class="pre">CommandHistory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.CommandHistory.can_redo"><code class="docutils literal notranslate"><span class="pre">CommandHistory.can_redo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.CommandHistory.can_undo"><code class="docutils literal notranslate"><span class="pre">CommandHistory.can_undo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.CommandHistory.clear"><code class="docutils literal notranslate"><span class="pre">CommandHistory.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.CommandHistory.execute"><code class="docutils literal notranslate"><span class="pre">CommandHistory.execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.CommandHistory.get_history_description"><code class="docutils literal notranslate"><span class="pre">CommandHistory.get_history_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.CommandHistory.redo"><code class="docutils literal notranslate"><span class="pre">CommandHistory.redo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patterns.command.CommandHistory.undo"><code class="docutils literal notranslate"><span class="pre">CommandHistory.undo()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_mediator.html">patterns.mediator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_memento.html">patterns.memento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_observer.html">patterns.observer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_prototype.html">patterns.prototype</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patterns_singleton.html">patterns.singleton</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="placement.html">placement package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="states.html">States package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">ui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PS-LAB2025</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="patterns.html">Patterns package</a></li>
+      <li class="breadcrumb-item active">patterns.command</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/patterns_command.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-patterns.command">
+<span id="patterns-command"></span><h1>patterns.command<a class="headerlink" href="#module-patterns.command" title="Link to this heading"></a></h1>
+<p>Command pattern utilities.</p>
+<p>Provides a small command framework used to encapsulate actions as objects.
+Includes concrete commands for building structures and conveyors and a
+command history manager that supports undo/redo. The implementation aims
+to be defensive and non-intrusive so it can be integrated with the game’s
+existing managers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.command.BuildConveyorCommand">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.command.</span></span><span class="sig-name descname"><span class="pre">BuildConveyorCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conveyorCreator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildConveyorCommand" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#patterns.command.Command" title="patterns.command.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<p>Command to build a conveyor between two points.</p>
+<p>On execute the command creates the conveyor, appends it to the
+game manager lists and deducts points. Undo removes the conveyor and
+refunds points.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.BuildConveyorCommand.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildConveyorCommand.execute" title="Link to this definition"></a></dt>
+<dd><p>Ejecuta el comando
+Returns: True si tuvo éxito, False si falló</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.BuildConveyorCommand.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildConveyorCommand.get_description" title="Link to this definition"></a></dt>
+<dd><p>Retorna descripción del comando para UI</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.BuildConveyorCommand.undo">
+<span class="sig-name descname"><span class="pre">undo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildConveyorCommand.undo" title="Link to this definition"></a></dt>
+<dd><p>Deshace el comando
+Returns: True si tuvo éxito, False si falló</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.command.BuildStructureCommand">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.command.</span></span><span class="sig-name descname"><span class="pre">BuildStructureCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildStructureCommand" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#patterns.command.Command" title="patterns.command.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a></p>
+<p>Command to build a structure using a provided creator.</p>
+<p>The command checks the game manager’s points against the computed
+cost, creates the structure, places it on the map, deducts points,
+and supports undo which removes the structure and refunds points.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.BuildStructureCommand.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildStructureCommand.execute" title="Link to this definition"></a></dt>
+<dd><p>Construye la estructura si hay puntos suficientes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.BuildStructureCommand.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildStructureCommand.get_description" title="Link to this definition"></a></dt>
+<dd><p>Retorna descripción del comando para UI</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.BuildStructureCommand.undo">
+<span class="sig-name descname"><span class="pre">undo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.BuildStructureCommand.undo" title="Link to this definition"></a></dt>
+<dd><p>Deshace la construcción, devolviendo puntos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.command.Command">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.command.</span></span><span class="sig-name descname"><span class="pre">Command</span></span><a class="headerlink" href="#patterns.command.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base interface for commands.</p>
+<p>Implementations must provide <cite>execute</cite> and <cite>undo</cite> methods. Both
+methods return a boolean indicating success.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.Command.execute">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.Command.execute" title="Link to this definition"></a></dt>
+<dd><p>Ejecuta el comando
+Returns: True si tuvo éxito, False si falló</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.Command.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.Command.get_description" title="Link to this definition"></a></dt>
+<dd><p>Retorna descripción del comando para UI</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.Command.undo">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">undo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.Command.undo" title="Link to this definition"></a></dt>
+<dd><p>Deshace el comando
+Returns: True si tuvo éxito, False si falló</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">patterns.command.</span></span><span class="sig-name descname"><span class="pre">CommandHistory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages a history of executed commands supporting undo/redo.</p>
+<p>Stores a bounded list of Command instances and exposes <cite>execute</cite>,
+<cite>undo</cite>, and <cite>redo</cite> operations. <cite>execute</cite> will run the command and
+add it to the history only on success.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory.can_redo">
+<span class="sig-name descname"><span class="pre">can_redo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory.can_redo" title="Link to this definition"></a></dt>
+<dd><p>Verifica si se puede rehacer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory.can_undo">
+<span class="sig-name descname"><span class="pre">can_undo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory.can_undo" title="Link to this definition"></a></dt>
+<dd><p>Verifica si se puede deshacer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory.clear" title="Link to this definition"></a></dt>
+<dd><p>Limpia el historial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory.execute" title="Link to this definition"></a></dt>
+<dd><p>Ejecuta un comando y lo agrega al historial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>command</strong> (<a class="reference internal" href="#patterns.command.Command" title="patterns.command.Command"><em>Command</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory.get_history_description">
+<span class="sig-name descname"><span class="pre">get_history_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory.get_history_description" title="Link to this definition"></a></dt>
+<dd><p>Obtiene descripciones de los últimos comandos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>List</em>[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory.redo">
+<span class="sig-name descname"><span class="pre">redo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory.redo" title="Link to this definition"></a></dt>
+<dd><p>Rehace el siguiente comando</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="patterns.command.CommandHistory.undo">
+<span class="sig-name descname"><span class="pre">undo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#patterns.command.CommandHistory.undo" title="Link to this definition"></a></dt>
+<dd><p>Deshace el último comando</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="patterns.html" class="btn btn-neutral float-left" title="Patterns package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="patterns_mediator.html" class="btn btn-neutral float-right" title="patterns.mediator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

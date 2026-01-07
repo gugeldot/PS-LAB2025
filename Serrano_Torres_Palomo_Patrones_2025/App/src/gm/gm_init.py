@@ -2,16 +2,17 @@ import pygame as pg
 import pathlib
 import os
 from collections import deque
-from settings import * # Ahora está al nivel del módulo, donde debe estar
+from settings import *
+
 
 def init_pygame(gm):
-    """Initialize pygame-related surfaces, clock and camera on the given GameManager instance."""
+    """Initialize pygame surfaces, clock and camera on the given GameManager.
+
+    The function configures the display surface, clock and basic camera
+    attributes required by the game loop.
+    """
     pg.init()
-    # Nota: la inicialización y reproducción de la música se realiza en `main.py`
-    # para que la pista suene desde el menú principal y permanezca hasta el
-    # cierre completo de la aplicación.
     gm.screen = pg.display.set_mode(RESOLUTION)
-    # Asegurar que el título de la ventana sea el esperado
     try:
         pg.display.set_caption("Number Tycoon")
     except Exception:
@@ -22,18 +23,22 @@ def init_pygame(gm):
     gm.camera_speed = 400
 
 def init_paths(gm):
-    """Set save directory and save file attributes on gm."""
-    # __file__ => App/src/gm/gm_init.py
-    # parent => App/src/gm
-    # parent.parent => App/src
-    # parent.parent.parent => App
+    """Set save directory and save file attributes on the GameManager instance.
+
+    The save directory is ``<project_root>/saves`` and the save file is
+    ``map.json`` inside that folder.
+    """
     base_dir = pathlib.Path(__file__).resolve().parent
     app_dir = base_dir.parent.parent
     gm.save_dir = app_dir / "saves"
     gm.save_file = gm.save_dir / "map.json"
 
 def init_ui(gm):
-    """Create button rects and layout-related UI constants."""
+    """Create button rects and layout-related UI constants on the GameManager.
+
+    The positions are set relative to the global ``WIDTH`` constant from
+    settings.
+    """
     btn_width = 200
     right_margin = 20
     top_margin = 14
@@ -44,12 +49,15 @@ def init_ui(gm):
     gm.new_mine_button_rect = pg.Rect(WIDTH - btn_width - right_margin, top_margin + v_spacing * 3, btn_width, 40)
 
 def init_counters(gm):
-    """Initialize counters, cost tables and the action buffer."""
+    """Initialize counters, cost tables and the action buffer on the GameManager.
+
+    This sets default values for upgrade counters, cost tables and the
+    optional GIF ordering used by the HUD.
+    """
     gm.speed_uses_left = 10
     gm.eff_uses_left = 10
     gm.speed_uses_used = 0
     gm.eff_uses_used = 0
-    # No limit on buying new mines: set uses_left to None to indicate unlimited
     gm.mine_uses_left = None
     gm.mine_uses_used = 0
 
@@ -62,22 +70,15 @@ def init_counters(gm):
     gm.build_costs = {
         'sum': 15,
         'mul': 45,
-        'div': 35, #Not implemented
+        'div': 35,  # Not implemented
         'splitter': 10,
         'merger': 10,
         'conveyor': 2,
     }
 
-    
     gm.action_buffer = deque()
-    # Optional explicit ordering of GIFs to show on new game. Provide file
-    # names (strings) relative to Assets/gifs in the desired order. If left
-    # empty, HUD will alphabetically enumerate files found in the folder.
-    # Example:
-    # gm.gifs_order = ("intro.gif", "tip1.gif", "tip2.gif")
-    # If empty, HUD will enumerate files in Assets/gifs alphabetically.
-    # I populate a sensible default order based on Assets/gifs contents.
-    # Each entry is (filename, title) to display in the GIF modal header.
+    # Optional explicit ordering of GIFs to show on a new game. Each entry is
+    # (filename, title). If empty, HUD enumerates Assets/gifs alphabetically.
     gm.gifs_order = (
         ("tutorial1.gif", "Básico"),
         ("tutorial2.gif", "Básico 2"),
@@ -91,7 +92,12 @@ def init_counters(gm):
     )
 
 def init_well_positions(gm):
-    """Define default well grid coordinates and the iterable tuple."""
+    """Define default well grid coordinates and set ``gm.well_positions``.
+
+    The positions are stored individually (posWell1..posWell10) and as a
+    tuple ``gm.well_positions`` for convenient iteration elsewhere in the
+    codebase.
+    """
     gm.posWell1 = (8, 2)
     gm.posWell2 = (3, 6)
     gm.posWell3 = (11, 4)

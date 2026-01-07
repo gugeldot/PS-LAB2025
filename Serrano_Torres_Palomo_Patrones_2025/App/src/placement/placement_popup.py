@@ -1,3 +1,12 @@
+"""Popup helpers for placement-related notifications.
+
+This module centralizes small user-notification behaviors used by the
+placement flow, such as informing the player when a requested destruction
+is not allowed. Functions accept a PlacementController-like object and
+operate via its `gameManager` attribute.
+"""
+
+
 def notify_destroy_not_allowed(controller, structure):
     """Show HUD/popup notification and return the game to normal state like original code.
     Keeps the many fallbacks from the original method.

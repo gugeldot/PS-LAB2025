@@ -1,3 +1,11 @@
+"""Helper functions for conveyor-building state.
+
+This module contains the extracted logic used by `ConveyorBuildState` so
+the heavy click/update/draw code is isolated for clarity and testing.
+The helpers operate on a `state` object that matches the fields used in
+the original state class.
+"""
+
 import pygame as pg
 from settings import CELL_SIZE_PX, WIDTH, HEIGHT
 

@@ -1,3 +1,16 @@
+"""GIF modal helper used by the HUD.
+
+This module implements :class:`GifModal`, a small helper that loads GIF
+files from the game's Assets/gifs folder, converts frames to pygame
+surfaces and exposes a simple modal API used by the HUD:
+
+- open(start_index=0), close(), next(), prev()
+- update(dt_ms), draw(screen)
+- readable attributes: active, files, titles, index, frames,
+  frame_durations, frame_index, frame_timer
+- buttons: prev_button, next_button, exit_button (pygame.Rect or None)
+"""
+
 import pathlib
 import pygame as pg
 from settings import WIDTH, HEIGHT
@@ -8,14 +21,11 @@ except Exception:
 
 
 class GifModal:
-    """Encapsula la lógica del modal de GIFs usada por el HUD.
+    """Modal controller that displays GIFs as an in-game tutorial/gallery.
 
-    API mínima compatible con el HUD original:
-    - open(start_index=0), close(), next(), prev()
-    - update(dt_ms), draw(screen)
-    - atributos legibles: active, files, titles, index, frames,
-      frame_durations, frame_index, frame_timer
-    - botones: prev_button, next_button, exit_button (rect o None)
+    The class is intentionally tolerant: if Pillow is missing it falls back
+    to loading a single static surface via ``pygame.image.load``. Frames and
+    durations are stored in ``frames`` and ``frame_durations`` respectively.
     """
 
     def __init__(self, game=None, base_path: pathlib.Path = None):

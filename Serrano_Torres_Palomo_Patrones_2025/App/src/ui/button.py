@@ -1,10 +1,27 @@
+"""Small button drawing helpers used by the HUD UI.
+
+This module provides utilities to draw rounded buttons using the HUD's
+font and color palette while avoiding circular imports with the HUD module.
+The primary public functions are ``draw_button`` and ``_draw_rounded_rect``.
+"""
+
 import importlib
 import pygame as pg
 from typing import Optional
 
 
 def _draw_rounded_rect(surface, rect, color, radius, border=0):
-    """Small wrapper to draw rounded rects; kept here to avoid importing HUD."""
+    """Draw a rounded rectangle.
+
+    This lightweight wrapper avoids importing the HUD module and exposes a
+    single place to draw rounded rectangles with an optional border width.
+    Parameters
+    - surface: pygame Surface to draw on
+    - rect: pygame.Rect describing the area
+    - color: fill color or border color
+    - radius: corner radius in pixels
+    - border: optional border width (0 = filled)
+    """
     if border > 0:
         pg.draw.rect(surface, color, rect, border, border_radius=radius)
     else:

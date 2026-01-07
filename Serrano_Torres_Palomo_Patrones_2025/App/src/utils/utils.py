@@ -1,5 +1,14 @@
 def is_prime(n):
-    '''Check if a number is prime'''
+    """Return True if ``n`` is a prime number, False otherwise.
+
+    Parameters
+    - n: integer to test for primality
+
+    The implementation uses simple deterministic checks suitable for
+    small integers: special-cases 0,1,2, filters even numbers and tests odd
+    divisors up to sqrt(n). This function is intentionally simple and
+    optimized for readability rather than large-number performance.
+    """
     if n < 2:
         return False
     if n == 2:
