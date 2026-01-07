@@ -8,9 +8,15 @@ Welcome to PS-LAB2025's documentation
    map
    gm
    core
+   main
+   gameManager
+   mainMenu
+   settings
    patterns
    placement
    states
+   ui
+   utils
 
 Indices and tables
 ==================

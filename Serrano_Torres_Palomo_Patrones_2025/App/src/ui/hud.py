@@ -1,3 +1,10 @@
+"""HUD (Heads-Up Display) helpers used by the game's UI.
+
+This module contains the Colors palette and the HUD class responsible for
+rendering the on-screen HUD: buttons, points counter, transient popups and
+integration with the GIF modal. Only documentation additions are made here.
+"""
+
 import pygame as pg
 import pathlib
 from settings import WIDTH, HEIGHT

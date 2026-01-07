@@ -1,3 +1,17 @@
+"""Application entry point for Number Tycoon.
+
+This module initializes pygame, attempts to redirect stdout to the game's
+log file, initializes background music (when available) and runs the main
+menu loop. Selecting "Nueva partida" creates a :class:`gameManager.GameManager`
+instance and starts the game loop.
+
+The module is intended to be executed as a script::
+
+    python src/main.py
+
+No behavioral changes are made here; only documentation is added for Sphinx.
+"""
+
 import pygame as pg
 import sys
 from mainMenu import MainMenu

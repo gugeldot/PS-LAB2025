@@ -1,39 +1,117 @@
+
+
 <!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<html lang="en" data-content_root="./">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>placement package &mdash; PS-LAB2025 0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
-    <title>placement package &#8212; PS-LAB2025 0.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
-    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
-    <script src="_static/documentation_options.js?v=837179f8"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=837179f8"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="patterns.singleton" href="patterns_singleton.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
+    <link rel="next" title="States package" href="states.html" />
+    <link rel="prev" title="patterns.singleton" href="patterns_singleton.html" /> 
+</head>
 
-  
-  
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-  </head><body>
-  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
           
+          
+          <a href="index.html" class="icon icon-home">
+            PS-LAB2025
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gameManager.html">gameManager module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainMenu.html">mainMenu module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">settings module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="patterns.html">Patterns package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">placement package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_draw.draw_destroy"><code class="docutils literal notranslate"><span class="pre">draw_destroy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_draw.draw_preview"><code class="docutils literal notranslate"><span class="pre">draw_preview()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_finance.compute_cost"><code class="docutils literal notranslate"><span class="pre">compute_cost()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_finance.compute_refund"><code class="docutils literal notranslate"><span class="pre">compute_refund()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_inspect.check_structure_in_cell"><code class="docutils literal notranslate"><span class="pre">check_structure_in_cell()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_inspect.get_structure_in_cell"><code class="docutils literal notranslate"><span class="pre">get_structure_in_cell()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_mouse.mouse_cell_conversion"><code class="docutils literal notranslate"><span class="pre">mouse_cell_conversion()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placement_popup.notify_destroy_not_allowed"><code class="docutils literal notranslate"><span class="pre">notify_destroy_not_allowed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#placement.placementController.PlacementController"><code class="docutils literal notranslate"><span class="pre">PlacementController</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.gameManager"><code class="docutils literal notranslate"><span class="pre">PlacementController.gameManager</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.mouse"><code class="docutils literal notranslate"><span class="pre">PlacementController.mouse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.mousePosition"><code class="docutils literal notranslate"><span class="pre">PlacementController.mousePosition</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.buildMode"><code class="docutils literal notranslate"><span class="pre">PlacementController.buildMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.factory"><code class="docutils literal notranslate"><span class="pre">PlacementController.factory</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.buildStructure"><code class="docutils literal notranslate"><span class="pre">PlacementController.buildStructure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.checkCost"><code class="docutils literal notranslate"><span class="pre">PlacementController.checkCost()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.checkStructureInCell"><code class="docutils literal notranslate"><span class="pre">PlacementController.checkStructureInCell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.destroyStructure"><code class="docutils literal notranslate"><span class="pre">PlacementController.destroyStructure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.draw"><code class="docutils literal notranslate"><span class="pre">PlacementController.draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.drawDestroy"><code class="docutils literal notranslate"><span class="pre">PlacementController.drawDestroy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.getStructureInCell"><code class="docutils literal notranslate"><span class="pre">PlacementController.getStructureInCell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.mouseCellConversion"><code class="docutils literal notranslate"><span class="pre">PlacementController.mouseCellConversion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.setFactory"><code class="docutils literal notranslate"><span class="pre">PlacementController.setFactory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement.placementController.PlacementController.update"><code class="docutils literal notranslate"><span class="pre">PlacementController.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="states.html">States package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">ui package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
 
-          <div class="body" role="main">
-            
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PS-LAB2025</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">placement package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/placement.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
   <section id="placement-package">
-<h1>placement package<a class="headerlink" href="#placement-package" title="Link to this heading">¶</a></h1>
+<h1>placement package<a class="headerlink" href="#placement-package" title="Link to this heading"></a></h1>
 <p>Documentation for the <cite>placement</cite> package: helpers and the <cite>PlacementController</cite>
 used to manage building and destroying structures via the UI.</p>
 <p id="module-placement.placement_draw">Drawing helpers for placement UI.</p>
@@ -43,13 +121,13 @@ and <cite>draw_destroy</cite> helpers which operate on a <cite>PlacementControll
 object (expects <cite>gameManager</cite>, <cite>mousePosition</cite> and <cite>factory</cite>).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_draw.draw_destroy">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_draw.</span></span><span class="sig-name descname"><span class="pre">draw_destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_draw.draw_destroy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_draw.</span></span><span class="sig-name descname"><span class="pre">draw_destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_draw.draw_destroy" title="Link to this definition"></a></dt>
 <dd><p>Draw the red translucent overlay used when destroy-mode is active.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_draw.draw_preview">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_draw.</span></span><span class="sig-name descname"><span class="pre">draw_preview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_draw.draw_preview" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_draw.</span></span><span class="sig-name descname"><span class="pre">draw_preview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_draw.draw_preview" title="Link to this definition"></a></dt>
 <dd><p>Draw a small preview/indicator at the mouse cursor using the factory sprite.
 Matches the previous PlacementController.draw behaviour.</p>
 </dd></dl>
@@ -65,13 +143,13 @@ behaviour when computing costs so callers don’t need to duplicate mapping
 logic and error handling.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_finance.compute_cost">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_finance.</span></span><span class="sig-name descname"><span class="pre">compute_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_finance.compute_cost" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_finance.</span></span><span class="sig-name descname"><span class="pre">compute_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_finance.compute_cost" title="Link to this definition"></a></dt>
 <dd><p>Return integer cost for the current factory, preserving original fallbacks.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_finance.compute_refund">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_finance.</span></span><span class="sig-name descname"><span class="pre">compute_refund</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_finance.compute_refund" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_finance.</span></span><span class="sig-name descname"><span class="pre">compute_refund</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_finance.compute_refund" title="Link to this definition"></a></dt>
 <dd><p>Return integer refund for a structure, mirroring original behaviour.</p>
 </dd></dl>
 
@@ -81,12 +159,12 @@ position maintained by a <cite>PlacementController</cite>-like object. These hel
 wrap <cite>utils.cursor_inspector.inspect_cell</cite> and preserve existing fallbacks.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_inspect.check_structure_in_cell">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_inspect.</span></span><span class="sig-name descname"><span class="pre">check_structure_in_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_inspect.check_structure_in_cell" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_inspect.</span></span><span class="sig-name descname"><span class="pre">check_structure_in_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_inspect.check_structure_in_cell" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_inspect.get_structure_in_cell">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_inspect.</span></span><span class="sig-name descname"><span class="pre">get_structure_in_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_inspect.get_structure_in_cell" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_inspect.</span></span><span class="sig-name descname"><span class="pre">get_structure_in_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_inspect.get_structure_in_cell" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p id="module-placement.placement_mouse">Mouse-to-grid conversion utilities for placement.</p>
@@ -95,7 +173,7 @@ mouse/screen position and stores them on a controller object. Designed to
 be used by <cite>PlacementController</cite> and separated to allow unit testing.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_mouse.mouse_cell_conversion">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_mouse.</span></span><span class="sig-name descname"><span class="pre">mouse_cell_conversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_mouse.mouse_cell_conversion" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_mouse.</span></span><span class="sig-name descname"><span class="pre">mouse_cell_conversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_mouse.mouse_cell_conversion" title="Link to this definition"></a></dt>
 <dd><p>Convert screen mouse position to grid cell and store on controller.
 This keeps the same behaviour as the previous PlacementController.mouseCellConversion
 but extracted so the logic can be tested or reused.</p>
@@ -108,95 +186,95 @@ is not allowed. Functions accept a PlacementController-like object and
 operate via its <cite>gameManager</cite> attribute.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="placement.placement_popup.notify_destroy_not_allowed">
-<span class="sig-prename descclassname"><span class="pre">placement.placement_popup.</span></span><span class="sig-name descname"><span class="pre">notify_destroy_not_allowed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_popup.notify_destroy_not_allowed" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">placement.placement_popup.</span></span><span class="sig-name descname"><span class="pre">notify_destroy_not_allowed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placement_popup.notify_destroy_not_allowed" title="Link to this definition"></a></dt>
 <dd><p>Show HUD/popup notification and return the game to normal state like original code.
 Keeps the many fallbacks from the original method.</p>
 </dd></dl>
 
 <dl class="py class" id="module-placement.placementController">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">placement.placementController.</span></span><span class="sig-name descname"><span class="pre">PlacementController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">placement.placementController.</span></span><span class="sig-name descname"><span class="pre">PlacementController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gameManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController" title="Link to this definition"></a></dt>
 <dd><p>Controller that handles placement-related input and actions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.gameManager">
-<span class="sig-name descname"><span class="pre">gameManager</span></span><a class="headerlink" href="#placement.placementController.PlacementController.gameManager" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gameManager</span></span><a class="headerlink" href="#placement.placementController.PlacementController.gameManager" title="Link to this definition"></a></dt>
 <dd><p>reference to the main game manager</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.mouse">
-<span class="sig-name descname"><span class="pre">mouse</span></span><a class="headerlink" href="#placement.placementController.PlacementController.mouse" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mouse</span></span><a class="headerlink" href="#placement.placementController.PlacementController.mouse" title="Link to this definition"></a></dt>
 <dd><p>gameManager.mouse wrapper</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.mousePosition">
-<span class="sig-name descname"><span class="pre">mousePosition</span></span><a class="headerlink" href="#placement.placementController.PlacementController.mousePosition" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mousePosition</span></span><a class="headerlink" href="#placement.placementController.PlacementController.mousePosition" title="Link to this definition"></a></dt>
 <dd><p>last known mouse position (Vector2)</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.buildMode">
-<span class="sig-name descname"><span class="pre">buildMode</span></span><a class="headerlink" href="#placement.placementController.PlacementController.buildMode" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">buildMode</span></span><a class="headerlink" href="#placement.placementController.PlacementController.buildMode" title="Link to this definition"></a></dt>
 <dd><p>whether the controller is in build mode</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.factory">
-<span class="sig-name descname"><span class="pre">factory</span></span><a class="headerlink" href="#placement.placementController.PlacementController.factory" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">factory</span></span><a class="headerlink" href="#placement.placementController.PlacementController.factory" title="Link to this definition"></a></dt>
 <dd><p>creator object used to create structures</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.buildStructure">
-<span class="sig-name descname"><span class="pre">buildStructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.buildStructure" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">buildStructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.buildStructure" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.checkCost">
-<span class="sig-name descname"><span class="pre">checkCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.checkCost" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">checkCost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.checkCost" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.checkStructureInCell">
-<span class="sig-name descname"><span class="pre">checkStructureInCell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.checkStructureInCell" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">checkStructureInCell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.checkStructureInCell" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.destroyStructure">
-<span class="sig-name descname"><span class="pre">destroyStructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.destroyStructure" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">destroyStructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.destroyStructure" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.draw">
-<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.draw" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.draw" title="Link to this definition"></a></dt>
 <dd><p>Esto dibuja la estructura en el cursor, como un preview</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.drawDestroy">
-<span class="sig-name descname"><span class="pre">drawDestroy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.drawDestroy" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">drawDestroy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.drawDestroy" title="Link to this definition"></a></dt>
 <dd><p>Los bordes de la pantalla se vuelven rojos con distinta opacidad segun la distancia al centro de la pantalla</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.getStructureInCell">
-<span class="sig-name descname"><span class="pre">getStructureInCell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.getStructureInCell" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">getStructureInCell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.getStructureInCell" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.mouseCellConversion">
-<span class="sig-name descname"><span class="pre">mouseCellConversion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.mouseCellConversion" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mouseCellConversion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.mouseCellConversion" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.setFactory">
-<span class="sig-name descname"><span class="pre">setFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.setFactory" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">setFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.setFactory" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="placement.placementController.PlacementController.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.update" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#placement.placementController.PlacementController.update" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -204,85 +282,34 @@ Keeps the many fallbacks from the original method.</p>
 </section>
 
 
+           </div>
           </div>
-          
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="patterns_singleton.html" class="btn btn-neutral float-left" title="patterns.singleton" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="states.html" class="btn btn-neutral float-right" title="States package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">PS-LAB2025</a></h1>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
 
-
-
-
-
-
-
-
-
-<search id="searchbox" style="display: none" role="search">
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="map.html">Map package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gm.html">GM package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">Core package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="patterns.html">Patterns package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">placement package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_draw.draw_destroy"><code class="docutils literal notranslate"><span class="pre">draw_destroy()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_draw.draw_preview"><code class="docutils literal notranslate"><span class="pre">draw_preview()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_finance.compute_cost"><code class="docutils literal notranslate"><span class="pre">compute_cost()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_finance.compute_refund"><code class="docutils literal notranslate"><span class="pre">compute_refund()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_inspect.check_structure_in_cell"><code class="docutils literal notranslate"><span class="pre">check_structure_in_cell()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_inspect.get_structure_in_cell"><code class="docutils literal notranslate"><span class="pre">get_structure_in_cell()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_mouse.mouse_cell_conversion"><code class="docutils literal notranslate"><span class="pre">mouse_cell_conversion()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placement_popup.notify_destroy_not_allowed"><code class="docutils literal notranslate"><span class="pre">notify_destroy_not_allowed()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#placement.placementController.PlacementController"><code class="docutils literal notranslate"><span class="pre">PlacementController</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="patterns_singleton.html" title="previous chapter">patterns.singleton</a></li>
-  </ul></li>
-</ul>
-</div>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &#169;.
-      
-      |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
-      |
-      <a href="_sources/placement.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
-    
-
-    
-  </body>
+</body>
 </html>

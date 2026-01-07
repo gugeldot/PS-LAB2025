@@ -1,23 +1,25 @@
-"""Herramientas para inspeccionar celdas desde el cursor.
+"""Cursor inspection utilities.
 
-Proporciona una función modular que puede ser reutilizada por el cursor u
-otros componentes para chequear si una celda contiene una estructura y
-producir una cadena informativa.
+This module provides a small helper used to inspect a grid cell at a
+given grid coordinate and returns whether a structure is present plus a
+brief informational string. It is used by the mouse/cursor helpers and
+other UI components.
 """
 from typing import Tuple
 
 
 def inspect_cell(map_obj, gx: int, gy: int) -> Tuple[bool, str]:
-    """Inspecciona la celda (gx, gy) en `map_obj`.
+    """Inspect the map cell at grid coordinates (gx, gy).
 
-    Args:
-        map_obj: objeto mapa que expone `getCell(x, y)`.
-        gx, gy: coordenadas de la celda en la grilla.
+    Parameters
+    - map_obj: an object exposing a ``getCell(x, y)`` method.
+    - gx, gy: grid coordinates (integers).
 
-    Returns:
-        (has_structure, info)
-        - has_structure: True si hay una estructura en la celda.
-        - info: cadena con información breve (por ejemplo 'Empty', 'Fuera del mapa' o el tipo de estructura).
+    Returns
+    A tuple (has_structure, info):
+    - has_structure: True if a structure exists in the cell.
+    - info: short string describing the cell ('Empty', 'Out of bounds' or the
+      structure class name and optional attributes).
     """
     try:
         cell = map_obj.getCell(gx, gy)

@@ -3,6 +3,18 @@ import sys
 import os
 import json
 import random
+"""Game manager: orchestrates game state, objects and the main loop.
+
+This module defines :class:`GameManager`, a Singleton that initializes the
+game subsystems (pygame, paths, UI), constructs the map and default
+structures, manages the current state (normal/build/destroy) and runs the
+main update/draw loop by delegating to helpers in ``gm/``. The GameManager
+also exposes public methods used by other modules (saving/loading, point
+management, upgrades and action buffer processing).
+
+Only documentation strings are added to this file to support Sphinx.
+"""
+
 from collections import deque
 
 from states.buildState import BuildState
@@ -36,6 +48,19 @@ from map.map import Map
 
 class GameManager(Singleton):
     _initialized = False
+    """Main game controller (Singleton).
+
+    Responsibilities
+    - Initialize pygame and other subsystems via helpers from ``gm/gm_init.py``.
+    - Create or load the game map and default structures (mines, wells, conveyors).
+    - Maintain and switch between game states (NormalState, BuildState, DestroyState).
+    - Provide public APIs for saving/loading, spending/adding points, applying upgrades
+      and processing an action buffer.
+
+    Note: the class uses defensive programming (many try/except) to remain
+    robust during game startup and loading; the changes here are strictly
+    documentation additions and do not alter runtime behavior.
+    """
 
     def __init__(self):
         if getattr(self, "_initialized", False):
