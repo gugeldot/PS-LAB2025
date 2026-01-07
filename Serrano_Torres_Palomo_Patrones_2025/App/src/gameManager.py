@@ -12,7 +12,7 @@ from core.sumModuleCreator import SumModuleCreator
 from core.conveyorCreator import ConveyorCreator
 from states.destroyState import DestroyState
 from states.normalState import NormalState
-from utils.placementController import PlacementController
+from placement.placementController import PlacementController
 from settings import *
 from gm.gm_init import init_pygame, init_paths, init_ui, init_counters, init_well_positions
 from gm.gm_update import update as gm_update

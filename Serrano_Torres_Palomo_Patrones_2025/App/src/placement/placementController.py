@@ -2,11 +2,11 @@ import pygame as pg
 from core.mineCreator import MineCreator
 from settings import *
 from utils.cursor_inspector import inspect_cell
-from utils.placement_mouse import mouse_cell_conversion
-from utils.placement_draw import draw_preview, draw_destroy
-from utils.placement_finance import compute_cost, compute_refund
-from utils.placement_popup import notify_destroy_not_allowed
-from utils.placement_inspect import get_structure_in_cell, check_structure_in_cell
+from .placement_mouse import mouse_cell_conversion
+from .placement_draw import draw_preview, draw_destroy
+from .placement_finance import compute_cost, compute_refund
+from .placement_popup import notify_destroy_not_allowed
+from .placement_inspect import get_structure_in_cell, check_structure_in_cell
 
 class PlacementController:
     def __init__(self, gameManager,factory):

@@ -32,8 +32,19 @@ class _StdoutFile:
 
     def __init__(self, path: str) -> None:
         self._path = Path(path)
+        # ensure parent exists (path may be <repo-root>/logs/game.log)
+        try:
+            self._path.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
         # open in append mode, use utf-8 encoding; small buffering (line-buffer)
-        self._file = open(self._path, "a", encoding="utf-8", buffering=1)
+        try:
+            self._file = open(self._path, "a", encoding="utf-8", buffering=1)
+        except Exception:
+            # fallback to devnull file-like object to avoid breaking app
+            import io
+
+            self._file = io.TextIOWrapper(open(sys.devnull, "wb"), encoding="utf-8")
         self._lock = threading.Lock()
         self._buffer = ""  # hold incomplete line fragments
 
@@ -105,8 +116,9 @@ _redirect_instance: Optional[_StdoutFile] = None
 def redirect_stdout_to_game_log() -> Path:
     """Redirect sys.stdout to `<project_root>/game.log` and return the log path.
 
-    The log file is created in the parent directory of this module's parent
-    (module lives in App/src, so parent is App/).
+    The log file is created inside the `App/` folder under `App/logs/game.log`.
+    This module lives in `App/src/...`, so the App directory is two parents up
+    (parents[2]). Using that keeps logs scoped to the game's App folder.
     Calling this function multiple times has no additional effect.
     """
 
@@ -114,9 +126,17 @@ def redirect_stdout_to_game_log() -> Path:
     if _redirect_instance is not None:
         return _redirect_instance.path
 
-    # App/src/stdout_redirect.py -> parents[1] == App/
-    project_root = Path(__file__).resolve().parents[1]
-    log_path = project_root / "game.log"
+    # Resolve App root. File lives in App/src/utils/logger.py so parents[2]
+    # is the App directory. Place logs at App/logs/game.log.
+    project_root = Path(__file__).resolve().parents[2]
+    log_path = project_root / "logs" / "game.log"
+
+    # ensure logs directory exists
+    try:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        # ignore directory creation errors; _StdoutFile will also handle failures
+        pass
 
     _redirect_instance = _StdoutFile(str(log_path))
     sys.stdout = _redirect_instance
