@@ -267,15 +267,11 @@ class HUD:
             pass
         self._draw_points_display(screen)
         self._draw_buttons(screen, mouse_pos)
-        # If GIF modal active, draw it now
+        self._draw_popup(screen)
+        # If GIF modal active, draw it last so it appears on top
         try:
             if getattr(self, 'gif_modal', None) and self.gif_modal.active:
                 self._draw_gif_modal(screen)
-        except Exception:
-            pass
-        # Draw popup last so it appears above other overlays
-        try:
-            self._draw_popup(screen)
         except Exception:
             pass
 
