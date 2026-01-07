@@ -716,22 +716,47 @@ class GameManager(Singleton):
                 #botones de construccion
                 elif self.hud and self.hud.shop_mode == "BUILD":
                     if self.hud and self.hud.sum_module_button.collidepoint(event.pos):
-                        self.setState(self.buildState)
-                        self.state.setFactory(SumModuleCreator()) 
+                            creator = SumModuleCreator()
+                            if self.canAffordBuilding(creator):
+                                self.setState(self.buildState)
+                                self.state.setFactory(creator)
+                            else:
+                                # Not affordable: consume the click but keep BUILD menu open.
+                                # Do not show popup or close the menu per UX request.
+                                continue
                     elif self.hud and self.hud.mul_module_button.collidepoint(event.pos):
-                        self.setState(self.buildState)
-                        self.state.setFactory(MulModuleCreator())
+                        creator = MulModuleCreator()
+                        if self.canAffordBuilding(creator):
+                            self.setState(self.buildState)
+                            self.state.setFactory(creator)
+                        else:
+                            # Not affordable: consume click, keep BUILD menu open.
+                            continue
                     elif self.hud and self.hud.splitter_button.collidepoint(event.pos):
-                        self.setState(self.buildState)
-                        self.state.setFactory(SplitterCreator())
+                        creator = SplitterCreator()
+                        if self.canAffordBuilding(creator):
+                            self.setState(self.buildState)
+                            self.state.setFactory(creator)
+                        else:
+                            # Not affordable: consume click, keep BUILD menu open.
+                            continue
                     elif self.hud and self.hud.merger_button.collidepoint(event.pos):
-                        self.setState(self.buildState)
-                        self.state.setFactory(MergerCreator())
+                        creator = MergerCreator()
+                        if self.canAffordBuilding(creator):
+                            self.setState(self.buildState)
+                            self.state.setFactory(creator)
+                        else:
+                            # Not affordable: consume click, keep BUILD menu open.
+                            continue
                     elif self.hud and self.hud.conveyor_button.collidepoint(event.pos):
                         # Estado especial para cintas (requiere dos clicks)
                         conveyorCreator = ConveyorCreator()
-                        conveyorBuildState = ConveyorBuildState(self, conveyorCreator)
-                        self.setState(conveyorBuildState) 
+                        if self.canAffordBuilding(conveyorCreator):
+                            conveyorBuildState = ConveyorBuildState(self, conveyorCreator)
+                            self.setState(conveyorBuildState)
+                        else:
+                            # Not affordable: consume click, keep BUILD menu open.
+                            continue
                 
                 #Botones de tienda
                 elif self.hud and self.hud.shop_mode == "SHOP":
