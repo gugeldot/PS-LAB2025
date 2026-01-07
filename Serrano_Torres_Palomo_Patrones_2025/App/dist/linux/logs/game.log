@@ -1,0 +1,11 @@
+[2026-01-07 23:59:13.736] [AUDIO DEBUG] music loaded OK
+[2026-01-07 23:59:24.674] opcion 0 - nueva partida
+[2026-01-07 23:59:24.839] No saved map found or load failed at /home/gugeldot/Desktop/saves/map.json, creating default map.
+[2026-01-07 23:59:24.859] Establishing connections for 1 conveyors...
+[2026-01-07 23:59:26.853] Conveyor: pushed 1, queue size now 1
+[2026-01-07 23:59:28.958] Conveyor: pushed 1, queue size now 2
+[2026-01-07 23:59:30.997] Conveyor: pushed 1, queue size now 3
+[2026-01-07 23:59:32.564] Map (with conveyors) saved to /home/gugeldot/Desktop/saves/map.json
+[2026-01-07 23:59:32.564] Guardado completado. Regresando al menú principal.
+[2026-01-07 23:59:32.565] Map (with conveyors) saved to /home/gugeldot/Desktop/saves/map.json
+[2026-01-07 23:59:32.565] Guardado completado. Regresando al menú principal.
