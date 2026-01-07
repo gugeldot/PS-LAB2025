@@ -1,0 +1,403 @@
+[2026-01-08 00:22:59.684] [AUDIO DEBUG] music loaded OK
+[2026-01-08 00:23:11.617] opcion 0 - nueva partida
+[2026-01-08 00:23:11.676] No saved map found or load failed at C:\Users\gugel\Data\Git_Repos\PS-LAB2025\Serrano_Torres_Palomo_Patrones_2025\App\dist\windows\saves\map.json, creating default map.
+[2026-01-08 00:23:11.704] Establishing connections for 1 conveyors...
+[2026-01-08 00:23:13.646] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:23:15.751] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:17.766] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:23:19.782] Conveyor: pushed 1, queue size now 4
+[2026-01-08 00:23:21.775] Conveyor: pushed 1, queue size now 5
+[2026-01-08 00:23:22.881] Conveyor: popped 1, queue size now 4
+[2026-01-08 00:23:22.935] Well consumed 1! +1 points | Total: 1
+[2026-01-08 00:23:22.947] Conveyor: popped 1, queue size now 3
+[2026-01-08 00:23:22.947] Well consumed 1! +1 points | Total: 2
+[2026-01-08 00:23:22.961] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:23:22.961] Well consumed 1! +1 points | Total: 3
+[2026-01-08 00:23:22.980] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:22.980] Well consumed 1! +1 points | Total: 4
+[2026-01-08 00:23:23.781] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:24.587] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:24.587] Well consumed 1! +1 points | Total: 5
+[2026-01-08 00:23:25.788] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:26.594] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:26.594] Well consumed 1! +1 points | Total: 6
+[2026-01-08 00:23:27.795] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:28.593] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:28.593] Well consumed 1! +1 points | Total: 7
+[2026-01-08 00:23:29.804] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:30.605] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:30.605] Well consumed 1! +1 points | Total: 8
+[2026-01-08 00:23:31.817] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:32.612] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:32.612] Well consumed 1! +1 points | Total: 9
+[2026-01-08 00:23:33.824] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:34.627] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:34.627] Well consumed 1! +1 points | Total: 10
+[2026-01-08 00:23:35.241] Queued Mine purchase action (queue size=1)
+[2026-01-08 00:23:35.241] Nueva mina creada en 9,14
+[2026-01-08 00:23:35.241] [Action] Mine purchase applied | -10 pts (total=0)
+[2026-01-08 00:23:35.839] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:36.634] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:36.634] Well consumed 1! +1 points | Total: 1
+[2026-01-08 00:23:37.846] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:38.659] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:38.659] Well consumed 1! +1 points | Total: 2
+[2026-01-08 00:23:39.849] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:40.657] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:40.657] Well consumed 1! +1 points | Total: 3
+[2026-01-08 00:23:41.857] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:42.448] Left click on cell (9, 14) -> Mine number=1 grid=(9, 14)
+[2026-01-08 00:23:42.448] Conveyor start point set at grid (9, 14)
+[2026-01-08 00:23:42.670] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:42.670] Well consumed 1! +1 points | Total: 4
+[2026-01-08 00:23:43.869] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:44.665] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:44.665] Well consumed 1! +1 points | Total: 5
+[2026-01-08 00:23:45.882] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:45.927] Left click on cell (7, 4) -> Empty
+[2026-01-08 00:23:45.927] Conveyor built from grid (7, 4) to previous point | Cost: 2 pts
+[2026-01-08 00:23:46.671] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:46.671] Well consumed 1! +1 points | Total: 4
+[2026-01-08 00:23:47.889] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:47.889] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:23:48.683] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:48.683] Well consumed 1! +1 points | Total: 5
+[2026-01-08 00:23:49.894] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:49.894] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:50.692] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:50.692] Well consumed 1! +1 points | Total: 6
+[2026-01-08 00:23:51.898] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:51.898] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:23:52.709] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:52.709] Well consumed 1! +1 points | Total: 7
+[2026-01-08 00:23:53.905] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:53.905] Conveyor: pushed 1, queue size now 4
+[2026-01-08 00:23:54.715] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:54.715] Well consumed 1! +1 points | Total: 8
+[2026-01-08 00:23:55.914] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:55.914] Conveyor: pushed 1, queue size now 5
+[2026-01-08 00:23:56.724] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:56.724] Well consumed 1! +1 points | Total: 9
+[2026-01-08 00:23:57.914] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:57.914] Conveyor: pushed 1, queue size now 6
+[2026-01-08 00:23:58.726] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:23:58.726] Well consumed 1! +1 points | Total: 10
+[2026-01-08 00:23:59.925] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:23:59.925] Conveyor: pushed 1, queue size now 7
+[2026-01-08 00:24:00.735] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:00.735] Well consumed 1! +1 points | Total: 11
+[2026-01-08 00:24:01.927] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:01.927] Conveyor: pushed 1, queue size now 8
+[2026-01-08 00:24:02.744] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:02.744] Well consumed 1! +1 points | Total: 12
+[2026-01-08 00:24:03.925] Left click on cell (7, 4) -> Empty
+[2026-01-08 00:24:03.926] Casilla esta Empty
+[2026-01-08 00:24:03.936] ------------------------Mina creada en (7, 4)
+[2026-01-08 00:24:03.949] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:03.949] Conveyor: pushed 1, queue size now 9
+[2026-01-08 00:24:04.742] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:04.742] Well consumed 1! +1 points | Total: 3
+[2026-01-08 00:24:05.965] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:05.965] Conveyor: pushed 1, queue size now 10
+[2026-01-08 00:24:06.759] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:06.759] Well consumed 1! +1 points | Total: 4
+[2026-01-08 00:24:06.985] Left click on cell (7, 4) -> MergerModule grid=(7, 4)
+[2026-01-08 00:24:06.985] Conveyor start point set at grid (7, 4)
+[2026-01-08 00:24:07.851] Left click on cell (8, 2) -> Well consumingNumber=1 grid=(8, 2)
+[2026-01-08 00:24:07.851] Conveyor built from grid (8, 2) to previous point | Cost: 2 pts
+[2026-01-08 00:24:07.851] Conveyor: popped 1, queue size now 9
+[2026-01-08 00:24:07.851] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:07.864] Conveyor: popped 1, queue size now 8
+[2026-01-08 00:24:07.864] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:07.880] Conveyor: popped 1, queue size now 7
+[2026-01-08 00:24:07.880] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:07.895] Conveyor: popped 1, queue size now 6
+[2026-01-08 00:24:07.895] Conveyor: pushed 1, queue size now 4
+[2026-01-08 00:24:07.913] Conveyor: popped 1, queue size now 5
+[2026-01-08 00:24:07.913] Conveyor: pushed 1, queue size now 5
+[2026-01-08 00:24:07.929] Conveyor: popped 1, queue size now 4
+[2026-01-08 00:24:07.929] Conveyor: pushed 1, queue size now 6
+[2026-01-08 00:24:07.948] Conveyor: popped 1, queue size now 3
+[2026-01-08 00:24:07.948] Conveyor: pushed 1, queue size now 7
+[2026-01-08 00:24:07.961] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:07.961] Conveyor: pushed 1, queue size now 8
+[2026-01-08 00:24:07.961] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:07.961] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:08.781] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:08.781] Well consumed 1! +1 points | Total: 3
+[2026-01-08 00:24:09.581] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:09.581] Conveyor: pushed 1, queue size now 9
+[2026-01-08 00:24:09.995] Left click on cell (5, 3) -> Empty
+[2026-01-08 00:24:09.995] Conveyor destroyed. Refund: 2 pts
+[2026-01-08 00:24:09.996] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:09.996] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:11.594] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:11.594] Conveyor: pushed 1, queue size now 10
+[2026-01-08 00:24:11.993] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:11.993] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:13.599] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:13.599] Conveyor: pushed 1, queue size now 11
+[2026-01-08 00:24:14.012] Conveyor: pushed 1, queue size now 4
+[2026-01-08 00:24:14.012] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:14.299] Left click on cell (3, 3) -> Mine number=1 grid=(3, 3)
+[2026-01-08 00:24:14.300] Conveyor start point set at grid (3, 3)
+[2026-01-08 00:24:15.293] Left click on cell (7, 4) -> MergerModule grid=(7, 4)
+[2026-01-08 00:24:15.293] Conveyor built from grid (7, 4) to previous point | Cost: 2 pts
+[2026-01-08 00:24:15.293] Conveyor: popped 1, queue size now 10
+[2026-01-08 00:24:15.293] Well consumed 1! +1 points | Total: 4
+[2026-01-08 00:24:15.307] Conveyor: popped 1, queue size now 9
+[2026-01-08 00:24:15.307] Well consumed 1! +1 points | Total: 5
+[2026-01-08 00:24:15.323] Conveyor: popped 1, queue size now 8
+[2026-01-08 00:24:15.323] Well consumed 1! +1 points | Total: 6
+[2026-01-08 00:24:15.339] Conveyor: popped 1, queue size now 7
+[2026-01-08 00:24:15.339] Well consumed 1! +1 points | Total: 7
+[2026-01-08 00:24:15.356] Conveyor: popped 1, queue size now 6
+[2026-01-08 00:24:15.356] Well consumed 1! +1 points | Total: 8
+[2026-01-08 00:24:15.371] Conveyor: popped 1, queue size now 5
+[2026-01-08 00:24:15.372] Well consumed 1! +1 points | Total: 9
+[2026-01-08 00:24:15.389] Conveyor: popped 1, queue size now 4
+[2026-01-08 00:24:15.389] Well consumed 1! +1 points | Total: 10
+[2026-01-08 00:24:15.404] Conveyor: popped 1, queue size now 3
+[2026-01-08 00:24:15.404] Well consumed 1! +1 points | Total: 11
+[2026-01-08 00:24:15.420] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:15.420] Well consumed 1! +1 points | Total: 12
+[2026-01-08 00:24:15.438] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:15.439] Well consumed 1! +1 points | Total: 13
+[2026-01-08 00:24:15.453] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:15.453] Well consumed 1! +1 points | Total: 14
+[2026-01-08 00:24:15.615] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:15.615] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:16.024] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:16.024] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:16.842] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:16.842] Well consumed 1! +1 points | Total: 15
+[2026-01-08 00:24:17.620] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:17.620] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:18.039] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:18.039] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:18.319] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:18.319] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:18.844] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:18.844] Well consumed 1! +1 points | Total: 16
+[2026-01-08 00:24:19.535] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:19.535] Well consumed 1! +1 points | Total: 17
+[2026-01-08 00:24:19.652] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:19.652] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:20.043] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:20.043] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:20.324] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:20.324] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:20.870] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:20.870] Well consumed 1! +1 points | Total: 18
+[2026-01-08 00:24:21.543] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:21.543] Well consumed 1! +1 points | Total: 19
+[2026-01-08 00:24:21.659] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:21.659] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:22.059] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:22.059] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:22.340] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:22.340] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:22.886] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:22.886] Well consumed 1! +1 points | Total: 20
+[2026-01-08 00:24:23.563] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:23.563] Well consumed 1! +1 points | Total: 21
+[2026-01-08 00:24:23.674] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:23.674] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:24.074] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:24.074] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:24.362] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:24.362] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:24.890] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:24.890] Well consumed 1! +1 points | Total: 22
+[2026-01-08 00:24:25.575] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:25.576] Well consumed 1! +1 points | Total: 23
+[2026-01-08 00:24:25.674] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:25.674] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:26.074] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:26.074] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:26.358] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:26.358] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:26.888] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:26.888] Well consumed 1! +1 points | Total: 24
+[2026-01-08 00:24:27.577] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:27.577] Well consumed 1! +1 points | Total: 25
+[2026-01-08 00:24:27.690] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:27.690] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:28.087] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:28.087] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:28.368] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:28.368] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:28.907] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:28.907] Well consumed 1! +1 points | Total: 26
+[2026-01-08 00:24:29.593] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:29.593] Well consumed 1! +1 points | Total: 27
+[2026-01-08 00:24:29.706] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:29.706] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:30.094] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:30.094] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:30.376] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:30.376] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:30.928] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:30.928] Well consumed 1! +1 points | Total: 28
+[2026-01-08 00:24:31.592] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:31.592] Well consumed 1! +1 points | Total: 29
+[2026-01-08 00:24:31.706] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:31.706] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:32.103] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:32.104] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:32.382] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:32.382] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:32.922] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:32.922] Well consumed 1! +1 points | Total: 30
+[2026-01-08 00:24:33.607] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:33.608] Well consumed 1! +1 points | Total: 31
+[2026-01-08 00:24:33.724] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:33.724] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:34.108] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:34.108] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:34.391] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:34.391] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:34.938] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:34.938] Well consumed 1! +1 points | Total: 32
+[2026-01-08 00:24:35.615] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:35.615] Well consumed 1! +1 points | Total: 33
+[2026-01-08 00:24:35.730] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:35.730] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:36.126] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:36.126] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:36.402] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:36.402] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:36.948] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:36.948] Well consumed 1! +1 points | Total: 34
+[2026-01-08 00:24:37.624] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:37.624] Well consumed 1! +1 points | Total: 35
+[2026-01-08 00:24:37.740] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:37.740] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:38.139] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:38.139] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:38.424] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:38.424] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:38.966] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:38.966] Well consumed 1! +1 points | Total: 36
+[2026-01-08 00:24:39.646] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:39.646] Well consumed 1! +1 points | Total: 37
+[2026-01-08 00:24:39.744] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:39.744] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:40.156] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:40.156] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:40.434] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:40.434] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:40.959] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:40.959] Well consumed 1! +1 points | Total: 38
+[2026-01-08 00:24:41.648] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:41.648] Well consumed 1! +1 points | Total: 39
+[2026-01-08 00:24:41.764] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:41.764] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:42.159] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:42.159] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:42.441] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:42.441] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:42.983] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:42.983] Well consumed 1! +1 points | Total: 40
+[2026-01-08 00:24:43.662] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:43.662] Well consumed 1! +1 points | Total: 41
+[2026-01-08 00:24:43.778] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:43.778] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:44.177] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:44.177] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:44.457] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:44.457] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:44.992] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:44.992] Well consumed 1! +1 points | Total: 42
+[2026-01-08 00:24:45.674] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:45.674] Well consumed 1! +1 points | Total: 43
+[2026-01-08 00:24:45.791] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:45.791] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:46.190] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:46.190] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:46.475] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:46.475] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:47.009] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:47.009] Well consumed 1! +1 points | Total: 44
+[2026-01-08 00:24:47.690] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:47.690] Well consumed 1! +1 points | Total: 45
+[2026-01-08 00:24:47.790] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:47.790] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:48.205] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:48.205] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:48.486] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:48.486] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:49.009] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:49.009] Well consumed 1! +1 points | Total: 46
+[2026-01-08 00:24:49.704] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:49.704] Well consumed 1! +1 points | Total: 47
+[2026-01-08 00:24:49.803] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:49.803] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:50.213] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:50.213] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:50.493] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:50.493] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:51.020] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:51.020] Well consumed 1! +1 points | Total: 48
+[2026-01-08 00:24:51.706] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:51.707] Well consumed 1! +1 points | Total: 49
+[2026-01-08 00:24:51.824] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:51.824] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:52.222] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:52.222] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:52.502] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:52.502] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:53.040] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:53.040] Well consumed 1! +1 points | Total: 50
+[2026-01-08 00:24:53.728] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:53.728] Well consumed 1! +1 points | Total: 51
+[2026-01-08 00:24:53.845] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:53.846] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:54.228] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:54.228] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:54.511] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:54.512] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:55.079] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:55.079] Well consumed 1! +1 points | Total: 52
+[2026-01-08 00:24:55.738] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:55.738] Well consumed 1! +1 points | Total: 53
+[2026-01-08 00:24:55.839] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:55.839] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:56.235] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:56.235] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:56.515] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:56.515] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:57.058] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:57.058] Well consumed 1! +1 points | Total: 54
+[2026-01-08 00:24:57.737] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:57.737] Well consumed 1! +1 points | Total: 55
+[2026-01-08 00:24:57.851] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:57.851] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:24:58.245] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:58.245] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:24:58.526] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:58.526] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:24:59.075] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:24:59.075] Well consumed 1! +1 points | Total: 56
+[2026-01-08 00:24:59.751] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:24:59.751] Well consumed 1! +1 points | Total: 57
+[2026-01-08 00:24:59.870] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:24:59.870] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:25:00.253] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:25:00.253] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:25:00.534] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:25:00.534] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:25:01.089] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:25:01.089] Well consumed 1! +1 points | Total: 58
+[2026-01-08 00:25:01.756] Conveyor: popped 1, queue size now 0
+[2026-01-08 00:25:01.756] Well consumed 1! +1 points | Total: 59
+[2026-01-08 00:25:01.871] Conveyor: popped 1, queue size now 2
+[2026-01-08 00:25:01.871] Conveyor: pushed 1, queue size now 1
+[2026-01-08 00:25:02.262] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:25:02.262] Conveyor: pushed 1, queue size now 3
+[2026-01-08 00:25:02.545] Conveyor: popped 1, queue size now 1
+[2026-01-08 00:25:02.545] Conveyor: pushed 1, queue size now 2
+[2026-01-08 00:25:02.864] Map (with conveyors) saved to C:\Users\gugel\Data\Git_Repos\PS-LAB2025\Serrano_Torres_Palomo_Patrones_2025\App\dist\windows\saves\map.json
+[2026-01-08 00:25:02.864] Guardado completado. Regresando al menú principal.
+[2026-01-08 00:25:02.866] Map (with conveyors) saved to C:\Users\gugel\Data\Git_Repos\PS-LAB2025\Serrano_Torres_Palomo_Patrones_2025\App\dist\windows\saves\map.json
+[2026-01-08 00:25:02.866] Guardado completado. Regresando al menú principal.
