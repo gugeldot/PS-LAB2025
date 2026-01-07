@@ -45,10 +45,12 @@ def init_counters(gm):
     gm.eff_uses_left = 10
     gm.speed_uses_used = 0
     gm.eff_uses_used = 0
-    gm.mine_uses_left = 10
+    # No limit on buying new mines: set uses_left to None to indicate unlimited
+    gm.mine_uses_left = None
     gm.mine_uses_used = 0
 
-    gm.mine_costs = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+    #gm.mine_costs = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+    gm.mine_costs = (1,2,3,4,5,6,7,8,9,10)
     gm.speed_costs = (10, 12, 24, 48, 96, 192, 384, 768, 1500, 3000)
     gm.eff_costs = (70, 100, 500, 800, 1000, 1600, 3200, 6400, 12000, 15000)
 

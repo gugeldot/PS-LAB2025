@@ -124,7 +124,8 @@ class GameManager(Singleton):
                     # Restaurar contadores de compra de minas
                     try:
                         self.mine_uses_used = mine_used
-                        self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+                        # Unlimited purchases: represent as None
+                        self.mine_uses_left = None
                     except Exception:
                         pass
                     self.speed_uses_left = max(0, 10 - self.speed_uses_used)
@@ -758,16 +759,20 @@ class GameManager(Singleton):
                     elif self.hud and self.hud.new_mine_button.collidepoint(event.pos):
                         # enqueue a 'mine' purchase action (similar to speed/eff)
                         queued = sum(1 for a in self.action_buffer if a.get('type') == 'mine')
-                        if queued + self.mine_uses_used >= 10:
-                            print("No hay compras de Mina disponibles para poner en cola")
-                        elif queued >= 1:
+                        # No limit on queued mine purchases — allow unlimited
+                        if queued >= 1:
                             print("Ya hay una compra de Mina pendiente")
                         else:
-                            # determine next cost
+                            # determine next cost (use last defined cost if we've
+                            # already used all defined entries)
                             next_cost = None
                             try:
-                                if 0 <= self.mine_uses_used < len(self.mine_costs):
-                                    next_cost = int(self.mine_costs[self.mine_uses_used])
+                                idx = int(getattr(self, 'mine_uses_used', 0))
+                                if getattr(self, 'mine_costs', None) and len(self.mine_costs) > 0:
+                                    if 0 <= idx < len(self.mine_costs):
+                                        next_cost = int(self.mine_costs[idx])
+                                    else:
+                                        next_cost = int(self.mine_costs[-1])
                             except Exception:
                                 next_cost = None
 
@@ -808,8 +813,35 @@ class GameManager(Singleton):
         self.state= state
         
     def canAffordBuilding(self, creator) -> bool:
-        #comprueba que hay puntos suficientes para construir la estructura, el coste se guarda en creator
-        cost = creator.getCost()
+        # Comprueba que hay puntos suficientes para construir la estructura.
+        # Preferir valores en self.build_costs (si existen) para mantener
+        # consistencia con HUD / PlacementController / DestroyState.
+        try:
+            costs_map = getattr(self, 'build_costs', None) or {}
+            cname = creator.__class__.__name__.lower() if creator is not None else ''
+            if costs_map:
+                if 'sum' in cname:
+                    cost = int(costs_map.get('sum', creator.getCost()))
+                elif 'mul' in cname or 'multiply' in cname:
+                    cost = int(costs_map.get('mul', creator.getCost()))
+                elif 'div' in cname:
+                    cost = int(costs_map.get('div', creator.getCost()))
+                elif 'splitter' in cname:
+                    cost = int(costs_map.get('splitter', creator.getCost()))
+                elif 'merger' in cname:
+                    cost = int(costs_map.get('merger', creator.getCost()))
+                elif 'conveyor' in cname or 'convey' in cname:
+                    cost = int(costs_map.get('conveyor', creator.getCost()))
+                else:
+                    cost = int(creator.getCost())
+            else:
+                cost = int(creator.getCost())
+        except Exception:
+            try:
+                cost = int(creator.getCost())
+            except Exception:
+                cost = 0
+
         return getattr(self, 'points', 0) >= cost
     def spendPoints(self, amount: int):
         # resta los puntos gastados impidendo que sea negativoS
@@ -912,10 +944,10 @@ class GameManager(Singleton):
             print("[Action] Failed to place Mine; will retry")
             return False
 
-        # commit the purchase: deduct points and decrement available uses
+        # commit the purchase: deduct points and increment the counter
         try:
-            self.mine_uses_used += 1
-            self.mine_uses_left = max(0, 10 - self.mine_uses_used)
+            self.mine_uses_used = int(getattr(self, 'mine_uses_used', 0)) + 1
+            # mine_uses_left remains unlimited (None)
             if next_cost is not None:
                 try:
                     self.points = max(0, int(self.points) - int(next_cost))
@@ -926,8 +958,11 @@ class GameManager(Singleton):
                         pass
             # ensure there's a popup if create_new_mine didn't set one
             if self.hud:
-                self.hud.show_popup(f"Mina creada ({self.mine_uses_left} restantes)")
-            print(f"[Action] Mine purchase applied (uses left={self.mine_uses_left}) | -{next_cost} pts (total={self.points})")
+                try:
+                    self.hud.show_popup("Mina creada")
+                except Exception:
+                    pass
+            print(f"[Action] Mine purchase applied | -{next_cost} pts (total={self.points})")
             return True
         except Exception:
             return True

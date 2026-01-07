@@ -94,6 +94,10 @@ class PlacementController:
                         cost = int(costs_map.get('mul', self.factory.getCost()))
                     elif 'div' in cname:
                         cost = int(costs_map.get('div', self.factory.getCost()))
+                    elif 'splitter' in cname:
+                        cost = int(costs_map.get('splitter', self.factory.getCost()))
+                    elif 'merger' in cname:
+                        cost = int(costs_map.get('merger', self.factory.getCost()))
                     elif 'conveyor' in cname or 'convey' in cname:
                         cost = int(costs_map.get('conveyor', self.factory.getCost()))
                 if cost is None:
