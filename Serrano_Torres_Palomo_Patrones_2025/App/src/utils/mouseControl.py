@@ -10,6 +10,7 @@ import pygame as pg
 from settings import *
 import pathlib
 from utils.cursor_inspector import inspect_cell
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 class MouseControl:
@@ -33,13 +34,10 @@ class MouseControl:
         self.has_structure = False
 
         pg.mouse.set_visible(False)
-        # Base path for App/ (two levels up from this file)
-        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
-
-        # Construct cursor image path
+        # Resolve path to the Assets folder (works both in source and PyInstaller)
         CURSOR_IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "cursor.png"
 
-        # Fallback if asset is in an alternate location
+        # Fallback: sometimes assets are located relative to the module; keep the old fallback
         if not CURSOR_IMG_PATH.exists():
             alt = pathlib.Path(__file__).resolve().parent / "Assets" / "Sprites" / "cursor.png"
             if alt.exists():

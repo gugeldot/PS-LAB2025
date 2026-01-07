@@ -17,6 +17,7 @@ import sys
 from mainMenu import MainMenu
 from settings import *
 from gameManager import GameManager
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 # Redirect all stdout to App/game.log early so any prints go to the log file.
 try:
@@ -32,10 +33,7 @@ if __name__ == '__main__':
 
     # Inicializar mixer y reproducir música de fondo desde el menú principal.
     try:
-        import pathlib
-        base_dir = pathlib.Path(__file__).resolve().parent
-        app_dir = base_dir.parent  # subir de src/ a la raíz App/
-        music_path = app_dir / "Assets" / "Music" / "kirbySoundTrack.mp3"
+        music_path = BASE_DIR / "Assets" / "Music" / "kirbySoundTrack.mp3"
 
         # Intentar inicializar el mezclador y reportar estados para depuración
         mixer_inited = False
@@ -67,10 +65,7 @@ if __name__ == '__main__':
     screen = pg.display.set_mode(RESOLUTION)
     # Establecer el icono de la ventana si existe
     try:
-        import pathlib
-        base_dir = pathlib.Path(__file__).resolve().parent
-        app_dir = base_dir.parent
-        icon_path = app_dir / "Assets" / "icon.png"
+        icon_path = BASE_DIR / "Assets" / "icon.png"
         if icon_path.exists():
             try:
                 icon_surf = pg.image.load(str(icon_path)).convert_alpha()

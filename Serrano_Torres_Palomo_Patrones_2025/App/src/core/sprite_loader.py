@@ -7,6 +7,7 @@ Assets/Sprites folder. The function returns a :class:`pygame.Surface` or
 
 import pathlib
 import pygame as pg
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 def load_sprite_from_assets(filename: str, size=(40, 40)):
@@ -17,8 +18,7 @@ def load_sprite_from_assets(filename: str, size=(40, 40)):
     breaking the game flow during startup.
     """
     try:
-        base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
-        sprite_path = base_dir / "Assets" / "Sprites" / filename
+        sprite_path = BASE_DIR / "Assets" / "Sprites" / filename
         if sprite_path.exists():
             surf = pg.image.load(str(sprite_path)).convert_alpha()
             surf = pg.transform.scale(surf, size)

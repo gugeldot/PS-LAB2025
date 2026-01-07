@@ -8,6 +8,7 @@ import pathlib
 import pygame as pg
 from core import conveyor
 from .module import *
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 class SumModule(Module):
     def __init__(self, position, gameManager):
@@ -23,8 +24,8 @@ class SumModule(Module):
         self.inConveyor1 = None
         self.inConveyor2 = None
         self.outConveyor = None
-        #  Ruta base del proyecto (un nivel arriba de src)
-        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent  # parent de src
+    #  Ruta base del proyecto (App/) — use APP_ROOT helper for bundled vs source
+    # BASE_DIR is imported from utils.app_paths
 
         #  Construir la ruta de cualquier recurso en Assets
         IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "sum_module_minimal.png"

@@ -18,6 +18,7 @@ try:
     from PIL import Image, ImageSequence
 except Exception:
     Image = None
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 class GifModal:
@@ -31,7 +32,7 @@ class GifModal:
     def __init__(self, game=None, base_path: pathlib.Path = None):
         self.game = game
         if base_path is None:
-            self.base = pathlib.Path(__file__).resolve().parents[2]
+            self.base = BASE_DIR
         else:
             self.base = pathlib.Path(base_path)
 

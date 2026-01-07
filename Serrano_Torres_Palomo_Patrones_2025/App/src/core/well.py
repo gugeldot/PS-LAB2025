@@ -10,6 +10,7 @@ import pygame as pg
 import pathlib
 from .structure import *
 from settings import CELL_SIZE_PX
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 class Well(Structure):
@@ -28,10 +29,7 @@ class Well(Structure):
         self.radius = 15
         self.color = (0, 150, 0)
         
-        # __file__ is App/src/core/well.py. We need to reach the project root
-        # (App) so Assets is at BASE_DIR / "Assets". Use parents[2] which
-        # resolves to App (three levels up: file -> core -> src -> App).
-        BASE_DIR = pathlib.Path(__file__).resolve().parents[2]
+        # APP_ROOT provides the application root (works in source and PyInstaller)
         COIN_PATH = BASE_DIR / "Assets" / "Sprites" / "coin.svg"
         try:
             self.coin_img = pg.image.load(str(COIN_PATH)).convert_alpha()

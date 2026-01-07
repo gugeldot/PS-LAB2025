@@ -8,6 +8,7 @@ raising exceptions (suitable for local debugging).
 
 import pygame as pg
 import pathlib
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 def check_music():
@@ -17,9 +18,7 @@ def check_music():
     existence and whether playback was successfully started. All exceptions
     are caught and printed to avoid crashing the host process.
     """
-    base_dir = pathlib.Path(__file__).resolve().parent
-    app_dir = base_dir.parent
-    music_path = app_dir / "Assets" / "Music" / "kirbySoundTrack.mp3"
+    music_path = BASE_DIR / "Assets" / "Music" / "kirbySoundTrack.mp3"
 
     print(f"[CHECK] music path: {music_path}")
     print(f"[CHECK] exists: {music_path.exists()}")

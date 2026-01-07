@@ -3,6 +3,7 @@ import pathlib
 import os
 from collections import deque
 from settings import *
+from utils.app_paths import APP_DIR
 
 
 def init_pygame(gm):
@@ -28,9 +29,10 @@ def init_paths(gm):
     The save directory is ``<project_root>/saves`` and the save file is
     ``map.json`` inside that folder.
     """
-    base_dir = pathlib.Path(__file__).resolve().parent
-    app_dir = base_dir.parent.parent
-    gm.save_dir = app_dir / "saves"
+    # Place saves next to the executable (APP_DIR) so when running a bundled
+    # executable the saves live beside the binary. When running from source
+    # APP_DIR resolves to the project root (App/).
+    gm.save_dir = pathlib.Path(APP_DIR) / "saves"
     gm.save_file = gm.save_dir / "map.json"
 
 def init_ui(gm):

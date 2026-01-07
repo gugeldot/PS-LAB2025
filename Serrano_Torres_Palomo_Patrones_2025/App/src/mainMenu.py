@@ -14,6 +14,7 @@ import pathlib
 import pygame as pg
 from settings import *
 from gameManager import GameManager
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 class MainMenu:
@@ -41,14 +42,14 @@ class MainMenu:
         # el cursos del lol
         pg.mouse.set_visible(False)
 
-        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
+        # Resolve base dir (works inside PyInstaller bundles)
         CURSOR_IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "cursor.png"
 
-        self.cursor_img = pg.image.load(CURSOR_IMG_PATH).convert_alpha()
+        self.cursor_img = pg.image.load(str(CURSOR_IMG_PATH)).convert_alpha()
         self.cursor_img = pg.transform.scale(
             self.cursor_img, (MOUSE_WIDTH, MOUSE_HEIGHT)
         )
-        self.cursor_offset = pg.Vector2(-25, -20) 
+        self.cursor_offset = pg.Vector2(-25, -20)
 
         # Intentar cargar icono de warning desde Assets/Sprites (prefiere PNG, luego SVG)
         self.warning_icon = None
@@ -262,8 +263,8 @@ class MainMenu:
             pass
         game.run()
     def delete_save(self):
-        base_dir = pathlib.Path(__file__).resolve().parent.parent  # sube de src/ a app/
-        save_file = base_dir / "saves" / "map.json"
+        from utils.app_paths import APP_DIR
+        save_file = pathlib.Path(APP_DIR) / "saves" / "map.json"
         if save_file.exists():
             try:
                 os.remove(save_file)
@@ -273,8 +274,8 @@ class MainMenu:
 
     def load_save(self):
         """Intenta cargar el guardado 'map.json' si existe."""
-        base_dir = pathlib.Path(__file__).resolve().parent.parent  # sube de src/ a app/
-        save_file = base_dir / "saves" / "map.json"
+        from utils.app_paths import APP_DIR
+        save_file = pathlib.Path(APP_DIR) / "saves" / "map.json"
 
         if save_file.exists():
             print(f"Guardado encontrado: {save_file}. Continuando juego...")
@@ -290,8 +291,8 @@ class MainMenu:
             print("No hay guardado. Debes iniciar un nuevo juego.")
             return False
     def has_save(self):
-        base_dir = pathlib.Path(__file__).resolve().parent.parent
-        save_file = base_dir / "saves" / "map.json"
+        from utils.app_paths import APP_DIR
+        save_file = pathlib.Path(APP_DIR) / "saves" / "map.json"
         return save_file.exists()
 
     def confirm_delete_save(self):

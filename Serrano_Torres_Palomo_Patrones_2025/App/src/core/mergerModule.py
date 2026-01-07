@@ -9,6 +9,7 @@ import pygame as pg
 from settings import CELL_SIZE_PX
 import pathlib
 from .structure import *
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 class MergerModule(Structure):
@@ -29,8 +30,7 @@ class MergerModule(Structure):
         # Cargar sprite PNG
         try:
             # Subimos de src/core/ a App/ (tres niveles arriba)
-            base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
-            sprite_path = base_dir / "Assets" / "Sprites" / "mergerSimple.png"
+            sprite_path = BASE_DIR / "Assets" / "Sprites" / "mergerSimple.png"
             self.original_sprite = pg.image.load(str(sprite_path)).convert_alpha()
             # Escalar a 45x45 pixels
             self.original_sprite = pg.transform.scale(self.original_sprite, (45, 45))

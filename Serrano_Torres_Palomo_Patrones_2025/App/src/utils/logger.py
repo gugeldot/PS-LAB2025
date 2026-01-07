@@ -37,6 +37,7 @@ from __future__ import annotations
 import sys
 import threading
 from pathlib import Path
+from utils.app_paths import APP_DIR
 from typing import Optional
 from datetime import datetime
 
@@ -149,10 +150,9 @@ def redirect_stdout_to_game_log() -> Path:
     if _redirect_instance is not None:
         return _redirect_instance.path
 
-    # Resolve App root. File lives in App/src/utils/logger.py so parents[2]
-    # is the App directory. Place logs at App/logs/game.log.
-    project_root = Path(__file__).resolve().parents[2]
-    log_path = project_root / "logs" / "game.log"
+    # Prefer writing logs next to the executable (APP_DIR). When running
+    # from source APP_DIR == project root. Place logs at APP_DIR/logs/game.log.
+    log_path = Path(APP_DIR) / "logs" / "game.log"
 
     # ensure logs directory exists
     try:

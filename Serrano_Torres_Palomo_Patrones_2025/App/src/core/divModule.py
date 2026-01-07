@@ -7,6 +7,7 @@ import pygame as pg
 import pathlib
 from core import conveyor
 from .module import *
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 class DivModule(Module):
@@ -24,7 +25,7 @@ class DivModule(Module):
         self.inConveyor2 = None #divisor
         self.outConveyor = None #para el cociente
         self.outConveyor2 = None #para el resto
-        BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
+        # BASE_DIR provided by utils.app_paths
         IMG_PATH = BASE_DIR / "Assets" / "Sprites" / "div_module_minimal.png"
         try:
             self.img = pg.image.load(str(IMG_PATH)).convert_alpha()

@@ -9,6 +9,7 @@ Note: they are not used at runtime by the game; they are small dev tools.
 
 import pygame as pg
 import pathlib
+from utils.app_paths import APP_ROOT as BASE_DIR
 
 
 def check_icon():
@@ -18,9 +19,7 @@ def check_icon():
     attempts to load it using ``pygame.image.load``. Errors are caught and
     printed instead of propagated (suitable for a small dev script).
     """
-    base_dir = pathlib.Path(__file__).resolve().parent
-    app_dir = base_dir.parent
-    icon_path = app_dir / "Assets" / "icon.png"
+    icon_path = BASE_DIR / "Assets" / "icon.png"
 
     print(f"[ICON CHECK] icon path: {icon_path}")
     print(f"[ICON CHECK] exists: {icon_path.exists()}")

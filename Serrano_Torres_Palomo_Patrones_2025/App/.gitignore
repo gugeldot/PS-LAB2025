@@ -7,3 +7,12 @@ pycache/
 venv/
 .DS_Store
 /logs/
+
+# Ignore PyInstaller and build artifacts we create during packaging
+# Keep the top-level `dist/` folder for scripts/docs, but ignore generated
+# platform-specific outputs and build working dir.
+/build/
+/.venv_build/
+
+# Virtualenvs used by contributors
+.venv*/
