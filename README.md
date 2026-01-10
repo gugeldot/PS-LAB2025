@@ -30,9 +30,20 @@ The player must extract, transform, and consume numbers using mines, conveyors, 
 ## Authors
 This project was developed collaboratively by:
 
-| | |
-|---|---|
-| [![gugeldot](https://github.com/gugeldot.png?size=40)](https://github.com/gugeldot) | [@gugeldot](https://github.com/gugeldot) |
-| [![DavidFraifer](https://github.com/DavidFraifer.png?size=40)](https://github.com/DavidFraifer) | [@DavidFraifer](https://github.com/DavidFraifer) |
-| [![AlejandroTorres11](https://github.com/AlejandroTorres11.png?size=40)](https://github.com/AlejandroTorres11) | [@AlejandroTorres11](https://github.com/AlejandroTorres11) |
+<p float="left">
+  <a href="https://github.com/gugeldot" title="@gugeldot">
+    <img src="https://github.com/gugeldot.png?size=50" width="50" style="vertical-align: middle; border-radius: 50%;">
+    <span style="margin-left: 8px; vertical-align: middle;">@gugeldot</span>
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/DavidFraifer" title="@DavidFraifer">
+    <img src="https://github.com/DavidFraifer.png?size=50" width="50" style="vertical-align: middle; border-radius: 50%;">
+    <span style="margin-left: 8px; vertical-align: middle;">@DavidFraifer</span>
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/AlejandroTorres11" title="@AlejandroTorres11">
+    <img src="https://github.com/AlejandroTorres11.png?size=50" width="50" style="vertical-align: middle; border-radius: 50%;">
+    <span style="margin-left: 8px; vertical-align: middle;">@AlejandroTorres11</span>
+  </a>
+</p>
 
