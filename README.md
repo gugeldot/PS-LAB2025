@@ -32,17 +32,17 @@ This project was developed collaboratively by:
 
 <p float="left">
   <a href="https://github.com/gugeldot" title="@gugeldot">
-    <img src="https://github.com/gugeldot.png?size=50" width="50" style="vertical-align: middle; border-radius: 50%;">
+    <img src="https://avatars.githubusercontent.com/u/1156570?s=50&v=4" width="50" style="vertical-align: middle; border-radius: 50%;">
     <span style="margin-left: 8px; vertical-align: middle;">@gugeldot</span>
   </a>
   &nbsp;&nbsp;&nbsp;
   <a href="https://github.com/DavidFraifer" title="@DavidFraifer">
-    <img src="https://github.com/DavidFraifer.png?size=50" width="50" style="vertical-align: middle; border-radius: 50%;">
+    <img src="https://avatars.githubusercontent.com/u/6199867?s=50&v=4" width="50" style="vertical-align: middle; border-radius: 50%;">
     <span style="margin-left: 8px; vertical-align: middle;">@DavidFraifer</span>
   </a>
   &nbsp;&nbsp;&nbsp;
   <a href="https://github.com/AlejandroTorres11" title="@AlejandroTorres11">
-    <img src="https://github.com/AlejandroTorres11.png?size=50" width="50" style="vertical-align: middle; border-radius: 50%;">
+    <img src="https://avatars.githubusercontent.com/u/8158733?s=50&v=4" width="50" style="vertical-align: middle; border-radius: 50%;">
     <span style="margin-left: 8px; vertical-align: middle;">@AlejandroTorres11</span>
   </a>
 </p>
