@@ -14,15 +14,21 @@ The player must extract, transform, and consume numbers using mines, conveyors, 
 
 ## Installation and Execution
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/gugeldot/PS-LAB2025.git
-2. Install the python requirements
-    ```bash
-    #in the app folder
-    pip install -r requirements.txt
-3. Execute main.py
-    ```bash
-    python main.py
+    `
+    git clone https://github.com/gugeldot/PS-LAB2025.git
+    `
+2. To create the executable, navigate to the app/ folder:  
+  On Windows:
+    `
+    bash dist/build_windows.sh
+    `
+  On linux: 
+    `
+    chmod +x dist/build_linux.sh
+    ./dist/build_linux.sh
+    `
+
+3. Run the game in app/dist/your-os/GameApp
 4. Enjoy
 
 ---
