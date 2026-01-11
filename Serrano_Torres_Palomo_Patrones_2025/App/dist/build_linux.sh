@@ -20,7 +20,7 @@ pip install pyinstaller
 
 # 3) Run pyinstaller. We include the src path so imports from src/ work.
 # Adjust --add-data entries if you need to bundle more assets. On Linux the separator is ':'
-PYINSTALLER_NAME="GameApp"
+PYINSTALLER_NAME="NumberTycoon"
 pyinstaller --noconfirm --onefile \
   --name "$PYINSTALLER_NAME" \
   --add-data "$ROOT_DIR/Assets:Assets" \

@@ -41,7 +41,7 @@ case "$(uname -s)" in
 
     # 5. Ejecutar PyInstaller
     # MSYS_NO_PATHCONV=1 evita que Git Bash altere el separador ';'
-    PYINSTALLER_NAME="GameApp"
+    PYINSTALLER_NAME="NumberTycoon"
     
     echo "Ejecutando PyInstaller..."
     MSYS_NO_PATHCONV=1 pyinstaller --noconfirm --onefile \
